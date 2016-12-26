@@ -1,0 +1,6 @@
+*.o
+*~
+*.jpg
+*.png
+*.html
+/src/ruiji
