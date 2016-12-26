@@ -8,4 +8,6 @@ A program that uploads an image to http://iqdb.org, parses the html and get simi
  - libcurl (preferably version >=7.51)
 
 ## Installation
-```make```
+```
+make
+```
