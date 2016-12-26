@@ -1,7 +1,8 @@
 # ruiji
 
 ## Description
-A program that uploads an image to http://iqdb.org, parses the html and get similar results to the uploaded image.
+Command that uploads a supported image to http://iqdb.org,
+parses the html after uploading and get a list of the images similar to it.
 
 ## Dependencies
  - gnu99
@@ -10,4 +11,9 @@ A program that uploads an image to http://iqdb.org, parses the html and get simi
 ## Installation
 ```
 make
+```
+
+## Usage
+```
+$ iqdb <source image> <destination file>
 ```
