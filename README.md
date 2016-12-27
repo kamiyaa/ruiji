@@ -4,6 +4,8 @@
 Command that uploads a supported image to http://iqdb.org,
 parses the html after uploading and get a list of the images similar to it.
 
+![Alt text](ruiji_screenshot.png?raw=true "ruiji")
+
 ## Dependencies
  - c library supporting: gnu99
  - libcurl (preferably version >=7.51)
