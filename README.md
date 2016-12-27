@@ -11,8 +11,17 @@ parses the html after uploading and get a list of the images similar to it.
  - libcurl (preferably version >=7.51)
 
 ## Installation
+First, download the source using either 
 ```
-make
+# for HTTP
+git clone https://github.com/Kamiyaa/ruiji.git
+# for SSH
+git clone git@github.com:Kamiyaa/ruiji.git
+```
+```
+$ cd ruiji/src
+$ make
+# make install
 ```
 
 ## Usage

@@ -1,12 +1,16 @@
 # compiler and linker
 CC = clang
-CFLAGS = -ggdb3 -O0 -Wall -Werror -Wno-unused-variable
 
-STD = -std=gnu99
+# flags
+CFLAGS = -std=gnu99 -ggdb3 -O0 -Wall -Werror -Wno-unused-variable
 
 LIBS = -lcurl
 
-SOURCES = danbooru.c sankakucomplex.c
-HELPERS = $(SOURCES) parser.c udload.c
+WEBSRC = danbooru.c sankakucomplex.c
+HELPERS = $(WEBSRC) parser.c udload.c
 
 # LIBS = -lncurses `pkg-config --cflags --libs gtk+-3.0`
+
+PREFIX = /usr/local
+MANPREFIX = ${PREFIX}/share/man
+
