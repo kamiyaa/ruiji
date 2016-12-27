@@ -15,5 +15,5 @@ make
 
 ## Usage
 ```
-$ iqdb <source image> <destination file>
+$ ruiji <source image> <destination file>
 ```
