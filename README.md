@@ -14,9 +14,9 @@ parses the html after uploading and get a list of the images similar to it.
 First, download the source: 
 ```
 # for HTTP
-git clone https://github.com/Kamiyaa/ruiji.git
+$ git clone https://github.com/Kamiyaa/ruiji.git
 # for SSH
-git clone git@github.com:Kamiyaa/ruiji.git
+$ git clone git@github.com:Kamiyaa/ruiji.git
 ```
 Then install:
 ```
@@ -27,7 +27,7 @@ $ make
 
 ## Usage
 ```
-$ ruiji <source image>
+$ ruiji </path/to/image>
 ```
 
 ## Features
