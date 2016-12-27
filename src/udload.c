@@ -54,7 +54,7 @@ char *upload_image(char *file_name, char* website)
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, StoreData);
 
 		/* Set the data to pass when the function is called */
-		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&web_data);
+		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &web_data);
 
 		res = curl_easy_perform(curl_handle);
 
@@ -88,7 +88,20 @@ char *upload_image(char *file_name, char* website)
 int download_image(char* dl_url, char* file_name)
 {
 	FILE *img_fp;
+	/* If NULL file_name was given, save it as the
+	 * name on the server side 
+	 */
+	if (file_name == NULL) {
+		file_name = dl_url;
+		do {
+			file_name = strstr(file_name, "/");
+			file_name = &file_name[1];
+		} while (strstr(file_name, "/"));
+	}
+
+	printf("Saving image as %s...\n", file_name);
 	img_fp = fopen(file_name, "wb");
+
 	if (!img_fp) {
 		printf("Error: No write permissions");
 		return 1;

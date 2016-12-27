@@ -7,13 +7,19 @@
 #define DANBOORU_URL "http://danbooru.donmai.us"
 #define DANBOORU_SOURCE_ID "Size: <a href=\""
 
+/* Given a danbooru.donmai.us url,
+ * parse the html to get the source image url
+ */
 char* danbooru_get_image_url(char *web_url)
 {
+	/* Fetch the html source code of the website */
 	char *html_content = get_html(web_url);
 
+	/* Find the source image link */
 	char *index = strstr(html_content, DANBOORU_SOURCE_ID);
 	char *img_src_url;
 
+	/* If found, add the danbooru url to it and return it */
 	if (index) {
 		char *walker = &index[strlen(DANBOORU_SOURCE_ID)];
 		char *beginning = walker;

@@ -34,7 +34,7 @@ int main(int argv, char *argc[])
 	/* Initialize a struct to hold all the images similar
 	 * to the uploaded image */
 	struct similar_image_db sim_db;
-	parse_sim_info(&sim_db, html_data);
+	populate_sim_db(&sim_db, html_data);
 
 	/* Print out all results and its properties */
 	for (int i = 0; i < sim_db.size; i++) {
@@ -46,11 +46,9 @@ int main(int argv, char *argc[])
 	}
 
 	/* Get the location to save the image */
-	char *dl_location;
+	char *dl_location = NULL;
 	if (argv > 2)
 		dl_location = argc[2];
-	else
-		dl_location = "image.jpg";
 
 	/* Ask user which website they would like to download from */
 	printf("Which one would you like to download?: ");
@@ -60,7 +58,6 @@ int main(int argv, char *argc[])
 
 	if (strstr(dl_image->link, DANBOORU_DOMAIN)) {
 		char *dl_url = danbooru_get_image_url(dl_image->link);
-		printf("Saving image as %s...\n", dl_location);
 		int return_val = download_image(dl_url, dl_location);
 		if (return_val == 0)
 			printf("Done!\n");

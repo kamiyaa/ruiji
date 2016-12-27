@@ -11,6 +11,7 @@
 /* Get size of char to prevent excessive function calling */
 unsigned int char_size = sizeof(char);
 
+
 size_t StoreData(void *contents, size_t size, size_t nmemb, struct html_data *userp)
 {
 	size_t realsize = size * nmemb;
@@ -33,7 +34,11 @@ size_t StoreData(void *contents, size_t size, size_t nmemb, struct html_data *us
 }
 
 
-struct similar_image *create_sim_image(char *url_begin, unsigned int similarity, unsigned int x, unsigned int y)
+/* Given the necessary information of a similar image, create a similar image
+ * struct with the given values and return it.
+ */
+struct similar_image *
+create_sim_image(char *url_begin, unsigned int similarity, unsigned int x, unsigned int y)
 {
 	struct similar_image *image = malloc(sizeof(struct similar_image));
 
@@ -62,7 +67,11 @@ struct similar_image *create_sim_image(char *url_begin, unsigned int similarity,
 }
 
 
-char *parse_similarity_percentage(char* contents, unsigned int *similarity)
+/* Given the html contents of http://iqdb.org after an image has been uploaded,
+ * get the x, y dimensions of the image and return a pointer pointing to the
+ * html contents where the parsing stopped.
+ */
+char *parse_percent_similar(char* contents, unsigned int *similarity)
 {
 	/* Get size of char to prevent excessive function calling */
 	char *walker = contents;
@@ -82,6 +91,10 @@ char *parse_similarity_percentage(char* contents, unsigned int *similarity)
 }
 
 
+/* Given the html contents of http://iqdb.org after an image has been uploaded,
+ * get the x, y dimensions of the image and return a pointer pointing to the
+ * html contents where the parsing stopped.
+ */
 char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 {
 	/* Set an arbitrary pointer to point to the first element of contents */
@@ -106,7 +119,10 @@ char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 }
 
 
-void parse_sim_info(struct similar_image_db *sim_db, char *html_content)
+/* Given the html contents of http://iqdb.org after an image has been uploaded,
+ * parse all the results and store them in the struct similar_image_db *sim_db
+ */
+void populate_sim_db(struct similar_image_db *sim_db, char *html_content)
 {
 	/* Initialize the number of similar images in database to 0 */
 	sim_db->size = 0;
@@ -133,16 +149,15 @@ void parse_sim_info(struct similar_image_db *sim_db, char *html_content)
 		walker[0] = '\0';
 
 		/* Move on to the rest of the string */
-		walker = walker + char_size;
+		walker += char_size;
 
-		unsigned int similarity = 0, x, y;
 
+		unsigned int similarity = 0, x = 0, y = 0;
 		/* Get the image x,y dimensions */
 		walker = parse_xy_img_dimensions(walker, &x, &y);
-		walker = parse_similarity_percentage(walker, &similarity);
+		walker = parse_percent_similar(walker, &similarity);
 
-		/* Allocate memory for a similar_image struct
-		 * to hold all its information */
+		/* Create a new similar_image struct to hold all the image's information */
 		struct similar_image *image = create_sim_image(url_begin, similarity, x, y);
 
 		/* Add it to our database of similar images */
@@ -155,8 +170,12 @@ void parse_sim_info(struct similar_image_db *sim_db, char *html_content)
 }
 
 
+/* Given the full link of a website,
+ * fetch and return the html source of the website
+ */
 char *get_html(char *web_url)
 {
+
 	struct html_data web_data;
 	/* will be grown as needed by the realloc above */
 	web_data.data = malloc(1);
