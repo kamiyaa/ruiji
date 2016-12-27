@@ -85,21 +85,10 @@ char *upload_image(char *file_name, char* website)
 	return web_data.data;
 }
 
-int download_image(char* dl_url, char* file_name)
+int download_image(char* web_url, char* file_name)
 {
+	printf("Saving image as %s from %s...\n", file_name, web_url);
 	FILE *img_fp;
-	/* If NULL file_name was given, save it as the
-	 * name on the server side 
-	 */
-	if (file_name == NULL) {
-		file_name = dl_url;
-		do {
-			file_name = strstr(file_name, "/");
-			file_name = &file_name[1];
-		} while (strstr(file_name, "/"));
-	}
-
-	printf("Saving image as %s...\n", file_name);
 	img_fp = fopen(file_name, "wb");
 
 	if (!img_fp) {
@@ -113,7 +102,10 @@ int download_image(char* dl_url, char* file_name)
 
 	if (curl_handle) {
 		/* set the working website to this domain */
-		curl_easy_setopt(curl_handle, CURLOPT_URL, dl_url);
+		curl_easy_setopt(curl_handle, CURLOPT_URL, web_url);
+
+		/* Set the user agent to chrome */
+		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "chrome/55.0.2883.75");
 
 		/* Set the function to call when data is received */
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, NULL);

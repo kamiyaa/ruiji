@@ -5,6 +5,7 @@
 #include "parser.h"
 #include "udload.h"
 #include "danbooru.h"
+#include "sankakucomplex.h"
 #include "domains.h"
 
 
@@ -39,38 +40,43 @@ int main(int argv, char *argc[])
 	/* Print out all results and its properties */
 	for (int i = 0; i < sim_db.size; i++) {
 		struct similar_image *img_a = sim_db.img_db[i];
-		printf("(%d)\n", i);
+		printf("[%d]\n", i);
 		printf("source: %s\n", img_a->link);
 		printf("similarity: %u%%\n", img_a->similarity);
 		printf("dimensions: %ux%u\n\n", img_a->dimensions[0], img_a->dimensions[1]);
 	}
 
-	/* Get the location to save the image */
-	char *dl_location = NULL;
-	if (argv > 2)
-		dl_location = argc[2];
-
 	/* Ask user which website they would like to download from */
 	printf("Which one would you like to download?: ");
 	int user_input;
 	scanf("%d", &user_input);
+
+	/* Select the selected image */
 	struct similar_image *dl_image = sim_db.img_db[user_input];
 
+	int return_val = -1;
+	char *dl_url;
+	char *dl_location;
 	if (strstr(dl_image->link, DANBOORU_DOMAIN)) {
-		char *dl_url = danbooru_get_image_url(dl_image->link);
-		int return_val = download_image(dl_url, dl_location);
-		if (return_val == 0)
-			printf("Done!\n");
-		else {
-			printf("Error: Download failed\n");
-			return 1;
-		}
+		dl_url = danbooru_get_image_url(dl_image->link);
+		dl_location = get_server_file_name(dl_url, ' ');
+		return_val = download_image(dl_url, dl_location);
+	}
+	else if (strstr(dl_image->link, SANKAKU_COMPLEX_DOMAIN)) {
+		dl_url = sankaku_complex_get_image_url(dl_image->link);
+		dl_location = get_server_file_name(dl_url, '?');
+		return_val = download_image(dl_url, dl_location);
 	}
 
-/*
-	if (strstr(dl_image->link, "yande.re")) {
-		dl_url = yandere_get_image_url(dl_image->link);
-		return_val = download_image(dl_url, "image.png");
-*/
+	if (return_val == 0)
+		printf("Done!\n");
+	else {
+		printf("Error: Download failed\n");
+		return 1;
+	}
+
+	free(dl_url);
+	free(html_data);
+
 	return 0;
 }

@@ -7,7 +7,7 @@
 #define DANBOORU_URL "http://danbooru.donmai.us"
 #define DANBOORU_SOURCE_ID "Size: <a href=\""
 
-/* Given a danbooru.donmai.us url,
+/* Given a http://danbooru.donmai.us url,
  * parse the html to get the source image url
  */
 char* danbooru_get_image_url(char *web_url)
@@ -33,7 +33,7 @@ char* danbooru_get_image_url(char *web_url)
 		strcat(img_src_url, beginning);
 	}
 	else {
-		printf("Error: Failed to parse \"%s\"\n", web_url);
+		printf("Error: danbooru_get_image_url():\n\tFailed to parse \"%s\"\n", web_url);
 		return "ERROR";
 	}
 	return img_src_url;

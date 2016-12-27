@@ -48,3 +48,5 @@ void populate_sim_db(struct similar_image_db *sim_db, char *html_content);
  * fetch and return the html source of the website
  */
 char *get_html(char *web_url);
+
+char *get_server_file_name(char *web_url, char stop);
