@@ -2,13 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "domains.h"
 #include "parser.h"
 #include "udload.h"
-#include "danbooru.h"
-#include "konachan.h"
-#include "sankakucomplex.h"
-#include "yandere.h"
-#include "domains.h"
 
 int main(int argv, char *argc[])
 {
@@ -41,12 +37,7 @@ int main(int argv, char *argc[])
 	/* If any results were found, ask user which to download */
 	if (sim_db.size > 0) {
 		/* Print out all results and its properties */
-		for (int i = 0; i < sim_db.size; i++) {
-			printf("[%d]\n", i);
-			printf("source: %s\n", sim_db.img_db[i]->link);
-			printf("similarity: %u%%\n", sim_db.img_db[i]->similarity);
-			printf("dimensions: %ux%u\n\n", sim_db.img_db[i]->dimensions[0], sim_db.img_db[i]->dimensions[1]);
-		}
+		print_sim_results(&sim_db);
 
 		/* Ask user which website they would like to download from */
 		printf("Which one would you like to download?: ");
@@ -87,10 +78,8 @@ int main(int argv, char *argc[])
 
 		if (dl_state == 0)
 			printf("Done!\n");
-		else {
+		else
 			printf("Error: Download failed\n");
-			return 1;
-		}
 		/* Free allocated memory */
 		if (dl_location)
 			free(dl_location);

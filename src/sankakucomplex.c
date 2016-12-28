@@ -23,9 +23,7 @@ char* sankaku_complex_get_image_url(char *web_url)
 	if (index) {
 		index = &index[strlen(SANKAKU_COMPLEX_SOURCE_ID)];
 		char *walker = index;
-		while (*walker != '"')
-			walker = &walker[1];
-		walker[0] = '\0';
+		replace_first_with(index, '"', '\0');
 
 		unsigned int url_len = strlen(index) + strlen(HTTPS) + 1;
 		img_src_url = malloc(sizeof(char) * url_len);

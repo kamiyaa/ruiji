@@ -11,11 +11,9 @@ parses the html after uploading and get a list of the images similar to it.
  - libcurl (preferably version >=7.51)
 
 ## Installation
-First, download the source: 
+First, download the source using either HTTP or SSH: 
 ```
-# for HTTP
 $ git clone https://github.com/Kamiyaa/ruiji.git
-# for SSH
 $ git clone git@github.com:Kamiyaa/ruiji.git
 ```
 Then install:
@@ -42,6 +40,6 @@ Add support for:
  - http://www.zerochan.net/
  - http://e-shuushuu.net/
 
+ - Config file support (?)
  - Add a better interface (?)
  - Preview support (?)
-

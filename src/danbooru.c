@@ -22,10 +22,7 @@ char* danbooru_get_image_url(char *web_url)
 	/* If found, add the danbooru url to it and return it */
 	if (index) {
 		index = &index[strlen(DANBOORU_SOURCE_ID)];
-		char *walker = index;
-		while (*walker != '"')
-			walker = &walker[1];
-		walker[0] = '\0';
+		replace_first_with(index, '"', '\0');
 
 		unsigned int url_len = strlen(index) + strlen(DANBOORU_URL) + 1;
 		img_src_url = malloc(sizeof(char) * url_len);

@@ -5,8 +5,8 @@
 #include <curl/curl.h>
 
 #include "parser.h"
-#include "domains.h"
 
+#define DANBOORU_DOMAIN "danbooru.donmai.us"
 #define IQDB_RESULT_ID "match</th></tr><tr><td class='image'><a href=\""
 
 /* Get size of char to prevent excessive function calling */
@@ -32,6 +32,20 @@ size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *us
 	mem->data[mem->size] = 0;
 
 	return realsize;
+}
+
+/* Replace the first instance of find with replace,
+ * mutating the string.
+ */
+void replace_first_with(char *string, char find, char replace)
+{
+	char *walker = string;
+	while (*walker != find)
+		walker = &walker[1];
+
+	walker[0] = replace;
+
+	
 }
 
 
@@ -232,11 +246,21 @@ char *get_server_file_name(char *web_url, char stop) {
 	file_name[0] = '\0';
 	strcat(file_name, final_slash);
 
-	if (stop != ' ') {
-		char *walker = file_name;
-		while (*walker != stop)
-			walker = &walker[1];
-		walker[0] = '\0';
-	}
+	/* If a stop sequence is given, terminate the
+	 * string at stop sequence */
+	if (stop != ' ')
+		replace_first_with(file_name, stop, '\0');
+
 	return file_name;
+}
+
+
+void print_sim_results(struct similar_image_db *sim_db)
+{
+	for (int i = 0; i < sim_db->size; i++) {
+		printf("[%d]\n", i);
+		printf("source: %s\n", sim_db->img_db[i]->link);
+		printf("similarity: %u%%\n", sim_db->img_db[i]->similarity);
+		printf("dimensions: %ux%u\n\n", sim_db->img_db[i]->dimensions[0], sim_db->img_db[i]->dimensions[1]);
+	}
 }

@@ -15,17 +15,14 @@ char* yandere_get_image_url(char *web_url)
 	/* Fetch the html source code of the website */
 	char *html_content = get_html(web_url);
 
-	/* Find the source image link */
-	char *index = strstr(html_content, YANDERE_PNG_SOURCE_ID);
+	char *index;
 	char *img_src_url;
 
 	/* If found, return it */
-	if (index) {
+	if (strstr(html_content, YANDERE_PNG_SOURCE_ID)) {
+		index = strstr(html_content, YANDERE_PNG_SOURCE_ID);
 		index = &index[strlen(YANDERE_PNG_SOURCE_ID)];
-		char *walker = index;
-		while (*walker != '"')
-			walker = &walker[1];
-		walker[0] = '\0';
+		replace_first_with(index, '"', '\0');
 
 		unsigned int url_len = strlen(index) + 1;
 		img_src_url = malloc(sizeof(char) * url_len);
@@ -34,10 +31,8 @@ char* yandere_get_image_url(char *web_url)
 	}
 	else if (strstr(html_content, YANDERE_JPG_SOURCE_ID)) {
 		index = strstr(html_content, YANDERE_JPG_SOURCE_ID);
-		char *walker = index;
-		while (*walker != '"')
-			walker = &walker[1];
-		walker[0] = '\0';
+		index = &index[strlen(YANDERE_JPG_SOURCE_ID)];
+		replace_first_with(index, '"', '\0');
 
 		unsigned int url_len = strlen(index) + 1;
 		img_src_url = malloc(sizeof(char) * url_len);

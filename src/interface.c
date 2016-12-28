@@ -4,3 +4,6 @@
 
 #include <ncurses.h>
 
+#include "interface.h"
+
+

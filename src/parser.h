@@ -22,6 +22,11 @@ struct similar_image_db {
 
 size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *userp);
 
+/* Replace the first instance of find with replace,
+ * mutating the string.
+ */
+void replace_first_with(char *string, char find, char replace);
+
 /* Given the necessary information of a similar image, create a similar image
  * struct with the given values and return it.
  */
@@ -50,3 +55,5 @@ void populate_sim_db(struct similar_image_db *sim_db, char *html_content);
 char *get_html(char *web_url);
 
 char *get_server_file_name(char *web_url, char stop);
+
+void print_sim_results(struct similar_image_db *sim_db);
