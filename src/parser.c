@@ -13,11 +13,11 @@
 unsigned int char_size = sizeof(char);
 
 
-size_t StoreData(void *contents, size_t size, size_t nmemb, struct html_data *userp)
+size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *userp)
 {
 	size_t realsize = size * nmemb;
 
-	struct html_data *mem = (struct html_data *)userp;
+	struct html_data *mem = userp;
 
 	mem->data = realloc(mem->data, mem->size + realsize + 1);
 

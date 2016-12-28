@@ -87,7 +87,6 @@ char *upload_image(char *file_name, char* website)
 
 int download_image(char* web_url, char* file_name)
 {
-	printf("Saving image as %s from %s...\n", file_name, web_url);
 	FILE *img_fp;
 	img_fp = fopen(file_name, "wb");
 
@@ -117,7 +116,7 @@ int download_image(char* web_url, char* file_name)
 
 		/* Check for errors */
 		if (res != CURLE_OK) {
-			fprintf(stderr, "curl_easy_perform() failed: %s\n",
+			printf("curl_easy_perform() failed: %s\n",
 			curl_easy_strerror(res));
 
 		}

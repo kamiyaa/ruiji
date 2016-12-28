@@ -1,7 +1,7 @@
 # ruiji
 
 ## Description
-Command that uploads a supported image to http://iqdb.org,
+Command that uploads a supported image format to http://iqdb.org,
 parses the html after uploading and get a list of the images similar to it.
 
 ![Alt text](ruiji_screenshot.png?raw=true "ruiji")
@@ -34,12 +34,12 @@ $ ruiji </path/to/image>
 Currently supports:
  - http://danbooru.donmai.us/
  - https://chan.sankakucomplex.com/
+ - https://konachan.com/
 
 ### Todo
 Add support for:
  - https://yande.re/
  - http://www.zerochan.net/
- - http://konachan.com/
  - http://e-shuushuu.net/
 
  - Add a better interface (?)

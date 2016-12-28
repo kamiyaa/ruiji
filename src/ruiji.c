@@ -5,9 +5,10 @@
 #include "parser.h"
 #include "udload.h"
 #include "danbooru.h"
+#include "konachan.h"
 #include "sankakucomplex.h"
+#include "yandere.h"
 #include "domains.h"
-
 
 int main(int argv, char *argc[])
 {
@@ -18,11 +19,11 @@ int main(int argv, char *argc[])
 		return 1;
 	}
 
-	/* Open selected file to upload and check if it exists */
+	/* check if selected image file exists */
 	FILE *img_fd;
 	img_fd = fopen(argc[1], "rb");
 	if (!img_fd) {
-		fprintf(stderr, "Error: No such file\n");
+		printf("Error: No such file\n");
 		return 1;
 	}
 	fclose(img_fd);
@@ -37,46 +38,71 @@ int main(int argv, char *argc[])
 	struct similar_image_db sim_db;
 	populate_sim_db(&sim_db, html_data);
 
-	/* Print out all results and its properties */
-	for (int i = 0; i < sim_db.size; i++) {
-		struct similar_image *img_a = sim_db.img_db[i];
-		printf("[%d]\n", i);
-		printf("source: %s\n", img_a->link);
-		printf("similarity: %u%%\n", img_a->similarity);
-		printf("dimensions: %ux%u\n\n", img_a->dimensions[0], img_a->dimensions[1]);
+	/* If any results were found, ask user which to download */
+	if (sim_db.size > 0) {
+		/* Print out all results and its properties */
+		for (int i = 0; i < sim_db.size; i++) {
+			printf("[%d]\n", i);
+			printf("source: %s\n", sim_db.img_db[i]->link);
+			printf("similarity: %u%%\n", sim_db.img_db[i]->similarity);
+			printf("dimensions: %ux%u\n\n", sim_db.img_db[i]->dimensions[0], sim_db.img_db[i]->dimensions[1]);
+		}
+
+		/* Ask user which website they would like to download from */
+		printf("Which one would you like to download?: ");
+		int user_input;
+		scanf("%d", &user_input);
+
+		/* Select the selected image */
+		struct similar_image *dl_image = sim_db.img_db[user_input];
+
+		int dl_state = -1;
+		char *dl_url;
+		char *dl_location;
+		
+		if (strstr(dl_image->link, DANBOORU_DOMAIN)) {
+			dl_url = danbooru_get_image_url(dl_image->link);
+			dl_location = get_server_file_name(dl_url, ' ');
+			printf("Saving image as %s from %s...\n", dl_location, dl_url);
+			dl_state = download_image(dl_url, dl_location);
+		}
+		else if (strstr(dl_image->link, SANKAKU_COMPLEX_DOMAIN)) {
+			dl_url = sankaku_complex_get_image_url(dl_image->link);
+			dl_location = get_server_file_name(dl_url, '?');
+			printf("Saving image as %s from %s...\n", dl_location, dl_url);
+			dl_state = download_image(dl_url, dl_location);
+		}
+		else if(strstr(dl_image->link, YANDERE_DOMAIN)) {
+			dl_url = yandere_get_image_url(dl_image->link);
+			dl_location = get_server_file_name(dl_url, ' ');
+			printf("Saving image as %s from %s...\n", dl_location, dl_url);
+			dl_state = download_image(dl_url, dl_location);
+		}
+		else if(strstr(dl_image->link, KONACHAN_DOMAIN)) {
+			dl_url = konachan_get_image_url(dl_image->link);
+			dl_location = get_server_file_name(dl_url, ' ');
+			printf("Saving image as %s from %s...\n", dl_location, dl_url);
+			dl_state = download_image(dl_url, dl_location);
+		}
+
+		if (dl_state == 0)
+			printf("Done!\n");
+		else {
+			printf("Error: Download failed\n");
+			return 1;
+		}
+		/* Free allocated memory */
+		if (dl_location)
+			free(dl_location);
+		if (dl_url)
+			free(dl_url);
 	}
+	else
+		printf("No similar results! :(\n");
 
-	/* Ask user which website they would like to download from */
-	printf("Which one would you like to download?: ");
-	int user_input;
-	scanf("%d", &user_input);
-
-	/* Select the selected image */
-	struct similar_image *dl_image = sim_db.img_db[user_input];
-
-	int return_val = -1;
-	char *dl_url;
-	char *dl_location;
-	if (strstr(dl_image->link, DANBOORU_DOMAIN)) {
-		dl_url = danbooru_get_image_url(dl_image->link);
-		dl_location = get_server_file_name(dl_url, ' ');
-		return_val = download_image(dl_url, dl_location);
-	}
-	else if (strstr(dl_image->link, SANKAKU_COMPLEX_DOMAIN)) {
-		dl_url = sankaku_complex_get_image_url(dl_image->link);
-		dl_location = get_server_file_name(dl_url, '?');
-		return_val = download_image(dl_url, dl_location);
-	}
-
-	if (return_val == 0)
-		printf("Done!\n");
-	else {
-		printf("Error: Download failed\n");
-		return 1;
-	}
-
-	free(dl_url);
-	free(html_data);
+	/* Free allocated memory */
+	if (html_data)
+		free(html_data);
 
 	return 0;
 }

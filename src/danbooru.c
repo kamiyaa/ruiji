@@ -21,16 +21,17 @@ char* danbooru_get_image_url(char *web_url)
 
 	/* If found, add the danbooru url to it and return it */
 	if (index) {
-		char *walker = &index[strlen(DANBOORU_SOURCE_ID)];
-		char *beginning = walker;
+		index = &index[strlen(DANBOORU_SOURCE_ID)];
+		char *walker = index;
 		while (*walker != '"')
 			walker = &walker[1];
 		walker[0] = '\0';
-		unsigned int url_len = strlen(beginning) + strlen(DANBOORU_URL) + 1;
+
+		unsigned int url_len = strlen(index) + strlen(DANBOORU_URL) + 1;
 		img_src_url = malloc(sizeof(char) * url_len);
 		img_src_url[0] = '\0';
 		strcat(img_src_url, DANBOORU_URL);
-		strcat(img_src_url, beginning);
+		strcat(img_src_url, index);
 	}
 	else {
 		printf("Error: danbooru_get_image_url():\n\tFailed to parse \"%s\"\n", web_url);

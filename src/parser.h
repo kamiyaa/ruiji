@@ -20,7 +20,7 @@ struct similar_image_db {
 };
 
 
-size_t StoreData(void *contents, size_t size, size_t nmemb, struct html_data *userp);
+size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *userp);
 
 /* Given the necessary information of a similar image, create a similar image
  * struct with the given values and return it.

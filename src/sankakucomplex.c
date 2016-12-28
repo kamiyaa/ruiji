@@ -19,7 +19,7 @@ char* sankaku_complex_get_image_url(char *web_url)
 	char *index = strstr(html_content, SANKAKU_COMPLEX_SOURCE_ID);
 	char *img_src_url;
 
-	/* If found, add the danbooru url to it and return it */
+	/* If found, add http extension to it and return it */
 	if (index) {
 		index = &index[strlen(SANKAKU_COMPLEX_SOURCE_ID)];
 		char *walker = index;
@@ -37,6 +37,5 @@ char* sankaku_complex_get_image_url(char *web_url)
 		printf("Error: sankaku_complex_get_image_url():\n\tFailed to parse \"%s\"\n", web_url);
 		return "ERROR";
 	}
-	printf("%s\n", img_src_url);
 	return img_src_url;
 }
