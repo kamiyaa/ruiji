@@ -50,7 +50,7 @@ int main(int argv, char *argc[])
 		int dl_state = -1;
 		char *dl_url;
 		char *dl_location;
-		
+
 		if (strstr(dl_image->link, DANBOORU_DOMAIN)) {
 			dl_url = danbooru_get_image_url(dl_image->link);
 			dl_location = get_server_file_name(dl_url, ' ');
@@ -71,6 +71,12 @@ int main(int argv, char *argc[])
 		}
 		else if(strstr(dl_image->link, KONACHAN_DOMAIN)) {
 			dl_url = konachan_get_image_url(dl_image->link);
+			dl_location = get_server_file_name(dl_url, ' ');
+			printf("Saving image as %s from %s...\n", dl_location, dl_url);
+			dl_state = download_image(dl_url, dl_location);
+		}
+		else if(strstr(dl_image->link, ESHUUSHUU_DOMAIN)) {
+			dl_url = eshuushuu_get_image_url(dl_image->link);
 			dl_location = get_server_file_name(dl_url, ' ');
 			printf("Saving image as %s from %s...\n", dl_location, dl_url);
 			dl_state = download_image(dl_url, dl_location);
