@@ -35,7 +35,7 @@ Currently supports:
  - http://e-shuushuu.net/
  - https://konachan.com/
  - https://chan.sankakucomplex.com/
- - http://www.zerochan.net/
+ - http://www.zerochan.net/ **
 
 ### Todo
  - support for: https://yande.re/
@@ -47,3 +47,4 @@ Currently supports:
  - Preview support*
 
 (*) possibly
+(**) currently broken as zerochan redirects to registry page.
