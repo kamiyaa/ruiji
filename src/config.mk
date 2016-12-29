@@ -6,7 +6,7 @@ CFLAGS = -std=gnu99 -ggdb3 -O0 -Wall -Werror -Wno-unused-variable
 
 LIBS = -lcurl
 
-WEBSRC = danbooru.c eshuushuu.c konachan.c sankakucomplex.c yandere.c zerochan.c
+WEBSRC = danbooru.c eshuushuu.c gelbooru.c konachan.c sankakucomplex.c yandere.c zerochan.c
 HELPERS = $(WEBSRC) interface.c parser.c udload.c
 
 # LIBS = -lncurses `pkg-config --cflags --libs gtk+-3.0`

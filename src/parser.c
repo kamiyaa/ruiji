@@ -44,8 +44,6 @@ void replace_first_with(char *string, char find, char replace)
 		walker = &walker[1];
 
 	walker[0] = replace;
-
-	
 }
 
 
@@ -263,4 +261,31 @@ void print_sim_results(struct similar_image_db *sim_db)
 		printf("similarity: %u%%\n", sim_db->img_db[i]->similarity);
 		printf("dimensions: %ux%u\n\n", sim_db->img_db[i]->dimensions[0], sim_db->img_db[i]->dimensions[1]);
 	}
+}
+
+
+char *get_image_url(char *web_url, char *trademark, char endpoint)
+{
+	/* Fetch the html source code of the website */
+	char *html_content = get_html(web_url);
+
+	/* Find the source image link */
+	char *index = strstr(html_content, trademark);
+	char *img_src_url;
+
+	/* If found, add the danbooru url to it and return it */
+	if (index) {
+		index = &index[strlen(trademark)];
+		replace_first_with(index, endpoint, '\0');
+
+		unsigned int url_len = strlen(index) + 1;
+		img_src_url = malloc(sizeof(char) * url_len);
+		img_src_url[0] = '\0';
+		strcat(img_src_url, index);
+	}
+	else {
+		printf("Error: get_image_url():\n\tFailed to parse \"%s\"\n", web_url);
+		return "ERROR";
+	}
+	return img_src_url;
 }

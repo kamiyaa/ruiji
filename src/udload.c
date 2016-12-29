@@ -103,6 +103,9 @@ int download_image(char* web_url, char* file_name)
 		/* set the working website to this domain */
 		curl_easy_setopt(curl_handle, CURLOPT_URL, web_url);
 
+		/* ask libcurl to show us the verbose output */
+		/* curl_easy_setopt(curl_handle, CURLOPT_VERBOSE, 1L); */
+
 		/* Set the user agent to chrome */
 		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "chrome/55.0.2883.75");
 
@@ -118,7 +121,8 @@ int download_image(char* web_url, char* file_name)
 		if (res != CURLE_OK) {
 			printf("curl_easy_perform() failed: %s\n",
 			curl_easy_strerror(res));
-
+			fclose(img_fp);
+			return 1;
 		}
 	}
 	fclose(img_fp);

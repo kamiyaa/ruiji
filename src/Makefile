@@ -7,6 +7,9 @@ all: ruiji
 ruiji: $(HELPERS) ruiji.c
 	${CC} ${LIBS} ${HELPERS} ruiji.c -o ruiji
 
+test_yandere: $(HELPERS) test_yandere.c
+	${CC} ${LIBS} ${HELPERS} test_yandere.c -o test_yandere
+
 test_parser: parser.c test_parser.c
 	${CC} ${LIBS} parser.c test_parser.c -o test_parser
 

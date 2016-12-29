@@ -4,3 +4,4 @@
 src/*.png
 *.html
 /src/ruiji
+/src/test*

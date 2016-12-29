@@ -53,42 +53,40 @@ int main(int argv, char *argc[])
 		struct similar_image *dl_image = sim_db.img_db[user_input];
 
 		int dl_state = -1;
-		char *dl_url;
-		char *dl_location;
+		char stop_seq;
+		char *dl_url, *dl_location;
 
 		if (strstr(dl_image->link, DANBOORU_DOMAIN)) {
 			dl_url = danbooru_get_image_url(dl_image->link);
-			dl_location = get_server_file_name(dl_url, ' ');
-			printf("Saving image as %s from %s...\n", dl_location, dl_url);
-			dl_state = download_image(dl_url, dl_location);
+			stop_seq = ' ';
 		}
 		else if (strstr(dl_image->link, SANKAKU_COMPLEX_DOMAIN)) {
 			dl_url = sankaku_complex_get_image_url(dl_image->link);
-			dl_location = get_server_file_name(dl_url, '?');
-			printf("Saving image as %s from %s...\n", dl_location, dl_url);
-			dl_state = download_image(dl_url, dl_location);
+			stop_seq = '?';
 		}
-		else if(strstr(dl_image->link, YANDERE_DOMAIN)) {
+		else if (strstr(dl_image->link, YANDERE_DOMAIN)) {
 			dl_url = yandere_get_image_url(dl_image->link);
-			dl_location = get_server_file_name(dl_url, ' ');
-			printf("Saving image as %s from %s...\n", dl_location, dl_url);
-			dl_state = download_image(dl_url, dl_location);
+			stop_seq = ' ';
 		}
-		else if(strstr(dl_image->link, KONACHAN_DOMAIN)) {
+		else if (strstr(dl_image->link, KONACHAN_DOMAIN)) {
 			dl_url = konachan_get_image_url(dl_image->link);
-			dl_location = get_server_file_name(dl_url, ' ');
-			printf("Saving image as %s from %s...\n", dl_location, dl_url);
-			dl_state = download_image(dl_url, dl_location);
+			stop_seq = ' ';
 		}
-		else if(strstr(dl_image->link, ESHUUSHUU_DOMAIN)) {
+		else if (strstr(dl_image->link, ESHUUSHUU_DOMAIN)) {
 			dl_url = eshuushuu_get_image_url(dl_image->link);
-			dl_location = get_server_file_name(dl_url, ' ');
-			printf("Saving image as %s from %s...\n", dl_location, dl_url);
-			dl_state = download_image(dl_url, dl_location);
+			stop_seq = ' ';
 		}
-		else if(strstr(dl_image->link, ZEROCHAN_DOMAIN)) {
+		else if (strstr(dl_image->link, ZEROCHAN_DOMAIN)) {
 			dl_url = zerochan_get_image_url(dl_image->link);
-			dl_location = get_server_file_name(dl_url, ' ');
+			stop_seq = ' ';
+		}
+		else if (strstr(dl_image->link, GELBOORU_DOMAIN)) {
+			dl_url = gelbooru_get_image_url(dl_image->link);
+			stop_seq = ' ';
+		}
+
+		if (stop_seq) {
+			dl_location = get_server_file_name(dl_url, stop_seq);
 			printf("Saving image as %s from %s...\n", dl_location, dl_url);
 			dl_state = download_image(dl_url, dl_location);
 		}
