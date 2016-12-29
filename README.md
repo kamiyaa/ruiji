@@ -46,4 +46,4 @@ Currently supports:
  - Add a better interface*
  - Preview support*
 
-* possibly
+(*) possibly
