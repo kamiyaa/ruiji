@@ -32,14 +32,14 @@ $ ruiji </path/to/image>
 ## Features
 Currently supports:
  - http://danbooru.donmai.us/
- - https://chan.sankakucomplex.com/
  - https://konachan.com/
+ - https://chan.sankakucomplex.com/
+ - http://e-shuushuu.net/
 
 ### Todo
 Add support for:
  - https://yande.re/
  - http://www.zerochan.net/
- - http://e-shuushuu.net/
  - Config file support (?)
  - Add a better interface (?)
  - Preview support (?)
