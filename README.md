@@ -46,5 +46,6 @@ Currently supports:
  - Add a better interface*
  - Preview support*
 
-(*) possibly
-(**) currently broken as zerochan redirects to registry page.
+_\* possibly_
+
+_\*\* currently broken as zerochan redirects to registry page._
