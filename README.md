@@ -40,6 +40,9 @@ Currently supports:
 Add support for:
  - https://yande.re/
  - http://www.zerochan.net/
+ - Clean code
+  - excess code reuse
+  - hardcoded values
  - Config file support (?)
  - Add a better interface (?)
  - Preview support (?)

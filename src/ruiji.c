@@ -44,6 +44,11 @@ int main(int argv, char *argc[])
 		int user_input;
 		scanf("%d", &user_input);
 
+		if (user_input >= sim_db.size) {
+			printf("Error: Invalid option selected\n");
+			return 1;
+		}
+
 		/* Select the selected image */
 		struct similar_image *dl_image = sim_db.img_db[user_input];
 
@@ -77,6 +82,12 @@ int main(int argv, char *argc[])
 		}
 		else if(strstr(dl_image->link, ESHUUSHUU_DOMAIN)) {
 			dl_url = eshuushuu_get_image_url(dl_image->link);
+			dl_location = get_server_file_name(dl_url, ' ');
+			printf("Saving image as %s from %s...\n", dl_location, dl_url);
+			dl_state = download_image(dl_url, dl_location);
+		}
+		else if(strstr(dl_image->link, ZEROCHAN_DOMAIN)) {
+			dl_url = zerochan_get_image_url(dl_image->link);
 			dl_location = get_server_file_name(dl_url, ' ');
 			printf("Saving image as %s from %s...\n", dl_location, dl_url);
 			dl_state = download_image(dl_url, dl_location);

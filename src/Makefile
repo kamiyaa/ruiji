@@ -20,4 +20,4 @@ uninstall:
 	@rm -f ${PREFIX}/bin/ruiji
 
 clean:
-	rm -v *.o ruiji
+	rm -v ruiji
