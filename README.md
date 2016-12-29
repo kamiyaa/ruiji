@@ -38,11 +38,12 @@ Currently supports:
  - http://www.zerochan.net/
 
 ### Todo
-Add support for:
- - https://yande.re/
+ - support for: https://yande.re/
  - Clean code
   - excess code reuse
   - hardcoded values
- - Config file support (?)
- - Add a better interface (?)
- - Preview support (?)
+ - Config file support*
+ - Add a better interface*
+ - Preview support*
+
+* possibly
