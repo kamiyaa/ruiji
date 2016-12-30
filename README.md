@@ -37,10 +37,10 @@ Currently supports:
  - http://e-shuushuu.net/
  - https://konachan.com/
  - https://chan.sankakucomplex.com/
+ - https://yande.re/
  - http://www.zerochan.net/ **
 
 ### Todo
- - support for: https://yande.re/
  - Clean code
   - excess code reuse
   - hardcoded values
