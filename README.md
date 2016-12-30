@@ -9,7 +9,9 @@ parses the html after uploading and get a list of the images similar to it.
 ## Dependencies
  - GNU Make
  - c library supporting: gnu99
- - libcurl (preferably version >=7.51)
+ - libcurl
+   - preferably version >=7.51
+   - Must be built against either >=GnuTLS-3.4.17 or >=OpenSSL-1.1.0c
 
 ## Installation
 First, download the source using either HTTP or SSH: 
