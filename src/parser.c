@@ -51,33 +51,31 @@ void replace_first_with(char *string, char find, char replace)
  * struct with the given values and return it.
  */
 struct similar_image *
-create_sim_image(char *url_begin, unsigned int similarity, unsigned int x, unsigned int y)
+create_sim_image(char *url_begin, unsigned int similarity, unsigned int image_x, unsigned int image_y)
 {
+	/* Create a new similar image struct to store information */
 	struct similar_image *image = malloc(sizeof(struct similar_image));
 
+	/* Set it's values to the given parameters */
 	image->similarity = similarity;
-	image->dimensions[0] = x;
-	image->dimensions[1] = y;
-
-	unsigned int url_len = strlen(url_begin);
-	unsigned int additional_space;
+	image->dimensions[0] = image_x;
+	image->dimensions[1] = image_y;
 
 	/* Format url to be complete with protocol, if none is provided */
 	if (!strstr(url_begin, "http")) {
-		char *prefix_add = "https:";
+		char *prefix_add = "https:\0";
 
-		if (strstr(url_begin, DANBOORU_DOMAIN))
-			prefix_add = "http:";
-
-		additional_space = strlen(prefix_add);
-		image->link = malloc(sizeof(char) * (url_len + additional_space));
-		image->link[0] = '\0';
-		strcat(image->link, prefix_add);
+		unsigned int size_alloc = strlen(url_begin) + strlen(prefix_add) + 1;
+		image->link = malloc(sizeof(char) * size_alloc);
+		strcpy(image->link, prefix_add);
 		strcat(image->link, url_begin);
-	}
-	else
-		image->link = url_begin;
 
+	}
+	else {
+		unsigned int size_alloc = strlen(url_begin) + 1;
+		image->link = malloc(sizeof(char) * size_alloc);
+		strcpy(image->link, url_begin);
+	}
 	return image;
 }
 
@@ -144,8 +142,10 @@ void populate_sim_db(struct similar_image_db *sim_db, char *html_content)
 
 	/* Check if matching string is found */
 	char *index = strstr(html_content, IQDB_RESULT_ID);
-	if (!index)
+	if (!index) {
+		printf("Error: Failed to populate similar image database: No results found!\n");
 		return;
+	}
 
 	/* Get length of the string we are looking for and search for it */
 	unsigned int lookfor_len = strlen(IQDB_RESULT_ID);
@@ -165,7 +165,6 @@ void populate_sim_db(struct similar_image_db *sim_db, char *html_content)
 
 		/* Move on to the rest of the string */
 		walker += char_size;
-
 
 		unsigned int similarity = 0, x = 0, y = 0;
 		/* Get the image x,y dimensions */
@@ -221,6 +220,7 @@ char *get_html(char *web_url)
 			curl_easy_strerror(res));
 
 		}
+
 		/* cleanup */
 		curl_easy_cleanup(curl_handle);
 	}
@@ -231,28 +231,33 @@ char *get_html(char *web_url)
  * parse the link to get the file name
  */
 char *get_server_file_name(char *web_url, char stop) {
-	/* If NULL stop was given, save it as the
-	 * name on the server side
-	 */
-	char *final_slash = web_url;
-	do {
-		final_slash = strstr(final_slash, "/");
-		final_slash = &final_slash[1];
-	} while (strstr(final_slash, "/"));
+	/* Go through and get the last section of a url */
+	char *final_slash;
+	for (int i = strlen(web_url); i > 0; i--) {
+		if (web_url[i] == '/') {
+			final_slash = &(web_url[i+1]);
+			break;
+		}
+	}
 
-	char *file_name = malloc(char_size * strlen(final_slash));
-	file_name[0] = '\0';
-	strcat(file_name, final_slash);
-
+	unsigned int size_cpy = strlen(final_slash) - 1;
 	/* If a stop sequence is given, terminate the
 	 * string at stop sequence */
-	if (stop != ' ')
-		replace_first_with(file_name, stop, '\0');
+	if (stop != ' ') {
+		while (final_slash[size_cpy] != stop)
+			size_cpy--;
+	}
 
+	char *file_name = malloc(char_size * size_cpy + 1);
+	file_name[0] = '\0';
+	strncat(file_name, final_slash, size_cpy);
+
+	printf("file_name: %s\n", file_name);
 	return file_name;
 }
 
 
+/* Given a similar_image_db, print out all its contents */
 void print_sim_results(struct similar_image_db *sim_db)
 {
 	for (int i = 0; i < sim_db->size; i++) {
@@ -262,6 +267,7 @@ void print_sim_results(struct similar_image_db *sim_db)
 		printf("dimensions: %ux%u\n\n", sim_db->img_db[i]->dimensions[0], sim_db->img_db[i]->dimensions[1]);
 	}
 }
+
 
 
 char *get_image_url(char *web_url, char *trademark, char endpoint)
@@ -288,4 +294,14 @@ char *get_image_url(char *web_url, char *trademark, char endpoint)
 		return "ERROR";
 	}
 	return img_src_url;
+}
+
+
+/* Frees the allocated memory for a similar_image_db */
+void free_similar_image_db(struct similar_image_db *sim_db)
+{
+	for (int i = 0; i < sim_db->size; i++) {
+		free(sim_db->img_db[i]->link);
+		free(sim_db->img_db[i]);
+	}
 }

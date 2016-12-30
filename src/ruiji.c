@@ -6,12 +6,14 @@
 #include "parser.h"
 #include "udload.h"
 
+#define IQDB_UPLOAD_FIELD "file"
+
 int main(int argv, char *argc[])
 {
 	/* Check if we have at least an additional argument,
 	 * which is the file name */
 	if (argv < 2) {
-		fprintf(stderr, "Error: No given argument\n");
+		printf("Error: No given argument\n");
 		return 1;
 	}
 
@@ -26,13 +28,14 @@ int main(int argv, char *argc[])
 
 	/* Get the html output after uploading the image */
 	printf("Uploading %s to %s...\n", argc[1], IQDB_URL);
-	char *html_data = upload_image(argc[1], IQDB_URL);
+	char *html_data = upload_image(IQDB_URL, argc[1], IQDB_UPLOAD_FIELD);
 	printf("Upload successful\n\n");
 
 	/* Initialize a struct to hold all the images similar
 	 * to the uploaded image */
 	struct similar_image_db sim_db;
 	populate_sim_db(&sim_db, html_data);
+	free(html_data);
 
 	/* If any results were found, ask user which to download */
 	if (sim_db.size > 0) {
@@ -76,10 +79,10 @@ int main(int argv, char *argc[])
 			dl_url = eshuushuu_get_image_url(dl_image->link);
 			stop_seq = ' ';
 		}
-		else if (strstr(dl_image->link, ZEROCHAN_DOMAIN)) {
+	/*	else if (strstr(dl_image->link, ZEROCHAN_DOMAIN)) {
 			dl_url = zerochan_get_image_url(dl_image->link);
 			stop_seq = ' ';
-		}
+		} */
 		else if (strstr(dl_image->link, GELBOORU_DOMAIN)) {
 			dl_url = gelbooru_get_image_url(dl_image->link);
 			stop_seq = ' ';
@@ -104,9 +107,7 @@ int main(int argv, char *argc[])
 	else
 		printf("No similar results! :(\n");
 
-	/* Free allocated memory */
-	if (html_data)
-		free(html_data);
+	free_similar_image_db(&sim_db);
 
 	return 0;
 }

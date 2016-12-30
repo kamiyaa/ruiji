@@ -1,7 +1,7 @@
 *.o
 *~
 *.jpg
+*.mp4
 src/*.png
-*.html
 /src/ruiji
 /src/test*

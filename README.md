@@ -9,8 +9,7 @@ parses the html after uploading and get a list of the images similar to it.
 ## Dependencies
  - GNU Make
  - c library supporting: gnu99
- - libcurl
-   - preferably version >=7.51
+ - libcurl (preferably version >=7.51)
    - Must be built against either >=GnuTLS-3.3.24 or >=OpenSSL-1.1.0c
      - could work with other libraries (such as nss), but have not been tested
 
@@ -45,6 +44,7 @@ Currently supports:
  - Clean code
   - excess code reuse
   - hardcoded values
+ - Fix memory leaks
  - Config file support*
  - Add a better interface*
  - Preview support*
