@@ -6,7 +6,7 @@
 
 #define KONACHAN_PNG_SOURCE_ID "<li><a class=\"original-file-unchanged\" href=\""
 #define KONACHAN_JPG_SOURCE_ID "<li><a class=\"original-file-changed\" href=\""
-#define HTTP "http:\0"
+#define HTTP "http:"
 
 /* Given a https://yande.re/ url,
  * parse the html to get the source image url

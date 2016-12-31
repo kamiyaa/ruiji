@@ -4,7 +4,7 @@
 
 #include "parser.h"
 
-#define HTTPS "https:\0"
+#define HTTPS "https:"
 #define SANKAKU_COMPLEX_SOURCE_ID "<li>Original: <a href=\""
 
 /* Given a https://chan.sankakucomplex.com url,
