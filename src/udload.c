@@ -13,10 +13,6 @@
  */
 char *upload_image(char *website, char *file_name, char *field_name)
 {
-	/* Open selected file to upload and check if it exists */
-	FILE *img_fd;
-	img_fd = fopen(file_name, "rb");
-
 	struct html_data web_data;
 	/* will be grown as needed by the realloc above */
 	web_data.data = malloc(1);
@@ -29,8 +25,6 @@ char *upload_image(char *website, char *file_name, char *field_name)
 
 	struct curl_httppost *formpost = NULL;
 	struct curl_httppost *lastptr = NULL;
-
-	curl_global_init(CURL_GLOBAL_ALL);
 
 	if (curl_handle) {
 		/* set the working website to this domain */
@@ -45,9 +39,6 @@ char *upload_image(char *website, char *file_name, char *field_name)
 		/* Fill out the upload form */
 		curl_easy_setopt(curl_handle, CURLOPT_HTTPPOST, formpost);
 
-		/* set where to read from */
-		curl_easy_setopt(curl_handle, CURLOPT_READDATA, img_fd);
-
 		/* Set the function to call when data is received */
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, StoreData);
 
@@ -56,17 +47,16 @@ char *upload_image(char *website, char *file_name, char *field_name)
 
 		res = curl_easy_perform(curl_handle);
 
+		/* Check for errors */
+		if (res != CURLE_OK)
+			printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+
 		/* then cleanup the formpost chain */
 		curl_formfree(formpost);
 
 		/* cleanup */
 		curl_easy_cleanup(curl_handle);
-
-		/* Check for errors */
-		if (res != CURLE_OK)
-			printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 	}
-	fclose(img_fd);
 
 	return web_data.data;
 }
@@ -119,5 +109,3 @@ int download_image(char *web_url, char *file_name)
 	}
 	return 0;
 }
-
-

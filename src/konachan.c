@@ -6,7 +6,7 @@
 
 #define KONACHAN_PNG_SOURCE_ID "<li><a class=\"original-file-unchanged\" href=\""
 #define KONACHAN_JPG_SOURCE_ID "<li><a class=\"original-file-changed\" href=\""
-#define HTTP "http:"
+#define HTTP "http:\0"
 
 /* Given a https://yande.re/ url,
  * parse the html to get the source image url
@@ -44,7 +44,8 @@ char* konachan_get_image_url(char *web_url)
 	}
 	else {
 		printf("Error: konachan_get_image_url():\n\tFailed to parse \"%s\"\n", web_url);
-		return "ERROR";
+		img_src_url = "Error\0";
 	}
+	free(html_content);
 	return img_src_url;
 }

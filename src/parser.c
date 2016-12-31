@@ -6,11 +6,7 @@
 
 #include "parser.h"
 
-#define DANBOORU_DOMAIN "danbooru.donmai.us"
 #define IQDB_RESULT_ID "match</th></tr><tr><td class='image'><a href=\""
-
-/* Get size of char to prevent excessive function calling */
-unsigned int char_size = sizeof(char);
 
 
 size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *userp)
@@ -90,16 +86,18 @@ char *parse_percent_similar(char* contents, unsigned int *similarity)
 	char *walker = contents;
 	/* Parse for the similarity percentage of the image and slice it */
 	walker = strstr(walker, "<td>");
+
 	char *next_weblink = strstr(walker, " similarity");
-	next_weblink[0] = '\0';
+	char *tmp = &(next_weblink[0]);
+
+	/* Set the pointer to point to the rest of the sliced string */
+	next_weblink = &(next_weblink[1]);
+	tmp[0] = '\0';
 
 	/* Get the similarity percentage of image and set it to similarity */
 	sscanf(walker, "<td>%u%%", similarity);
 
-	/* Set the pointer to point to the rest of the sliced string
-	 * and return it */
-	next_weblink += char_size;
-
+	/* Return a pointer to the rest of the sliced string */
 	return next_weblink;
 }
 
@@ -119,15 +117,16 @@ char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 
 	/* Point to the next space in the string and slice it there */
 	char *next_weblink = strstr(walker, " ");
-	next_weblink[0] = '\0';
+	char *tmp = &(next_weblink[0]);
+
+	/* Set the pointer to point to the rest of the sliced string */
+	next_weblink = &(next_weblink[1]);
+	tmp[0] = '\0';
 
 	/* Set x,y to the image dimensions */
 	sscanf(walker, "<td>%u×%u ", x, y);
 
-	/* Set the pointer to point to the rest of the sliced string
-	 * and return it */
-	next_weblink += char_size;
-
+	/* Return a pointer to the rest of the sliced string */
 	return next_weblink;
 }
 
@@ -148,23 +147,23 @@ void populate_sim_db(struct similar_image_db *sim_db, char *html_content)
 	}
 
 	/* Get length of the string we are looking for and search for it */
-	unsigned int lookfor_len = strlen(IQDB_RESULT_ID);
+	unsigned int iqdb_result_len = strlen(IQDB_RESULT_ID);
 
 	/* Go through the data and get every valid link to a similar image */
 	while (index != NULL) {
 		/* Get where the url of the website begins */
-		char *url_begin = &index[lookfor_len];
+		char *url_begin = &index[iqdb_result_len];
 		/* Set a arbitrary pointer to go through the string */
 		char *walker = url_begin;
 
 		/* Go through the string, looking for '"'. Once found,
 		 * slice the string */
 		while (*walker != '"')
-			walker = &walker[1];
-		walker[0] = '\0';
-
+			walker = &(walker[1]);
+		char *tmp = &(walker[0]);
 		/* Move on to the rest of the string */
-		walker += char_size;
+		walker = &(walker[1]);
+		tmp[0] = '\0';
 
 		unsigned int similarity = 0, x = 0, y = 0;
 		/* Get the image x,y dimensions */
@@ -215,11 +214,8 @@ char *get_html(char *web_url)
 		res = curl_easy_perform(curl_handle);
 
 		/* Check for errors */
-		if (res != CURLE_OK) {
-			fprintf(stderr, "curl_easy_perform() failed: %s\n",
-			curl_easy_strerror(res));
-
-		}
+		if (res != CURLE_OK)
+			printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
 
 		/* cleanup */
 		curl_easy_cleanup(curl_handle);
@@ -240,19 +236,19 @@ char *get_server_file_name(char *web_url, char stop) {
 		}
 	}
 
-	unsigned int size_cpy = strlen(final_slash) - 1;
+	unsigned int size_cpy = strlen(final_slash);
 	/* If a stop sequence is given, terminate the
 	 * string at stop sequence */
 	if (stop != ' ') {
+		size_cpy--;
 		while (final_slash[size_cpy] != stop)
 			size_cpy--;
 	}
 
-	char *file_name = malloc(char_size * size_cpy + 1);
+	char *file_name = malloc(sizeof(char) * (size_cpy + 1));
 	file_name[0] = '\0';
 	strncat(file_name, final_slash, size_cpy);
 
-	printf("file_name: %s\n", file_name);
 	return file_name;
 }
 
@@ -268,8 +264,7 @@ void print_sim_results(struct similar_image_db *sim_db)
 	}
 }
 
-
-
+/* Given a website url, a unique html pattern to look for and */
 char *get_image_url(char *web_url, char *trademark, char endpoint)
 {
 	/* Fetch the html source code of the website */

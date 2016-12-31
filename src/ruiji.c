@@ -57,7 +57,7 @@ int main(int argv, char *argc[])
 
 		int dl_state = -1;
 		char stop_seq;
-		char *dl_url, *dl_location;
+		char *dl_url, *save_location;
 
 		if (strstr(dl_image->link, DANBOORU_DOMAIN)) {
 			dl_url = danbooru_get_image_url(dl_image->link);
@@ -89,20 +89,18 @@ int main(int argv, char *argc[])
 		}
 
 		if (stop_seq) {
-			dl_location = get_server_file_name(dl_url, stop_seq);
-			printf("Saving image as %s from %s...\n", dl_location, dl_url);
-			dl_state = download_image(dl_url, dl_location);
+			save_location = get_server_file_name(dl_url, stop_seq);
+			printf("Saving image as %s from %s...\n", save_location, dl_url);
+			dl_state = download_image(dl_url, save_location);
+			/* Free allocated memory */
+			free(save_location);
+			free(dl_url);
 		}
 
 		if (dl_state == 0)
 			printf("Done!\n");
 		else
 			printf("Error: Download failed\n");
-		/* Free allocated memory */
-		if (dl_location)
-			free(dl_location);
-		if (dl_url)
-			free(dl_url);
 	}
 	else
 		printf("No similar results! :(\n");

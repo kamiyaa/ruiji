@@ -32,7 +32,8 @@ char* eshuushuu_get_image_url(char *web_url)
 	}
 	else {
 		printf("Error: eshuushuu_get_image_url():\n\tFailed to parse \"%s\"\n", web_url);
-		return "ERROR";
+		img_src_url = "Error\0";
 	}
+	free(html_content);
 	return img_src_url;
 }

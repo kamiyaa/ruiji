@@ -15,7 +15,7 @@ struct similar_image {
  * all to the same parent image.
  */
 struct similar_image_db {
-	struct similar_image *img_db[20];
+	struct similar_image *img_db[16];
 	unsigned int size;
 };
 
@@ -54,9 +54,14 @@ void populate_sim_db(struct similar_image_db *sim_db, char *html_content);
  */
 char *get_html(char *web_url);
 
+/* Given the full link of a website,
+ * parse the link to get the file name
+ */
 char *get_server_file_name(char *web_url, char stop);
 
+/* Given a similar_image_db, print out all its contents */
 void print_sim_results(struct similar_image_db *sim_db);
+
 
 char *get_image_url(char *web_url, char *trademark, char endpoint);
 

@@ -4,7 +4,7 @@
 
 #include "parser.h"
 
-#define HTTPS "https:"
+#define HTTPS "https:\0"
 #define SANKAKU_COMPLEX_SOURCE_ID "<li>Original: <a href=\""
 
 /* Given a https://chan.sankakucomplex.com url,
@@ -22,7 +22,6 @@ char* sankaku_complex_get_image_url(char *web_url)
 	/* If found, add http extension to it and return it */
 	if (index) {
 		index = &index[strlen(SANKAKU_COMPLEX_SOURCE_ID)];
-		char *walker = index;
 		replace_first_with(index, '"', '\0');
 
 		unsigned int url_len = strlen(index) + strlen(HTTPS) + 1;
@@ -33,7 +32,8 @@ char* sankaku_complex_get_image_url(char *web_url)
 	}
 	else {
 		printf("Error: sankaku_complex_get_image_url():\n\tFailed to parse \"%s\"\n", web_url);
-		return "ERROR";
+		img_src_url = "Error\0";
 	}
+	free(html_content);
 	return img_src_url;
 }
