@@ -101,6 +101,7 @@ int download_image(char *web_url, char *file_name)
 		curl_easy_cleanup(curl_handle);
 	}
 	fclose(img_fp);
+	curl_global_cleanup();
 
 	/* Check for errors */
 	if (res != CURLE_OK) {

@@ -44,7 +44,6 @@ Currently supports:
  - Clean code
   - excess code reuse
   - hardcoded values
- - Fix memory leaks
  - Config file support*
  - Add a better interface*
  - Preview support*
