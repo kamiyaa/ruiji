@@ -99,14 +99,14 @@ int download_image(char *web_url, char *file_name)
 
 		/* cleanup */
 		curl_easy_cleanup(curl_handle);
+		/* Check for errors */
+		if (res != CURLE_OK) {
+			printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+			fclose(img_fp);
+			return 1;
+		}
 	}
 	fclose(img_fp);
-	curl_global_cleanup();
 
-	/* Check for errors */
-	if (res != CURLE_OK) {
-		printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-		return 1;
-	}
 	return 0;
 }

@@ -1,6 +1,10 @@
 # compiler and linker
 CC = clang
 
+COLORFLAG = -DCOLOR
+
+USE_FLAGS = ${COLORFLAG}
+
 # flags
 CFLAGS = -std=gnu99 -ggdb3 -O0 -Wall -Werror -Wno-unused-variable
 

@@ -2,11 +2,15 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <curl/curl.h>
+
 #include "domains.h"
-#include "parser.h"
+#include "interface.h"
 #include "udload.h"
 
 #define IQDB_UPLOAD_FIELD "file"
+#define DANBOORU_SOURCE_ID "Size: <a href=\""
+#define DANBOORU_URL "http://danbooru.donmai.us"
 
 int main(int argv, char *argc[])
 {
@@ -38,7 +42,7 @@ int main(int argv, char *argc[])
 	free(html_data);
 
 	/* If any results were found, ask user which to download */
-	if (sim_db.size > 0) {
+	if (sim_db.size) {
 		/* Print out all results and its properties */
 		print_sim_results(&sim_db);
 
@@ -47,7 +51,7 @@ int main(int argv, char *argc[])
 		int user_input;
 		scanf("%d", &user_input);
 
-		if (user_input >= sim_db.size) {
+		if (user_input < 0 || user_input >= sim_db.size) {
 			printf("Error: Invalid option selected\n");
 			return 1;
 		}
@@ -56,12 +60,11 @@ int main(int argv, char *argc[])
 		struct similar_image *dl_image = sim_db.img_db[user_input];
 
 		int dl_state = -1;
-		char stop_seq;
-		char *dl_url, *save_location;
+		char stop_seq = '\0';
+		char *dl_url = NULL;
 
 		if (strstr(dl_image->link, DANBOORU_DOMAIN)) {
 			dl_url = danbooru_get_image_url(dl_image->link);
-			stop_seq = ' ';
 		}
 		else if (strstr(dl_image->link, SANKAKU_COMPLEX_DOMAIN)) {
 			dl_url = sankaku_complex_get_image_url(dl_image->link);
@@ -69,35 +72,36 @@ int main(int argv, char *argc[])
 		}
 		else if (strstr(dl_image->link, YANDERE_DOMAIN)) {
 			dl_url = yandere_get_image_url(dl_image->link);
-			stop_seq = ' ';
 		}
 		else if (strstr(dl_image->link, KONACHAN_DOMAIN)) {
-			dl_url = konachan_get_image_url(dl_image->link);
 			stop_seq = ' ';
 		}
 		else if (strstr(dl_image->link, ESHUUSHUU_DOMAIN)) {
 			dl_url = eshuushuu_get_image_url(dl_image->link);
-			stop_seq = ' ';
+		}
+		else if (strstr(dl_image->link, GELBOORU_DOMAIN)) {
+			dl_url = gelbooru_get_image_url(dl_image->link);
 		}
 	/*	else if (strstr(dl_image->link, ZEROCHAN_DOMAIN)) {
 			dl_url = zerochan_get_image_url(dl_image->link);
 			stop_seq = ' ';
 		} */
-		else if (strstr(dl_image->link, GELBOORU_DOMAIN)) {
-			dl_url = gelbooru_get_image_url(dl_image->link);
-			stop_seq = ' ';
-		}
 
-		if (stop_seq) {
-			save_location = get_server_file_name(dl_url, stop_seq);
-			printf("Saving image as %s from %s...\n", save_location, dl_url);
-			dl_state = download_image(dl_url, save_location);
+		if (dl_url) {
+			/* Get the name of the file */
+			char *file_save_name;
+			file_save_name = get_server_file_name(dl_url,
+							stop_seq);
+			/* Notify the user */
+			image_save_toast(file_save_name, dl_url);
+			/* Save the image as it's name on the server */
+			dl_state = download_image(dl_url, file_save_name);
 			/* Free allocated memory */
-			free(save_location);
+			free(file_save_name);
 			free(dl_url);
 		}
 
-		if (dl_state == 0)
+		if (!dl_state)
 			printf("Done!\n");
 		else
 			printf("Error: Download failed\n");
@@ -105,7 +109,12 @@ int main(int argv, char *argc[])
 	else
 		printf("No similar results! :(\n");
 
+	/* Free up allocated memory */
 	free_similar_image_db(&sim_db);
+	/* clean up curl */
+        curl_global_cleanup();
 
 	return 0;
 }
+
+/*	dl_url = get_image_url(dl_image->link, DANBOORU_SOURCE_ID, DANBOORU_URL, '"'); */

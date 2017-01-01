@@ -63,7 +63,7 @@ char *get_server_file_name(char *web_url, char stop);
 void print_sim_results(struct similar_image_db *sim_db);
 
 
-char *get_image_url(char *web_url, char *trademark, char endpoint);
+char *get_image_url(char *web_url, char *trademark, char* prefix, char suffix);
 
 
 /* Frees the allocated memory for a similar_image_db */

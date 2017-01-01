@@ -6,8 +6,7 @@
 
 #include "parser.h"
 
-#define IQDB_RESULT_ID "match</th></tr><tr><td class='image'><a href=\""
-
+#define IQDB_RESULT_ID	"match</th></tr><tr><td class='image'><a href=\""
 
 size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *userp)
 {
@@ -239,7 +238,7 @@ char *get_server_file_name(char *web_url, char stop) {
 	unsigned int size_cpy = strlen(final_slash);
 	/* If a stop sequence is given, terminate the
 	 * string at stop sequence */
-	if (stop != ' ') {
+	if (stop) {
 		size_cpy--;
 		while (final_slash[size_cpy] != stop)
 			size_cpy--;
@@ -253,19 +252,8 @@ char *get_server_file_name(char *web_url, char stop) {
 }
 
 
-/* Given a similar_image_db, print out all its contents */
-void print_sim_results(struct similar_image_db *sim_db)
-{
-	for (int i = 0; i < sim_db->size; i++) {
-		printf("[%d]\n", i);
-		printf("source: %s\n", sim_db->img_db[i]->link);
-		printf("similarity: %u%%\n", sim_db->img_db[i]->similarity);
-		printf("dimensions: %ux%u\n\n", sim_db->img_db[i]->dimensions[0], sim_db->img_db[i]->dimensions[1]);
-	}
-}
-
 /* Given a website url, a unique html pattern to look for and */
-char *get_image_url(char *web_url, char *trademark, char endpoint)
+char *get_image_url(char *web_url, char *trademark, char* prefix, char suffix)
 {
 	/* Fetch the html source code of the website */
 	char *html_content = get_html(web_url);
@@ -277,17 +265,22 @@ char *get_image_url(char *web_url, char *trademark, char endpoint)
 	/* If found, add the danbooru url to it and return it */
 	if (index) {
 		index = &index[strlen(trademark)];
-		replace_first_with(index, endpoint, '\0');
-
+		replace_first_with(index, suffix, '\0');
 		unsigned int url_len = strlen(index) + 1;
+		if (prefix)
+			url_len += strlen(prefix);
+
 		img_src_url = malloc(sizeof(char) * url_len);
 		img_src_url[0] = '\0';
+		if (prefix)
+			strcat(img_src_url, prefix);
 		strcat(img_src_url, index);
 	}
 	else {
 		printf("Error: get_image_url():\n\tFailed to parse \"%s\"\n", web_url);
 		return "ERROR";
 	}
+	free(html_content);
 	return img_src_url;
 }
 
