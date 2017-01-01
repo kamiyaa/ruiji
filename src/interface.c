@@ -47,6 +47,7 @@ void print_sim_results(struct similar_image_db *sim_db)
 	}
 }
 
+/* A verbose message to the user when saving an image */
 void image_save_toast(char *file_name, char *website_url)
 {
 	printf("Saving image as %s%s%s from %s%s%s...\n",
