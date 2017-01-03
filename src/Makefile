@@ -10,7 +10,7 @@ ruiji: $(HELPERS) ruiji.c config.mk
 	@echo "LIBS    =" ${LIBS}
 	@echo "USE     =" ${USE_FLAGS}
 	${CC} ${CFLAGS} ${USE_FLAGS} -c ${HELPERS} ruiji.c
-	${CC} ${CFLAGS} ${USE_FLAGS} ${LIBS} ${HELPERS_OBJ} ruiji.o -o ruiji
+	${CC} ${CFLAGS} ${USE_FLAGS} ${HELPERS_OBJ} ruiji.o -o ruiji ${LIBS}
 
 install:
 	@echo installing to ${PREFIX}/bin

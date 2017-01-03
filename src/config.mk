@@ -1,5 +1,6 @@
 # compiler and linker
-CC = clang
+# change to clang for clang compiler
+CC = gcc
 
 # Color output support, comment to disable this feature
 COLORFLAG = -DCOLOR
