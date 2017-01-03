@@ -1,22 +1,25 @@
 # compiler and linker
 CC = clang
 
-# Comment to remove color output support
+# Color output support, comment to disable this feature
 COLORFLAG = -DCOLOR
 
 # All optional features
 USE_FLAGS = ${COLORFLAG}
 
 # cflags
-CFLAGS = -std=gnu99 -ggdb3 -O0 -Wall -Werror -Wno-unused-variable
+CFLAGS = -std=gnu99 -ggdb3 -O0 -Wall -Werror -Wno-unused-variable -march=native
 
 # libraries required
 LIBS = -lcurl
 
 # helper files for specific websites
 WEBSRC = danbooru.c eshuushuu.c gelbooru.c konachan.c sankakucomplex.c yandere.c zerochan.c
-# Helper files to for main program
-HELPERS = $(WEBSRC) interface.c parser.c udload.c
+# helper files to for main program
+HELPERS = ${WEBSRC} interface.c parser.c udload.c
+
+# object files
+HELPERS_OBJ = ${HELPERS:.c=.o}
 
 # paths
 PREFIX = /usr/local
