@@ -10,7 +10,7 @@
 
 #define IQDB_UPLOAD_FIELD "file"
 #define DANBOORU_SOURCE_ID "Size: <a href=\""
-#define DANBOORU_URL "http://danbooru.donmai.us"
+#define DANBOORU_URL "https://danbooru.donmai.us"
 
 int main(int argv, char *argc[])
 {
