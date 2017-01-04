@@ -34,10 +34,15 @@ size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *us
  */
 void replace_first_with(char *string, char find, char replace)
 {
+	/* Use a pointer to go through the string */
 	char *walker = string;
+	/* Go through the string and find the char replace */
 	while (*walker != find)
 		walker = &walker[1];
 
+	/* Once we find the char we are looking for,
+	 * replace it with replace
+	 */
 	walker[0] = replace;
 }
 
@@ -56,18 +61,18 @@ create_sim_image(char *url_begin, unsigned int similarity, unsigned int image_x,
 	image->dimensions[0] = image_x;
 	image->dimensions[1] = image_y;
 
+	unsigned int size_alloc = strlen(url_begin) + 1;
 	/* Format url to be complete with protocol, if none is provided */
 	if (!strstr(url_begin, "http")) {
 		char *prefix_add = "https:\0";
 
-		unsigned int size_alloc = strlen(url_begin) + strlen(prefix_add) + 1;
+		size_alloc += strlen(prefix_add);
 		image->link = malloc(sizeof(char) * size_alloc);
 		strcpy(image->link, prefix_add);
 		strcat(image->link, url_begin);
 
 	}
 	else {
-		unsigned int size_alloc = strlen(url_begin) + 1;
 		image->link = malloc(sizeof(char) * size_alloc);
 		strcpy(image->link, url_begin);
 	}
@@ -114,11 +119,11 @@ char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 	walker = strstr(walker, "class=\"service-icon\"");
 	walker = strstr(walker, "<td>");
 
-	/* Point to the next space in the string and slice it there */
+	/* Null terminate the string at the next space in the string, and
+	 * point next_weblink to the rest of the sliced string
+	 */
 	char *next_weblink = strstr(walker, " ");
 	char *tmp = &(next_weblink[0]);
-
-	/* Set the pointer to point to the rest of the sliced string */
 	next_weblink = &(next_weblink[1]);
 	tmp[0] = '\0';
 
@@ -182,6 +187,17 @@ void populate_sim_db(struct similar_image_db *sim_db, char *html_content)
 }
 
 
+struct similar_image *get_most_similar_image(struct similar_image_db *sim_db)
+{
+	struct similar_image *most_similar = sim_db->img_db[0];
+	for (int i = 1; i < sim_db->size; i++) {
+		if (sim_db->img_db[i]->similarity > most_similar->similarity)
+			most_similar = sim_db->img_db[i];
+	}
+	return most_similar;
+};
+
+
 /* Given the full link of a website,
  * fetch and return the html source of the website
  */
@@ -221,6 +237,7 @@ char *get_html(char *web_url)
 	}
 	return web_data.data;
 }
+
 
 /* Given the full link of a website,
  * parse the link to get the file name
