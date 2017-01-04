@@ -4,10 +4,10 @@
 
 #include "parser.h"
 
-#define DANBOORU_URL "http://danbooru.donmai.us"
+#define DANBOORU_URL "https://danbooru.donmai.us"
 #define DANBOORU_SOURCE_ID "Size: <a href=\""
 
-/* Given a http://danbooru.donmai.us url,
+/* Given a https://danbooru.donmai.us url,
  * parse the html to get the source image url
  */
 char* danbooru_get_image_url(char *web_url)
