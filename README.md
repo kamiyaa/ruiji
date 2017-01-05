@@ -47,6 +47,9 @@ Currently supports:
  - Config file support*
  - Add a better interface*
  - Preview support*
+ - -y option to auto-download image with highest similarity*
+ - batch files support*
+ - option to only act if a match above a given threshold is found*
 
 _\* possibly_
 
