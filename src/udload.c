@@ -32,7 +32,7 @@ char *upload_image(char *website, char *file_name, char *field_name)
 
 		/* Fill in the file upload field */
 		curl_formadd(&formpost, &lastptr,
-			CURLFORM_COPYNAME, field_name,
+			CURLFORM_PTRNAME, field_name,
 			CURLFORM_FILE, file_name,
 			CURLFORM_END);
 
