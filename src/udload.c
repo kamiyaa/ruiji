@@ -4,9 +4,70 @@
 
 #include <curl/curl.h>
 
-#include "parser.h"
+#include "interface.h"
 
 #define IQDB_LOOKFOR "match</th></tr><tr><td class='image'><a href=\""
+
+size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *userp)
+{
+	size_t realsize = size * nmemb;
+
+	struct html_data *mem = userp;
+
+	mem->data = realloc(mem->data, mem->size + realsize + 1);
+
+	if (mem->data == NULL) {
+		/* out of memory! */
+		printf("not enough memory (realloc returned NULL)\n");
+		return 0;
+	}
+
+	memcpy(&(mem->data[mem->size]), contents, realsize);
+	mem->size += realsize;
+	mem->data[mem->size] = 0;
+
+	return realsize;
+}
+
+/* Given the full link of a website,
+ * fetch and return the html source of the website
+ */
+char *get_html(char *web_url)
+{
+	struct html_data web_data;
+	/* will be grown as needed by the realloc above */
+	web_data.data = malloc(1);
+	/* no data at this point */
+	web_data.size = 0;
+
+	/* Initialize curl */
+	CURL *curl_handle = curl_easy_init();
+	CURLcode res;
+
+	if (curl_handle) {
+		/* Set the working website to this domain */
+		curl_easy_setopt(curl_handle, CURLOPT_URL, web_url);
+
+		/* Set the user agent to chrome */
+		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "chrome/55.0.2883.75");
+
+		/* Set the function to call when data is received */
+		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, StoreData);
+
+		/* Set the data to pass when the function is called */
+		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &web_data);
+
+		res = curl_easy_perform(curl_handle);
+
+		/* Check for errors */
+		if (res != CURLE_OK)
+			printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+
+		/* cleanup */
+		curl_easy_cleanup(curl_handle);
+	}
+	return web_data.data;
+}
 
 /* Given the name of an existing file and a website to upload it to,
  * upload the file and return the html content of the website after
@@ -45,6 +106,7 @@ char *upload_image(char *website, char *file_name, char *field_name)
 		/* Set the data to pass when the function is called */
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &web_data);
 
+		image_upload_toast(file_name, website);
 		res = curl_easy_perform(curl_handle);
 
 		/* Check for errors */

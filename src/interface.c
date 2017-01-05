@@ -35,6 +35,13 @@ void image_save_toast(char *file_name, char *website_url)
 		COLOR_YELLOW, file_name, COLOR_DEFAULT,
 		COLOR_BLUE, website_url, COLOR_DEFAULT);
 }
+
+void image_upload_toast(char *file_name, char *website_url)
+{
+	printf("Uploading %s%s%s to %s%s%s...\n",
+		COLOR_YELLOW, file_name, COLOR_DEFAULT,
+		COLOR_BLUE, website_url, COLOR_DEFAULT);
+}
 #endif
 
 
@@ -50,6 +57,12 @@ void print_similar_image_info(struct similar_image *img)
 void image_save_toast(char *file_name, char *website_url)
 {
 	printf("Saving image as %s from %s...\n",
+		file_name, website_url);
+}
+
+void image_upload_toast(char *file_name, char *website_url)
+{
+	printf("Uploading %s to %s...\n",
 		file_name, website_url);
 }
 #endif

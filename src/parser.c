@@ -4,30 +4,10 @@
 
 #include <curl/curl.h>
 
+#include "domains.h"
 #include "parser.h"
 
 #define IQDB_RESULT_ID	"match</th></tr><tr><td class='image'><a href=\""
-
-size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *userp)
-{
-	size_t realsize = size * nmemb;
-
-	struct html_data *mem = userp;
-
-	mem->data = realloc(mem->data, mem->size + realsize + 1);
-
-	if (mem->data == NULL) {
-		/* out of memory! */
-		printf("not enough memory (realloc returned NULL)\n");
-		return 0;
-	}
-
-	memcpy(&(mem->data[mem->size]), contents, realsize);
-	mem->size += realsize;
-	mem->data[mem->size] = 0;
-
-	return realsize;
-}
 
 /* Replace the first instance of find with replace,
  * mutating the string.
@@ -199,47 +179,6 @@ struct similar_image *get_most_similar_image(struct similar_image_db *sim_db)
 
 
 /* Given the full link of a website,
- * fetch and return the html source of the website
- */
-char *get_html(char *web_url)
-{
-	struct html_data web_data;
-	/* will be grown as needed by the realloc above */
-	web_data.data = malloc(1);
-	/* no data at this point */
-	web_data.size = 0;
-
-	/* Initialize curl */
-	CURL *curl_handle = curl_easy_init();
-	CURLcode res;
-
-	if (curl_handle) {
-		/* Set the working website to this domain */
-		curl_easy_setopt(curl_handle, CURLOPT_URL, web_url);
-
-		/* Set the user agent to chrome */
-		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "chrome/55.0.2883.75");
-
-		/* Set the function to call when data is received */
-		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, StoreData);
-
-		/* Set the data to pass when the function is called */
-		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &web_data);
-
-		res = curl_easy_perform(curl_handle);
-
-		/* Check for errors */
-		if (res != CURLE_OK)
-			printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-
-		/* cleanup */
-		curl_easy_cleanup(curl_handle);
-	}
-	return web_data.data;
-}
-
-
-/* Given the full link of a website,
  * parse the link to get the file name
  */
 char *get_server_file_name(char *web_url, char stop) {
@@ -270,36 +209,27 @@ char *get_server_file_name(char *web_url, char stop) {
 
 
 /* Given a website url, a unique html pattern to look for and */
-char *get_image_url(char *web_url, char *trademark, char* prefix, char suffix)
+char *get_image_url(char *link, char *stop_seq)
 {
-	/* Fetch the html source code of the website */
-	char *html_content = get_html(web_url);
-
-	/* Find the source image link */
-	char *index = strstr(html_content, trademark);
-	char *img_src_url;
-
-	/* If found, add the danbooru url to it and return it */
-	if (index) {
-		index = &index[strlen(trademark)];
-		replace_first_with(index, suffix, '\0');
-		unsigned int url_len = strlen(index) + 1;
-		if (prefix)
-			url_len += strlen(prefix);
-
-		img_src_url = malloc(sizeof(char) * url_len);
-		img_src_url[0] = '\0';
-		if (prefix)
-			strcat(img_src_url, prefix);
-		strcat(img_src_url, index);
+	char *dl_url = NULL;
+	if (strstr(link, DANBOORU_DOMAIN))
+		dl_url = danbooru_get_image_url(link);
+	else if (strstr(link, YANDERE_DOMAIN))
+		dl_url = yandere_get_image_url(link);
+	else if (strstr(link, KONACHAN_DOMAIN))
+		dl_url = konachan_get_image_url(link);
+	else if (strstr(link, ESHUUSHUU_DOMAIN))
+		dl_url = eshuushuu_get_image_url(link);
+	else if (strstr(link, GELBOORU_DOMAIN))
+		dl_url = gelbooru_get_image_url(link);
+	else if (strstr(link, SANKAKU_COMPLEX_DOMAIN)) {
+		dl_url = sankaku_complex_get_image_url(link);
+		*stop_seq = '?';
 	}
-	else {
-		printf("Error: get_image_url():\n\tFailed to parse \"%s\"\n", web_url);
-		return "ERROR";
-	}
-	free(html_content);
-	return img_src_url;
+	return dl_url;
 }
+
+
 
 
 /* Frees the allocated memory for a similar_image_db */

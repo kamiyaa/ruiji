@@ -6,8 +6,6 @@
 #include "yandere.h"
 #include "zerochan.h"
 
-#define IQDB_URL "https://iqdb.org"
-
 #define DANBOORU_DOMAIN "danbooru.donmai.us"
 #define ESHUUSHUU_DOMAIN "e-shuushuu.net"
 #define GELBOORU_DOMAIN "gelbooru.com"
