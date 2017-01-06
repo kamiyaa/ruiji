@@ -67,6 +67,15 @@ void image_upload_toast(char *file_name, char *website_url)
 }
 #endif
 
+void print_help(void)
+{
+	puts("Usage: ruiji [options] [file]\n");
+	puts("  -h \t Show this help message");
+	puts("  -q \t Suppress verbose output");
+	puts("  -v \t Show version number");
+	puts("  -y \t Download most similar image without prompt\n");
+}
+
 
 /* Given a similar_image_db, print out all its contents */
 void print_sim_results(struct similar_image_db *sim_db)

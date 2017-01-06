@@ -172,3 +172,11 @@ int download_image(char *web_url, char *file_name)
 
 	return 0;
 }
+
+
+/* clean up curl */
+void ruiji_curl_cleanup(void)
+{
+	/* clean up curl */
+	curl_global_cleanup();
+}

@@ -2,7 +2,8 @@
 
 ## Description
 Command that uploads a supported image format to http://iqdb.org,
-parses the html after uploading and get a list of the images similar to it.
+parses the subsequent html for similar image results 
+and prompt the user which one to download.
 
 ![Alt text](ruiji_screenshot.png?raw=true "ruiji")
 
@@ -39,6 +40,7 @@ Currently supports:
  - https://chan.sankakucomplex.com/
  - https://yande.re/
  - http://www.zerochan.net/ **
+ - -y option to auto-download image with highest similarity without user input
 
 ### Todo
  - Clean code
@@ -47,7 +49,6 @@ Currently supports:
  - Config file support*
  - Add a better interface*
  - Preview support*
- - -y option to auto-download image with highest similarity*
  - batch files support*
  - option to only act if a match above a given threshold is found*
 

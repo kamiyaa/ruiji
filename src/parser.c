@@ -2,8 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <curl/curl.h>
-
 #include "domains.h"
 #include "parser.h"
 
@@ -228,8 +226,6 @@ char *get_image_url(char *link, char *stop_seq)
 	}
 	return dl_url;
 }
-
-
 
 
 /* Frees the allocated memory for a similar_image_db */

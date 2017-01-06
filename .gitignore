@@ -5,3 +5,4 @@
 src/*.png
 /src/ruiji
 /src/test*
+/debug

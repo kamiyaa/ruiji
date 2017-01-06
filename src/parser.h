@@ -36,8 +36,11 @@ struct similar_image *get_most_similar_image(struct similar_image_db *sim_db);
  */
 char *get_server_file_name(char *web_url, char stop);
 
+/* Given a link, get the source image url from its html
+ * if a stop sequence is needed for extracting the file
+ * name later, assign it to stop_seq
+ */
 char *get_image_url(char *url, char *stop_seq);
-
 
 /* Frees the allocated memory for a similar_image_db */
 void free_similar_image_db(struct similar_image_db *sim_db);
