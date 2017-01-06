@@ -4,7 +4,7 @@
 
 #include "parser.h"
 
-#define GELBOORU_SOURCE_ID ">Resize image</a></li><li><a"
+#define GELBOORU_SOURCE_ID ">Resize image</a></li><li><a href=\""
 
 /* Given a http://gelbooru.com/ url,
  * parse the html to get the source image url
