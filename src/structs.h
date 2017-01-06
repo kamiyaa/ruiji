@@ -7,7 +7,7 @@ struct html_data {
 /* struct representing a similar image to a parent image */
 struct similar_image {
 	char *link;
-	unsigned int similarity;
+	unsigned short similarity;
 	unsigned int dimensions[2];
 };
 
@@ -16,6 +16,6 @@ struct similar_image {
  */
 struct similar_image_db {
 	struct similar_image *img_db[16];
-	unsigned int size;
+	unsigned short size;
 };
 

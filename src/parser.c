@@ -29,7 +29,7 @@ void replace_first_with(char *string, char find, char replace)
  * struct with the given values and return it.
  */
 struct similar_image *
-create_sim_image(char *url_begin, unsigned int similarity, unsigned int image_x, unsigned int image_y)
+create_sim_image(char *url_begin, unsigned short similarity, unsigned int image_x, unsigned int image_y)
 {
 	/* Create a new similar image struct to store information */
 	struct similar_image *image = malloc(sizeof(struct similar_image));
@@ -62,7 +62,7 @@ create_sim_image(char *url_begin, unsigned int similarity, unsigned int image_x,
  * get the x, y dimensions of the image and return a pointer pointing to the
  * html contents where the parsing stopped.
  */
-char *parse_percent_similar(char* contents, unsigned int *similarity)
+char *parse_percent_similar(char* contents, unsigned short *similarity)
 {
 	/* Get size of char to prevent excessive function calling */
 	char *walker = contents;
@@ -77,7 +77,7 @@ char *parse_percent_similar(char* contents, unsigned int *similarity)
 	tmp[0] = '\0';
 
 	/* Get the similarity percentage of image and set it to similarity */
-	sscanf(walker, "<td>%u%%", similarity);
+	sscanf(walker, "<td>%hu%%", similarity);
 
 	/* Return a pointer to the rest of the sliced string */
 	return next_weblink;
@@ -116,7 +116,7 @@ char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 /* Given the html contents of http://iqdb.org after an image has been uploaded,
  * parse all the results and store them in the struct similar_image_db *sim_db
  */
-void populate_sim_db(struct similar_image_db *sim_db, char *html_content)
+void populate_sim_db(struct similar_image_db *sim_db, char *html_content, unsigned short similar_threshold)
 {
 	/* Initialize the number of similar images in database to 0 */
 	sim_db->size = 0;
@@ -129,7 +129,7 @@ void populate_sim_db(struct similar_image_db *sim_db, char *html_content)
 	}
 
 	/* Get length of the string we are looking for and search for it */
-	unsigned int iqdb_result_len = strlen(IQDB_RESULT_ID);
+	unsigned short iqdb_result_len = strlen(IQDB_RESULT_ID);
 
 	/* Go through the data and get every valid link to a similar image */
 	while (index != NULL) {
@@ -147,17 +147,20 @@ void populate_sim_db(struct similar_image_db *sim_db, char *html_content)
 		walker = &(walker[1]);
 		tmp[0] = '\0';
 
-		unsigned int similarity = 0, x = 0, y = 0;
+		unsigned short similarity = 0;
+		unsigned int x = 0, y = 0;
 		/* Get the image x,y dimensions */
 		walker = parse_xy_img_dimensions(walker, &x, &y);
 		walker = parse_percent_similar(walker, &similarity);
 
-		/* Create a new similar_image struct to hold all the image's information */
-		struct similar_image *image = create_sim_image(url_begin, similarity, x, y);
+		if (similarity >= similar_threshold) {
+			/* Create a new similar_image struct to hold all the image's information */
+			struct similar_image *image = create_sim_image(url_begin, similarity, x, y);
 
-		/* Add it to our database of similar images */
-		sim_db->img_db[sim_db->size] = image;
-		sim_db->size++;
+			/* Add it to our database of similar images */
+			sim_db->img_db[sim_db->size] = image;
+			sim_db->size++;
+		}
 
 		/* set the starting point of the string to the next valid weblink */
 		index = strstr(walker, IQDB_RESULT_ID);
@@ -189,7 +192,7 @@ char *get_server_file_name(char *web_url, char stop) {
 		}
 	}
 
-	unsigned int size_cpy = strlen(final_slash);
+	unsigned short size_cpy = strlen(final_slash);
 	/* If a stop sequence is given, terminate the
 	 * string at stop sequence */
 	if (stop) {

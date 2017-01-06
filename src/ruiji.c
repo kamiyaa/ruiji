@@ -17,6 +17,7 @@ struct arg_options {
 	short prompt;
 	short showhelp;
 	short showversion;
+	unsigned short threshold;
 };
 
 /* set default command line options */
@@ -26,19 +27,23 @@ void set_default_opt(struct arg_options *arg_opt)
 	arg_opt->prompt = 1;
 	arg_opt->showhelp = 0;
 	arg_opt->showversion = 0;
+	arg_opt->threshold = 0;
 }
 
 /* parse command line arguments */
 void parse_arguments(int argv, char **argc, struct arg_options *arguments)
 {
 	int c;
-	while ((c = getopt(argv, argc, "hvy")) != -1) {
+	while ((c = getopt(argv, argc, "ht:vy")) != -1) {
 		switch(c) {
 		case 'h':
 			arguments->showhelp = 1;
 			break;
 		case 'q':
 			arguments->verbose = 0;
+			break;
+		case 't':
+			arguments->threshold = atoi(optarg);
 			break;
 		case 'v':
 			arguments->showversion = 1;
@@ -77,7 +82,7 @@ int main(int argv, char *argc[])
 		return 0;
 	}
 
-	int fi = argv - 1;
+	unsigned int fi = argv - 1;
 	/* check if selected image file exists */
 	FILE *img_fd;
 	img_fd = fopen(argc[fi], "rb");
@@ -94,10 +99,10 @@ int main(int argv, char *argc[])
 	/* Initialize a struct to hold all the images similar
 	 * to the uploaded image */
 	struct similar_image_db sim_db;
-	populate_sim_db(&sim_db, html_data);
+	populate_sim_db(&sim_db, html_data, arg_opt.threshold);
 	free(html_data);
 
-	int user_input = 0;
+	short user_input = 0;
 	/* if any results were found, ask user which to download */
 	if (sim_db.size) {
 		if (arg_opt.prompt) {
@@ -106,7 +111,7 @@ int main(int argv, char *argc[])
 
 			/* ask user which website they would like to download from */
 			printf("Which one would you like to download?: ");
-			scanf("%d", &user_input);
+			scanf("%hd", &user_input);
 
 			if (user_input < 0 || user_input >= sim_db.size) {
 				printf("Error: Invalid option selected\n");
@@ -144,8 +149,14 @@ int main(int argv, char *argc[])
 		else
 			printf("Error: Download failed\n");
 	}
-	else
-		printf("No similar results! :(\n");
+	else {
+		printf("No results! :(\n");
+		/* free up allocated memory */
+		free_similar_image_db(&sim_db);
+		/* clean up curl */
+		ruiji_curl_cleanup();
+		return 1;
+	}
 
 	/* free up allocated memory */
 	free_similar_image_db(&sim_db);
