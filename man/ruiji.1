@@ -1,0 +1,40 @@
+.TH "ruiji" "1" "Jan 05 2017" "\ \&" "\ \&"
+
+.SH "NAME"
+ruiji \- reverse image search for anime-related pictures
+
+.SH "SYNOPSIS"
+ruiji [options] [image file]
+
+.SH "OPTIONS"
+.sp
+.PP
+\fB\-h, \fR
+.RS 4
+Show help message and quit\&.
+.RE
+.PP
+\fB\-q, \fR
+.RS 4
+Suppress verbose output (currently, doesn't work)\&.
+.RE
+.PP
+\fB\-t <1-100>, \fR
+.RS 4
+Display only results with a similarity percentage greater than or equal to given number (default: 0)\&.
+.RE
+.PP
+\fB\-v, \fR
+.RS 4
+Show version number and quit\&.
+.RE
+.PP
+\fB\-y, \fR
+.RS 4
+Select and download the image with the highest similarity without prompting the user\&.
+.RE
+.PP
+
+.SH "DESCRIPTION"
+Command that uploads a supported image format to http://iqdb.org, parses the subsequent html for similar image results and prompt the user which one to download.
+

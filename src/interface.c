@@ -70,12 +70,13 @@ void image_upload_toast(char *file_name, char *website_url)
 void print_help(void)
 {
 	puts("Usage: ruiji [options] [file]\n");
-	puts("  -h \t\t Show this help message");
-	puts("  -q \t\t Suppress verbose output");
-	puts("  -t <1-100> \t Process only results with percent similarity");
-	puts("             \t greater than or equal to given number");
-	puts("  -v \t\t Show version number");
-	puts("  -y \t\t Download most similar image without prompt\n");
+	puts("  -h \t\t Show this help message and quit\n");
+	puts("  -q \t\t Suppress verbose output\n");
+	puts("  -t <0-100> \t Process only results with a similarity percentage");
+	puts("             \t greater than or equal to given number\n");
+	puts("  -v \t\t Show version number and quit\n");
+	puts("  -y \t\t Select and download the image with the highest");
+	puts("     \t\t similarity without prompting the user\n");
 }
 
 
