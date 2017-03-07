@@ -6,7 +6,7 @@
 
 #include "interface.h"
 
-#define VERSION "0.1"
+#define VERSION "0.2"
 
 #define IQDB_URL "https://iqdb.org"
 #define IQDB_UPLOAD_FIELD "file"
@@ -31,14 +31,20 @@ struct ruiji_arg_opts {
 	char *file;
 };
 
-
+/* struct for command line argument options */
 static struct argp_option options[] = {
-	{ "verbose",	'v', 0, 0, "Produce verbose output" },
-	{ "quiet",		'q', 0, 0, "Suppress verbose output" },
-	{ "file",		'f', "FILE", 0, "Takes in the given file to upload" },
-	{ "noprompt",	'y', 0, 0, "Skips user interactions and downloads the most similar image" },
-	{ "threshold",	't', "Numbah", 0,
-	"Only show images above certain similarity percentage" },
+	{ "version",	'V',	0, 0,
+		"Show version number" },
+	{ "verbose",	'v',	0, 0,
+		"Produce verbose output" },
+	{ "quiet",	'q',	0, 0,
+		"Suppress verbose output" },
+	{ "file",	'f',	"FILE", 0,
+		"Takes in the given file to upload" },
+	{ "noprompt",	'y',	0, 0,
+		"Skips user interactions and downloads the most similar image" },
+	{ "threshold",	't',	"Numbah", 0,
+		"Only show images above certain similarity percentage" },
 	{ 0 }
 };
 
@@ -54,9 +60,9 @@ void set_default_opt(struct ruiji_arg_opts *arg_opt)
 	arg_opt->file = "file.png";
 }
 
+/* Parse and process command line arguments */
 error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
-
 	struct ruiji_arg_opts *arguments = state->input;
 
 	switch (key) {
@@ -74,6 +80,9 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
 		break;
 	case 'y':
 		arguments->prompt = 0;
+		break;
+	case 'V':
+		arguments->showversion = 1;
 		break;
 //	case ARGP_KEY_ARG:
 //		arguments->args[state->arg_num] = arg;
@@ -97,14 +106,21 @@ static struct argp ruiji_args = {
 };
 
 
+
 int main(int argc, char *argv[])
 {
+	int exit_code = 0;
 	/* create new arguments struct for ruiji and set them to default values */
 	struct ruiji_arg_opts arg_opts;
 	set_default_opt(&arg_opts);
 
 	/* parse given command line arguments */
 	argp_parse(&ruiji_args, argc, argv, 0, 0, &arg_opts);
+
+	if (arg_opts.showversion) {
+		printf("ruiji-%s\n", VERSION);
+		return exit_code;
+	}
 
 	/* check if selected image file exists */
 	FILE *img_fd;
@@ -176,11 +192,7 @@ int main(int argc, char *argv[])
 	}
 	else {
 		printf("No results! :(\n");
-		/* free up allocated memory */
-		free_similar_image_db(&sim_db);
-		/* clean up curl */
-		ruiji_curl_cleanup();
-		return 1;
+		exit_code = 1;
 	}
 
 	/* free up allocated memory */
@@ -188,7 +200,7 @@ int main(int argc, char *argv[])
 	/* clean up curl */
 	ruiji_curl_cleanup();
 
-	return 0;
+	return exit_code;
 }
 
 /*	dl_url = get_image_url(dl_image->link, DANBOORU_SOURCE_ID, DANBOORU_URL, '"');
