@@ -9,29 +9,34 @@ ruiji [options] [image file]
 .SH "OPTIONS"
 .sp
 .PP
-\fB\-h, \fR
+\fB\-f, --file=[FILENAME]\fR
+.RS 4
+Takes in the given file to upload\&.
+.RE
+.PP
+\fB\-h, --help\fR
 .RS 4
 Show help message and quit\&.
 .RE
 .PP
-\fB\-q, \fR
+\fB\-q, --quiet\fR
 .RS 4
 Suppress verbose output (currently, doesn't work)\&.
 .RE
 .PP
-\fB\-t <1-100>, \fR
+\fB\-t, --threshold=<0-100>\fR
 .RS 4
-Display only results with a similarity percentage greater than or equal to given number (default: 0)\&.
+Only show images above certain similarity percentage (default: 0)\&.
 .RE
 .PP
-\fB\-v, \fR
+\fB\-v, --version\fR
 .RS 4
 Show version number and quit\&.
 .RE
 .PP
-\fB\-y, \fR
+\fB\-y, --noprompt\fR
 .RS 4
-Select and download the image with the highest similarity without prompting the user\&.
+Skips user interactions and downloads the most similar image\&.
 .RE
 .PP
 

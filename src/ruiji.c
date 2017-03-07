@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <argp.h>
 
 #include "interface.h"
 
@@ -11,101 +12,124 @@
 #define IQDB_UPLOAD_FIELD "file"
 #define DANBOORU_SOURCE_ID "Size: <a href=\""
 
+
+/* Program documentation. */
+const char *argp_program_bug_address =
+	"report bugs to https://github.com/Kamiyaa/ruiji";
+static char ruiji_doc[] =
+	"\nReverse image searching program using iqdb.org";
+
 /* struct for holding command line arguments */
-struct arg_options {
+struct ruiji_arg_opts {
+	char *args[2];
+	short silent;
 	short verbose;
 	short prompt;
 	short showhelp;
 	short showversion;
 	unsigned short threshold;
+	char *file;
+};
+
+
+static struct argp_option options[] = {
+	{ "verbose",	'v', 0, 0, "Produce verbose output" },
+	{ "quiet",		'q', 0, 0, "Suppress verbose output" },
+	{ "file",		'f', "FILE", 0, "Takes in the given file to upload" },
+	{ "noprompt",	'y', 0, 0, "Skips user interactions and downloads the most similar image" },
+	{ "threshold",	't', "Numbah", 0,
+	"Only show images above certain similarity percentage" },
+	{ 0 }
 };
 
 /* set default command line options */
-void set_default_opt(struct arg_options *arg_opt)
+void set_default_opt(struct ruiji_arg_opts *arg_opt)
 {
 	arg_opt->verbose = 1;
+	arg_opt->silent = 0;
 	arg_opt->prompt = 1;
 	arg_opt->showhelp = 0;
 	arg_opt->showversion = 0;
 	arg_opt->threshold = 0;
+	arg_opt->file = "file.png";
 }
 
-/* parse command line arguments */
-void parse_arguments(int argv, char **argc, struct arg_options *arguments)
+error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
-	int c;
-	while ((c = getopt(argv, argc, "ht:vy")) != -1) {
-		switch(c) {
-		case 'h':
-			arguments->showhelp = 1;
-			break;
-		case 'q':
-			arguments->verbose = 0;
-			break;
-		case 't':
-			arguments->threshold = atoi(optarg);
-			break;
-		case 'v':
-			arguments->showversion = 1;
-			break;
-		case 'y':
-			arguments->prompt = 0;
-			break;
-		}
+
+	struct ruiji_arg_opts *arguments = state->input;
+
+	switch (key) {
+	case 'f':
+		arguments->file = arg;
+		break;
+	case 'q':
+		arguments->silent = 1;
+		break;
+	case 't':
+		arguments->threshold = atoi(arg);
+		break;
+	case 'v':
+		arguments->verbose = 1;
+		break;
+	case 'y':
+		arguments->prompt = 0;
+		break;
+//	case ARGP_KEY_ARG:
+//		arguments->args[state->arg_num] = arg;
+//		break;
+	case ARGP_KEY_END:
+		/* Not enough arguments */
+		if (state->arg_num >= 2)
+			argp_usage (state);
+		break;
+
+	default:
+		return ARGP_ERR_UNKNOWN;
 	}
+	return 0;
 }
 
 
-int main(int argv, char *argc[])
+static struct argp ruiji_args = {
+	options, parse_opt,
+	0, ruiji_doc
+};
+
+
+int main(int argc, char *argv[])
 {
-	/* Check if we have at least an additional argument,
-	 * which is the file name */
-	if (argv < 2) {
-		printf("Error: No given argument\n");
-		return 1;
-	}
+	/* create new arguments struct for ruiji and set them to default values */
+	struct ruiji_arg_opts arg_opts;
+	set_default_opt(&arg_opts);
 
-	/* create a struct for command line arguments,
-	 * set it to default options, then parse for any
-	 * user options */
-	struct arg_options arg_opt;
-	set_default_opt(&arg_opt);
-	parse_arguments(argv, argc, &arg_opt);
+	/* parse given command line arguments */
+	argp_parse(&ruiji_args, argc, argv, 0, 0, &arg_opts);
 
-
-	if (arg_opt.showhelp) {
-		print_help();
-		return 0;
-	}
-	if (arg_opt.showversion) {
-		printf("ruiji-%s\n", VERSION);
-		return 0;
-	}
-
-	unsigned int fi = argv - 1;
 	/* check if selected image file exists */
 	FILE *img_fd;
-	img_fd = fopen(argc[fi], "rb");
+	char *file_name = arg_opts.file;
+	img_fd = fopen(file_name, "rb");
 	if (!img_fd) {
-		printf("Error: No such file\n");
+		printf("Error: No such file: %s\n", file_name);
 		return 1;
 	}
 	fclose(img_fd);
 
 	/* Get the html output after uploading the image */
-	char *html_data = upload_image(IQDB_URL, argc[fi], IQDB_UPLOAD_FIELD);
+	char *html_data = upload_image(IQDB_URL, file_name, IQDB_UPLOAD_FIELD);
 	printf("Upload successful\n\n");
 
 	/* Initialize a struct to hold all the images similar
 	 * to the uploaded image */
 	struct similar_image_db sim_db;
-	populate_sim_db(&sim_db, html_data, arg_opt.threshold);
+	populate_sim_db(&sim_db, html_data, arg_opts.threshold);
 	free(html_data);
 
 	short user_input = 0;
 	/* if any results were found, ask user which to download */
 	if (sim_db.size) {
-		if (arg_opt.prompt) {
+		if (arg_opts.prompt) {
 			/* print out all results and its properties */
 			print_sim_results(&sim_db);
 
@@ -123,20 +147,21 @@ int main(int argv, char *argc[])
 		struct similar_image *dl_image = sim_db.img_db[user_input];
 
 		/* used to check if download was successful */
-		int dl_state = -1;
+		short dl_state = -1;
 		/* used to know where to slice string for getting
 		 * file name */
 		char stop_seq = '\0';
 		/* get source image url */
 		char *dl_url = get_image_url(dl_image->link, &stop_seq);
 
+		printf("Downloading from %s...\n", dl_image->link);
 		if (dl_url) {
 			/* get the name of the file */
 			char *file_save_name;
 			file_save_name = get_server_file_name(dl_url,
 							stop_seq);
 			/* notify the user */
-			image_save_toast(file_save_name, dl_url);
+			image_save_toast(file_save_name, dl_image->link);
 			/* save the image as it's name on the server */
 			dl_state = download_image(dl_url, file_save_name);
 			/* free allocated memory */

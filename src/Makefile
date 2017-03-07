@@ -17,6 +17,9 @@ install:
 	@mkdir -p ${PREFIX}/bin
 	cp ruiji ${PREFIX}/bin
 	chmod 755 ${PREFIX}/bin/ruiji
+	@mkdir -p ${PREFIX}/share/man/man1
+	cp ../man/ruiji.1 ${PREFIX}/share/man/man1/ruiji.1
+	chmod 644 ${PREFIX}/share/man/man1/ruiji.1
 
 uninstall:
 	@rm -f ${PREFIX}/bin/ruiji

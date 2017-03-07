@@ -17,7 +17,7 @@ char *upload_image(char *website, char *file_name, char *field_name);
  * 0 = successful
  * !0 = something went wrong
  */
-int download_image(char *dl_url, char *file_name);
+short download_image(char *dl_url, char *file_name);
 
 /* Clean up curl */
 void ruiji_curl_cleanup(void);

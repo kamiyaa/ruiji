@@ -129,7 +129,7 @@ char *upload_image(char *website, char *file_name, char *field_name)
  * 0 = successful
  * !0 = something went wrong
  */
-int download_image(char *web_url, char *file_name)
+short download_image(char *web_url, char *file_name)
 {
 	FILE *img_fp;
 	img_fp = fopen(file_name, "wb");
