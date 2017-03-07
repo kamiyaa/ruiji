@@ -29,7 +29,7 @@ $ make
 
 ## Usage
 ```
-$ ruiji </path/to/image>
+$ ruiji --file=</path/to/image>
 ```
 
 ## Features
