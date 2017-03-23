@@ -184,26 +184,29 @@ struct similar_image *get_most_similar_image(struct similar_image_db *sim_db)
  */
 char *get_server_file_name(char *web_url, char stop) {
 	/* Go through and get the last section of a url */
-	char *final_slash;
-	for (int i = strlen(web_url); i > 0; i--) {
-		if (web_url[i] == '/') {
-			final_slash = &(web_url[i+1]);
-			break;
-		}
+	char *slash_index;
+	int index = strlen(web_url);
+	/* interate through the string backwards till we find a '/' */
+	while (web_url[index] == '/') {
+		index--;
 	}
+	/* get memory address we stopped at */
+	slash_index = &(web_url[index+1]);
 
-	unsigned short size_cpy = strlen(final_slash);
+	unsigned short size_cpy = strlen(slash_index);
 	/* If a stop sequence is given, terminate the
 	 * string at stop sequence */
 	if (stop) {
 		size_cpy--;
-		while (final_slash[size_cpy] != stop)
+		while (slash_index[size_cpy] != stop)
 			size_cpy--;
 	}
 
+	/* Allocate enough memory for the file name */
 	char *file_name = malloc(sizeof(char) * (size_cpy + 1));
+	/* NULL terminate the file name and concatenate the file name to it */
 	file_name[0] = '\0';
-	strncat(file_name, final_slash, size_cpy);
+	strncat(file_name, slash_index, size_cpy);
 
 	return file_name;
 }
@@ -225,6 +228,8 @@ char *get_image_url(char *link, char *stop_seq)
 		dl_url = gelbooru_get_image_url(link);
 	else if (strstr(link, SANKAKU_COMPLEX_DOMAIN)) {
 		dl_url = sankaku_complex_get_image_url(link);
+		/* change the sequence to stop parsing at
+		 * to '?' for sankakucomplex */
 		*stop_seq = '?';
 	}
 	return dl_url;

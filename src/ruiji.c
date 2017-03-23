@@ -11,13 +11,14 @@
 #define IQDB_URL "https://iqdb.org"
 #define IQDB_UPLOAD_FIELD "file"
 #define DANBOORU_SOURCE_ID "Size: <a href=\""
-
+#define MAX_FILE_SIZE 8192000
 
 /* Program documentation. */
 const char *argp_program_bug_address =
 	"report bugs to https://github.com/Kamiyaa/ruiji";
 static char ruiji_doc[] =
 	"\nReverse image searching program using iqdb.org";
+
 
 /* struct for holding command line arguments */
 struct ruiji_arg_opts {
@@ -30,6 +31,7 @@ struct ruiji_arg_opts {
 	unsigned short threshold;
 	char *file;
 };
+
 
 /* struct for command line argument options */
 static struct argp_option options[] = {
@@ -48,6 +50,7 @@ static struct argp_option options[] = {
 	{ 0 }
 };
 
+
 /* set default command line options */
 void set_default_opt(struct ruiji_arg_opts *arg_opt)
 {
@@ -59,6 +62,7 @@ void set_default_opt(struct ruiji_arg_opts *arg_opt)
 	arg_opt->threshold = 0;
 	arg_opt->file = "file.png";
 }
+
 
 /* Parse and process command line arguments */
 error_t parse_opt(int key, char *arg, struct argp_state *state)
@@ -117,6 +121,7 @@ int main(int argc, char *argv[])
 	/* parse given command line arguments */
 	argp_parse(&ruiji_args, argc, argv, 0, 0, &arg_opts);
 
+	/* If one wants to see, version number, just print and exit */
 	if (arg_opts.showversion) {
 		printf("ruiji-%s\n", VERSION);
 		return exit_code;
@@ -130,6 +135,16 @@ int main(int argc, char *argv[])
 		printf("Error: No such file: %s\n", file_name);
 		return 1;
 	}
+	/* get the size of the image file */
+	fseek(img_fd, 0L, SEEK_END);
+	int image_size = ftell(img_fd);
+	/* Check if it exceeds the max file size limit */
+	if (image_size > MAX_FILE_SIZE) {
+		printf("Error: File size limit exceeded (%dKB)\n", MAX_FILE_SIZE / 1000);
+		fclose(img_fd);
+		return 1;
+	}
+	/* Close the file handle */
 	fclose(img_fd);
 
 	/* Get the html output after uploading the image */
@@ -142,53 +157,56 @@ int main(int argc, char *argv[])
 	populate_sim_db(&sim_db, html_data, arg_opts.threshold);
 	free(html_data);
 
-	short user_input = 0;
 	/* if any results were found, ask user which to download */
 	if (sim_db.size) {
+		short user_input = 0;
 		if (arg_opts.prompt) {
 			/* print out all results and its properties */
 			print_sim_results(&sim_db);
 
 			/* ask user which website they would like to download from */
-			printf("Which one would you like to download?: ");
+			printf("Which one would you like to download? (-1 to exit): ");
+			/* get short int input */
 			scanf("%hd", &user_input);
+		}
 
-			if (user_input < 0 || user_input >= sim_db.size) {
-				printf("Error: Invalid option selected\n");
-				return 1;
+		if (user_input < 0 || user_input >= sim_db.size) {
+			printf("Error: Invalid option selected\n");
+			exit_code = 1;
+		}
+
+		else {
+			/* select the selected image */
+			struct similar_image *dl_image = sim_db.img_db[user_input];
+
+			/* used to check if download was successful */
+			short dl_state = -1;
+			/* used to know where to slice string for getting
+			 * file name. Default is NULL character */
+			char stop_seq = '\0';
+			/* get source image url */
+			char *dl_url = get_image_url(dl_image->link, &stop_seq);
+	
+			printf("Downloading from %s...\n", dl_image->link);
+			if (dl_url) {
+				/* get the name of the file */
+				char *file_save_name;
+				file_save_name = get_server_file_name(dl_url,
+								stop_seq);
+				/* notify the user */
+				image_save_toast(file_save_name, dl_image->link);
+				/* save the image as it's name on the server */
+				dl_state = download_image(dl_url, file_save_name);
+				/* free allocated memory */
+				free(file_save_name);
+				free(dl_url);
 			}
+	
+			if (!dl_state)
+				printf("Done!\n");
+			else
+				printf("Error: Download failed\n");
 		}
-
-		/* select the selected image */
-		struct similar_image *dl_image = sim_db.img_db[user_input];
-
-		/* used to check if download was successful */
-		short dl_state = -1;
-		/* used to know where to slice string for getting
-		 * file name */
-		char stop_seq = '\0';
-		/* get source image url */
-		char *dl_url = get_image_url(dl_image->link, &stop_seq);
-
-		printf("Downloading from %s...\n", dl_image->link);
-		if (dl_url) {
-			/* get the name of the file */
-			char *file_save_name;
-			file_save_name = get_server_file_name(dl_url,
-							stop_seq);
-			/* notify the user */
-			image_save_toast(file_save_name, dl_image->link);
-			/* save the image as it's name on the server */
-			dl_state = download_image(dl_url, file_save_name);
-			/* free allocated memory */
-			free(file_save_name);
-			free(dl_url);
-		}
-
-		if (!dl_state)
-			printf("Done!\n");
-		else
-			printf("Error: Download failed\n");
 	}
 	else {
 		printf("No results! :(\n");
