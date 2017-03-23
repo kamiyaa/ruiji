@@ -185,11 +185,10 @@ struct similar_image *get_most_similar_image(struct similar_image_db *sim_db)
 char *get_server_file_name(char *web_url, char stop) {
 	/* Go through and get the last section of a url */
 	char *slash_index;
-	int index = strlen(web_url);
-	/* interate through the string backwards till we find a '/' */
-	while (web_url[index] == '/') {
+	int index = strlen(web_url) - 1;
+	/* interate through the string backwards until we find a '/' */
+	while (web_url[index] != '/')
 		index--;
-	}
 	/* get memory address we stopped at */
 	slash_index = &(web_url[index+1]);
 

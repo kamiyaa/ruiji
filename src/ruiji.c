@@ -186,7 +186,7 @@ int main(int argc, char *argv[])
 			char stop_seq = '\0';
 			/* get source image url */
 			char *dl_url = get_image_url(dl_image->link, &stop_seq);
-	
+
 			printf("Downloading from %s...\n", dl_image->link);
 			if (dl_url) {
 				/* get the name of the file */
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 				free(file_save_name);
 				free(dl_url);
 			}
-	
+			/* Report back to the user how the download went */
 			if (!dl_state)
 				printf("Done!\n");
 			else
