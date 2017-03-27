@@ -186,17 +186,22 @@ int main(int argc, char *argv[])
 			char stop_seq = '\0';
 			/* get source image url */
 			char *dl_url = get_image_url(dl_image->link, &stop_seq);
+			/* Notify the user we are downloading the image */
+			image_download_toast(dl_image->link);
 
-			printf("Downloading from %s...\n", dl_image->link);
+			/* Check if we've successfully parsed the source image
+			 * url */
 			if (dl_url) {
-				/* get the name of the file */
-				char *file_save_name;
-				file_save_name = get_server_file_name(dl_url,
-								stop_seq);
+				/* get the name of the file from its server */
+				char *file_save_name =
+					get_server_file_name(dl_url, stop_seq);
+
 				/* notify the user */
-				image_save_toast(file_save_name, dl_image->link);
+				image_save_toast(file_save_name);
+
 				/* save the image as it's name on the server */
-				dl_state = download_image(dl_url, file_save_name);
+				dl_state =
+					download_image(dl_url, file_save_name);
 				/* free allocated memory */
 				free(file_save_name);
 				free(dl_url);
@@ -220,6 +225,3 @@ int main(int argc, char *argv[])
 
 	return exit_code;
 }
-
-/*	dl_url = get_image_url(dl_image->link, DANBOORU_SOURCE_ID, DANBOORU_URL, '"');
-*/

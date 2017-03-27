@@ -7,29 +7,24 @@
 
 #define IQDB_RESULT_ID	"match</th></tr><tr><td class='image'><a href=\""
 
-/* Replace the first instance of find with replace,
- * mutating the string.
- */
-void replace_first_with(char *string, char find, char replace)
+/* get how far away a char is from the beginning of the string */
+unsigned int get_distance(char *string, char find)
 {
-	/* Use a pointer to go through the string */
+	/* initialize a pointer to the beginning of the string */
 	char *walker = string;
-	/* Go through the string and find the char replace */
-	while (*walker != find)
-		walker = &walker[1];
-
-	/* Once we find the char we are looking for,
-	 * replace it with replace
-	 */
-	walker[0] = replace;
+	unsigned int distance = 0;
+	/* keep on incrementing until we've found the char */
+	while (walker[distance] != find)
+		distance++;
+	/* return the distance */
+	return distance;
 }
-
 
 /* Given the necessary information of a similar image, create a similar image
  * struct with the given values and return it.
  */
 struct similar_image *
-create_sim_image(char *url_begin, unsigned short similarity, unsigned int image_x, unsigned int image_y)
+create_sim_image(char *web_url, unsigned short similarity, unsigned int image_x, unsigned int image_y)
 {
 	/* Create a new similar image struct to store information */
 	struct similar_image *image = malloc(sizeof(struct similar_image));
@@ -39,20 +34,20 @@ create_sim_image(char *url_begin, unsigned short similarity, unsigned int image_
 	image->dimensions[0] = image_x;
 	image->dimensions[1] = image_y;
 
-	unsigned int size_alloc = strlen(url_begin) + 1;
+	unsigned int size_alloc = strlen(web_url) + 1;
 	/* Format url to be complete with protocol, if none is provided */
-	if (!strstr(url_begin, "http")) {
+	if (!strstr(web_url, "http")) {
 		char *prefix_add = "https:\0";
 
 		size_alloc += strlen(prefix_add);
 		image->link = malloc(sizeof(char) * size_alloc);
 		strcpy(image->link, prefix_add);
-		strcat(image->link, url_begin);
+		strcat(image->link, web_url);
 
 	}
 	else {
 		image->link = malloc(sizeof(char) * size_alloc);
-		strcpy(image->link, url_begin);
+		strcpy(image->link, web_url);
 	}
 	return image;
 }
@@ -135,34 +130,36 @@ void populate_sim_db(struct similar_image_db *sim_db, char *html_content, unsign
 	while (index != NULL) {
 		/* Get where the url of the website begins */
 		char *url_begin = &index[iqdb_result_len];
-		/* Set a arbitrary pointer to go through the string */
-		char *walker = url_begin;
 
 		/* Go through the string, looking for '"'. Once found,
 		 * slice the string */
-		while (*walker != '"')
-			walker = &(walker[1]);
-		char *tmp = &(walker[0]);
-		/* Move on to the rest of the string */
-		walker = &(walker[1]);
-		tmp[0] = '\0';
+		unsigned url_len = get_distance(url_begin, '"');
+		/* Set a arbitrary pointer to go through the string */
+		char *walker = &(url_begin[url_len+1]);
+		url_begin[url_len] = '\0';
 
+		/* Get the image x,y dimensions as well as the similarity
+		 * of the image */
 		unsigned short similarity = 0;
 		unsigned int x = 0, y = 0;
-		/* Get the image x,y dimensions */
 		walker = parse_xy_img_dimensions(walker, &x, &y);
 		walker = parse_percent_similar(walker, &similarity);
 
+		/* If the image passes given threshold, add it to
+		 * the collection of similar images */
 		if (similarity >= similar_threshold) {
-			/* Create a new similar_image struct to hold all the image's information */
-			struct similar_image *image = create_sim_image(url_begin, similarity, x, y);
+			/* Create a new similar_image struct to
+			 * hold all the image's information */
+			struct similar_image *image =
+				create_sim_image(url_begin, similarity, x, y);
 
 			/* Add it to our database of similar images */
 			sim_db->img_db[sim_db->size] = image;
 			sim_db->size++;
 		}
 
-		/* set the starting point of the string to the next valid weblink */
+		/* set the starting point of the string
+		 * to the next valid weblink */
 		index = strstr(walker, IQDB_RESULT_ID);
 	}
 }
@@ -179,33 +176,27 @@ struct similar_image *get_most_similar_image(struct similar_image_db *sim_db)
 };
 
 
-/* Given the full link of a website,
- * parse the link to get the file name
- */
+/* Given the full link of a website, parse the link to get the file name */
 char *get_server_file_name(char *web_url, char stop) {
 	/* Go through and get the last section of a url */
-	char *slash_index;
 	int index = strlen(web_url) - 1;
 	/* interate through the string backwards until we find a '/' */
 	while (web_url[index] != '/')
 		index--;
 	/* get memory address we stopped at */
-	slash_index = &(web_url[index+1]);
+	char *slash_index = &(web_url[index+1]);
 
-	unsigned short size_cpy = strlen(slash_index);
+	unsigned short file_name_len = strlen(slash_index);
 	/* If a stop sequence is given, terminate the
-	 * string at stop sequence */
-	if (stop) {
-		size_cpy--;
-		while (slash_index[size_cpy] != stop)
-			size_cpy--;
-	}
+	 * string copy at stop sequence */
+	if (stop)
+		file_name_len = get_distance(slash_index, stop);
 
 	/* Allocate enough memory for the file name */
-	char *file_name = malloc(sizeof(char) * (size_cpy + 1));
+	char *file_name = malloc(sizeof(char) * (file_name_len + 1));
 	/* NULL terminate the file name and concatenate the file name to it */
 	file_name[0] = '\0';
-	strncat(file_name, slash_index, size_cpy);
+	strncat(file_name, slash_index, file_name_len);
 
 	return file_name;
 }
@@ -215,22 +206,29 @@ char *get_server_file_name(char *web_url, char stop) {
 char *get_image_url(char *link, char *stop_seq)
 {
 	char *dl_url = NULL;
-	if (strstr(link, DANBOORU_DOMAIN))
-		dl_url = danbooru_get_image_url(link);
-	else if (strstr(link, YANDERE_DOMAIN))
+	/* if the link given is a yandere domain */
+	if (strstr(link, YANDERE_DOMAIN))
 		dl_url = yandere_get_image_url(link);
+	/* danbooru domain */
+	else if (strstr(link, DANBOORU_DOMAIN))
+		dl_url = danbooru_get_image_url(link);
+	/* konachan domain */
 	else if (strstr(link, KONACHAN_DOMAIN))
 		dl_url = konachan_get_image_url(link);
+	/* eshuushuu domain */
 	else if (strstr(link, ESHUUSHUU_DOMAIN))
 		dl_url = eshuushuu_get_image_url(link);
+	/* gelbooru domain */
 	else if (strstr(link, GELBOORU_DOMAIN))
 		dl_url = gelbooru_get_image_url(link);
+	/* sankakucomplex domain */
 	else if (strstr(link, SANKAKU_COMPLEX_DOMAIN)) {
 		dl_url = sankaku_complex_get_image_url(link);
 		/* change the sequence to stop parsing at
 		 * to '?' for sankakucomplex */
 		*stop_seq = '?';
 	}
+	/* return the url */
 	return dl_url;
 }
 

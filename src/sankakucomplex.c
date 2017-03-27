@@ -16,19 +16,19 @@ char* sankaku_complex_get_image_url(char *web_url)
 	char *html_content = get_html(web_url);
 
 	/* Find the source image link */
-	char *index = strstr(html_content, SANKAKU_COMPLEX_SOURCE_ID);
+	char *source_index = strstr(html_content, SANKAKU_COMPLEX_SOURCE_ID);
 	char *img_src_url;
 
 	/* If found, add http extension to it and return it */
-	if (index) {
-		index = &index[strlen(SANKAKU_COMPLEX_SOURCE_ID)];
-		replace_first_with(index, '"', '\0');
+	if (source_index) {
+		source_index = &source_index[strlen(SANKAKU_COMPLEX_SOURCE_ID)];
+		unsigned int url_len = get_distance(source_index, '"');
 
-		unsigned int url_len = strlen(index) + strlen(HTTPS) + 1;
-		img_src_url = malloc(sizeof(char) * url_len);
+		img_src_url = malloc(sizeof(char) *
+					(url_len + strlen(HTTPS) + 1));
 		img_src_url[0] = '\0';
 		strcat(img_src_url, HTTPS);
-		strcat(img_src_url, index);
+		strncat(img_src_url, source_index, url_len);
 	}
 	else {
 		printf("Error: sankaku_complex_get_image_url():\n\tFailed to parse \"%s\"\n", web_url);
