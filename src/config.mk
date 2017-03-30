@@ -15,7 +15,7 @@ CFLAGS = -std=gnu99 -ggdb3 -O0 -Wall -Werror -Wno-unused-variable -march=native
 LIBS = -lcurl
 
 # helper files for specific websites
-WEBSRC = danbooru.c eshuushuu.c gelbooru.c konachan.c sankakucomplex.c yandere.c zerochan.c
+WEBSRC = danbooru.c eshuushuu.c gelbooru.c konachan.c mangadrawing.c sankakucomplex.c yandere.c zerochan.c
 # helper files to for main program
 HELPERS = ${WEBSRC} interface.c parser.c udload.c
 

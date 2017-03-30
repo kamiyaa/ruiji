@@ -1,7 +1,7 @@
 #include "parser.h"
 
 /* Given a similar_image, print out all its information */
-void print_similar_image_info(struct similar_image *img);
+void print_image_info(struct similar_image *img);
 
 /* Gives user verbose output on image download */
 void image_download_toast(char *website_url);

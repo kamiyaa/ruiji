@@ -35,18 +35,20 @@ struct ruiji_arg_opts {
 
 /* struct for command line argument options */
 static struct argp_option options[] = {
-	{ "version",	'V',	0, 0,
-		"Show version number" },
-	{ "verbose",	'v',	0, 0,
-		"Produce verbose output" },
-	{ "quiet",	'q',	0, 0,
-		"Suppress verbose output" },
 	{ "file",	'f',	"FILE", 0,
 		"Takes in the given file to upload" },
+	{ "help",	'h',	0, 0,
+		"Show help message" },
 	{ "noprompt",	'y',	0, 0,
 		"Skips user interactions and downloads the most similar image" },
-	{ "threshold",	't',	"Numbah", 0,
+	{ "quiet",	'q',	0, 0,
+		"Suppress verbose output" },
+	{ "threshold",	't',	"number", 0,
 		"Only show images above certain similarity percentage" },
+	{ "verbose",	'v',	0, 0,
+		"Produce verbose output" },
+	{ "version",	'V',	0, 0,
+		"Show version number" },
 	{ 0 }
 };
 
@@ -72,6 +74,9 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
 	switch (key) {
 	case 'f':
 		arguments->file = arg;
+		break;
+	case 'h':
+		arguments->showhelp = 1;
 		break;
 	case 'q':
 		arguments->silent = 1;
@@ -124,6 +129,10 @@ int main(int argc, char *argv[])
 	/* If one wants to see, version number, just print and exit */
 	if (arg_opts.showversion) {
 		printf("ruiji-%s\n", VERSION);
+		return exit_code;
+	}
+	if (arg_opts.showhelp) {
+		print_help();
 		return exit_code;
 	}
 
@@ -186,12 +195,13 @@ int main(int argc, char *argv[])
 			char stop_seq = '\0';
 			/* get source image url */
 			char *dl_url = get_image_url(dl_image->link, &stop_seq);
-			/* Notify the user we are downloading the image */
-			image_download_toast(dl_image->link);
 
 			/* Check if we've successfully parsed the source image
 			 * url */
 			if (dl_url) {
+				/* Notify the user we are downloading the image */
+				image_download_toast(dl_image->link);
+
 				/* get the name of the file from its server */
 				char *file_save_name =
 					get_server_file_name(dl_url, stop_seq);

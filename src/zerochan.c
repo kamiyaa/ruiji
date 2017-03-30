@@ -21,8 +21,10 @@ char* zerochan_get_image_url(char *web_url)
 	/* If found, return it */
 	if (source_index) {
 		source_index = &source_index[strlen(ZEROCHAN_SOURCE_ID)];
-		unsigned int url_len = get_distance(source_index, '\\');
+		unsigned int url_len = get_distance(source_index, '\'');
 
+		/* allocate enough memory to hold the image source url,
+		 * then copy the url over to img_src_url and return it */
 		img_src_url = malloc(sizeof(char) * (url_len + 1));
 		img_src_url[0] = '\0';
 		strncat(img_src_url, source_index, url_len);
@@ -31,6 +33,9 @@ char* zerochan_get_image_url(char *web_url)
 		printf("Error: zerochan_get_image_url():\n\tFailed to parse \"%s\"\n", web_url);
 		img_src_url = "Error\0";
 	}
+	/* deallocate the memory used to download
+	 * and store the webpage's content */
 	free(html_content);
+	/* return the image source url */
 	return img_src_url;
 }

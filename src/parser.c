@@ -10,11 +10,9 @@
 /* get how far away a char is from the beginning of the string */
 unsigned int get_distance(char *string, char find)
 {
-	/* initialize a pointer to the beginning of the string */
-	char *walker = string;
 	unsigned int distance = 0;
 	/* keep on incrementing until we've found the char */
-	while (walker[distance] != find)
+	while (string[distance] != find)
 		distance++;
 	/* return the distance */
 	return distance;
@@ -24,58 +22,32 @@ unsigned int get_distance(char *string, char find)
  * struct with the given values and return it.
  */
 struct similar_image *
-create_sim_image(char *web_url, unsigned short similarity, unsigned int image_x, unsigned int image_y)
+create_sim_image(char *web_url, unsigned short similarity,
+		unsigned int x_pixels, unsigned int y_pixels)
 {
 	/* Create a new similar image struct to store information */
 	struct similar_image *image = malloc(sizeof(struct similar_image));
 
 	/* Set it's values to the given parameters */
 	image->similarity = similarity;
-	image->dimensions[0] = image_x;
-	image->dimensions[1] = image_y;
+	image->dimensions[0] = x_pixels;
+	image->dimensions[1] = y_pixels;
 
-	unsigned int size_alloc = strlen(web_url) + 1;
+	unsigned int len_url = strlen(web_url) + 1;
 	/* Format url to be complete with protocol, if none is provided */
 	if (!strstr(web_url, "http")) {
 		char *prefix_add = "https:\0";
 
-		size_alloc += strlen(prefix_add);
-		image->link = malloc(sizeof(char) * size_alloc);
+		len_url += strlen(prefix_add);
+		image->link = malloc(sizeof(char) * len_url);
 		strcpy(image->link, prefix_add);
 		strcat(image->link, web_url);
-
 	}
 	else {
-		image->link = malloc(sizeof(char) * size_alloc);
+		image->link = malloc(sizeof(char) * len_url);
 		strcpy(image->link, web_url);
 	}
 	return image;
-}
-
-
-/* Given the html contents of http://iqdb.org after an image has been uploaded,
- * get the x, y dimensions of the image and return a pointer pointing to the
- * html contents where the parsing stopped.
- */
-char *parse_percent_similar(char* contents, unsigned short *similarity)
-{
-	/* Get size of char to prevent excessive function calling */
-	char *walker = contents;
-	/* Parse for the similarity percentage of the image and slice it */
-	walker = strstr(walker, "<td>");
-
-	char *next_weblink = strstr(walker, " similarity");
-	char *tmp = &(next_weblink[0]);
-
-	/* Set the pointer to point to the rest of the sliced string */
-	next_weblink = &(next_weblink[1]);
-	tmp[0] = '\0';
-
-	/* Get the similarity percentage of image and set it to similarity */
-	sscanf(walker, "<td>%hu%%", similarity);
-
-	/* Return a pointer to the rest of the sliced string */
-	return next_weblink;
 }
 
 
@@ -95,10 +67,7 @@ char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 	/* Null terminate the string at the next space in the string, and
 	 * point next_weblink to the rest of the sliced string
 	 */
-	char *next_weblink = strstr(walker, " ");
-	char *tmp = &(next_weblink[0]);
-	next_weblink = &(next_weblink[1]);
-	tmp[0] = '\0';
+	char *next_weblink = strstr(walker, "</td>");
 
 	/* Set x,y to the image dimensions */
 	sscanf(walker, "<td>%u×%u ", x, y);
@@ -109,9 +78,30 @@ char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 
 
 /* Given the html contents of http://iqdb.org after an image has been uploaded,
+ * get the x, y dimensions of the image and return a pointer pointing to the
+ * html contents where the parsing stopped.
+ */
+char *parse_percent_similar(char* contents, unsigned short *similarity)
+{
+	/* Get size of char to prevent excessive function calling */
+	char *walker = contents;
+	/* Parse for the similarity percentage of the image and slice it */
+	walker = strstr(walker, "<td>");
+
+	/* Get the similarity percentage of image and set it to similarity */
+	sscanf(walker, "<td>%hu%%", similarity);
+
+	char *next_weblink = strstr(walker, "</div>");
+	/* Return a pointer to the rest of the sliced string */
+	return next_weblink;
+}
+
+
+/* Given the html contents of http://iqdb.org after an image has been uploaded,
  * parse all the results and store them in the struct similar_image_db *sim_db
  */
-void populate_sim_db(struct similar_image_db *sim_db, char *html_content, unsigned short similar_threshold)
+void populate_sim_db(struct similar_image_db *sim_db,
+		char *html_content, unsigned short similar_threshold)
 {
 	/* Initialize the number of similar images in database to 0 */
 	sim_db->size = 0;
@@ -177,26 +167,27 @@ struct similar_image *get_most_similar_image(struct similar_image_db *sim_db)
 
 
 /* Given the full link of a website, parse the link to get the file name */
-char *get_server_file_name(char *web_url, char stop) {
+char *get_server_file_name(char *web_url, char stop)
+{
 	/* Go through and get the last section of a url */
 	int index = strlen(web_url) - 1;
 	/* interate through the string backwards until we find a '/' */
 	while (web_url[index] != '/')
 		index--;
 	/* get memory address we stopped at */
-	char *slash_index = &(web_url[index+1]);
+	char *slash_ptr = &(web_url[index+1]);
 
-	unsigned short file_name_len = strlen(slash_index);
+	unsigned short filename_len = strlen(slash_ptr);
 	/* If a stop sequence is given, terminate the
 	 * string copy at stop sequence */
 	if (stop)
-		file_name_len = get_distance(slash_index, stop);
+		filename_len = get_distance(slash_ptr, stop);
 
 	/* Allocate enough memory for the file name */
-	char *file_name = malloc(sizeof(char) * (file_name_len + 1));
+	char *file_name = malloc(sizeof(char) * (filename_len + 1));
 	/* NULL terminate the file name and concatenate the file name to it */
 	file_name[0] = '\0';
-	strncat(file_name, slash_index, file_name_len);
+	strncat(file_name, slash_ptr, filename_len);
 
 	return file_name;
 }
@@ -221,6 +212,8 @@ char *get_image_url(char *link, char *stop_seq)
 	/* gelbooru domain */
 	else if (strstr(link, GELBOORU_DOMAIN))
 		dl_url = gelbooru_get_image_url(link);
+	else if (strstr(link, MANGADRAWING_DOMAIN))
+		dl_url = mangadrawing_get_image_url(link);
 	/* sankakucomplex domain */
 	else if (strstr(link, SANKAKU_COMPLEX_DOMAIN)) {
 		dl_url = sankaku_complex_get_image_url(link);

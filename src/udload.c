@@ -29,8 +29,8 @@ size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *us
 	return realsize;
 }
 
-/* Given the full link of a website,
- * fetch and return the html source of the website
+/* Given the full link of a website, fetch and return the
+ * html source of the website
  */
 char *get_html(char *web_url)
 {
@@ -111,7 +111,8 @@ char *upload_image(char *website, char *file_name, char *field_name)
 
 		/* Check for errors */
 		if (res != CURLE_OK)
-			printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+			printf("curl_easy_perform() failed: %s\n",
+				curl_easy_strerror(res));
 
 		/* then cleanup the formpost chain */
 		curl_formfree(formpost);
@@ -131,13 +132,15 @@ char *upload_image(char *website, char *file_name, char *field_name)
  */
 short download_image(char *web_url, char *file_name)
 {
+	short result = 0;
 	FILE *img_fp;
 	img_fp = fopen(file_name, "wb");
 
 	/* Check if we have write permissions */
 	if (!img_fp) {
 		printf("Error: No write permissions");
-		return 1;
+		result = 1;
+		return result;
 	}
 
 	/* Initialize curl */
@@ -163,14 +166,14 @@ short download_image(char *web_url, char *file_name)
 		curl_easy_cleanup(curl_handle);
 		/* Check for errors */
 		if (res != CURLE_OK) {
-			printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
-			fclose(img_fp);
-			return 1;
+			printf("curl_easy_perform() failed: %s\n",
+				curl_easy_strerror(res));
+			result = 1;
 		}
 	}
 	fclose(img_fp);
 
-	return 0;
+	return result;
 }
 
 

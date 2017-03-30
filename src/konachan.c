@@ -28,6 +28,8 @@ char* konachan_get_image_url(char *web_url)
 		png_index = &png_index[strlen(KONACHAN_PNG_SOURCE_ID)];
 		unsigned int url_len = get_distance(png_index, '"');
 
+		/* allocate enough memory to hold the image source url,
+		 * then copy the url over to img_src_url and return it */
 		img_src_url = malloc(sizeof(char) *
 					(url_len + strlen(HTTP) + 1));
 		img_src_url[0] = '\0';
@@ -41,6 +43,8 @@ char* konachan_get_image_url(char *web_url)
 		jpg_index = &jpg_index[strlen(KONACHAN_JPG_SOURCE_ID)];
 		unsigned int url_len = get_distance(jpg_index, '"');
 
+		/* allocate enough memory to hold the image source url,
+		 * then copy the url over to img_src_url and return it */
 		img_src_url = malloc(sizeof(char) *
 					(url_len + strlen(HTTP) + 1));
 		img_src_url[0] = '\0';
@@ -51,6 +55,9 @@ char* konachan_get_image_url(char *web_url)
 		printf("Error: konachan_get_image_url():\n\tFailed to parse \"%s\"\n", web_url);
 		img_src_url = "Error\0";
 	}
+	/* deallocate the memory used to download
+	 * and store the webpage's content */
 	free(html_content);
+	/* return the image source url */
 	return img_src_url;
 }
