@@ -106,7 +106,6 @@ char *upload_image(char *website, char *file_name, char *field_name)
 		/* Set the data to pass when the function is called */
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &web_data);
 
-		image_upload_toast(file_name, website);
 		res = curl_easy_perform(curl_handle);
 
 		/* Check for errors */

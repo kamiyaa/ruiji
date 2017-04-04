@@ -57,7 +57,6 @@ static struct argp_option options[] = {
 void set_default_opt(struct ruiji_arg_opts *arg_opt)
 {
 	arg_opt->verbose = 1;
-	arg_opt->silent = 0;
 	arg_opt->prompt = 1;
 	arg_opt->showhelp = 0;
 	arg_opt->showversion = 0;
@@ -79,14 +78,14 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
 		arguments->showhelp = 1;
 		break;
 	case 'q':
-		arguments->silent = 1;
+		arguments->verbose = 0;
 		break;
 	case 't':
 		arguments->threshold = atoi(arg);
 		break;
-	case 'v':
-		arguments->verbose = 1;
-		break;
+//	case 'v':
+//		arguments->verbose = 1;
+//		break;
 	case 'y':
 		arguments->prompt = 0;
 		break;
@@ -157,8 +156,11 @@ int main(int argc, char *argv[])
 	fclose(img_fd);
 
 	/* Get the html output after uploading the image */
+	if (arg_opts.verbose)
+		image_upload_toast(file_name, IQDB_URL);
 	char *html_data = upload_image(IQDB_URL, file_name, IQDB_UPLOAD_FIELD);
-	printf("Upload successful\n\n");
+	if (arg_opts.verbose)
+		printf("Upload successful\n\n");
 
 	/* Initialize a struct to hold all the images similar
 	 * to the uploaded image */
@@ -200,14 +202,16 @@ int main(int argc, char *argv[])
 			 * url */
 			if (dl_url) {
 				/* Notify the user we are downloading the image */
-				image_download_toast(dl_image->link);
+				if (arg_opts.verbose)
+					image_download_toast(dl_image->link);
 
 				/* get the name of the file from its server */
 				char *file_save_name =
 					get_server_file_name(dl_url, stop_seq);
 
 				/* notify the user */
-				image_save_toast(file_save_name);
+				if (arg_opts.verbose)
+					image_save_toast(file_save_name);
 
 				/* save the image as it's name on the server */
 				dl_state =
@@ -217,10 +221,12 @@ int main(int argc, char *argv[])
 				free(dl_url);
 			}
 			/* Report back to the user how the download went */
-			if (!dl_state)
-				printf("Done!\n");
-			else
-				printf("Error: Download failed\n");
+			if (arg_opts.verbose) {
+				if (!dl_state)
+					printf("Done!\n");
+				else
+					printf("Error: Download failed\n");
+			}
 		}
 	}
 	else {
