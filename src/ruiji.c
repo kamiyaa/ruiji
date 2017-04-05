@@ -35,8 +35,6 @@ struct ruiji_arg_opts {
 
 /* struct for command line argument options */
 static struct argp_option options[] = {
-	{ "file",	'f',	"FILE", 0,
-		"Takes in the given file to upload" },
 	{ "help",	'h',	0, 0,
 		"Show help message" },
 	{ "noprompt",	'y',	0, 0,
@@ -71,9 +69,6 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
 	struct ruiji_arg_opts *arguments = state->input;
 
 	switch (key) {
-	case 'f':
-		arguments->file = arg;
-		break;
 	case 'h':
 		arguments->showhelp = 1;
 		break;
@@ -83,24 +78,18 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
 	case 't':
 		arguments->threshold = atoi(arg);
 		break;
-//	case 'v':
-//		arguments->verbose = 1;
-//		break;
 	case 'y':
 		arguments->prompt = 0;
 		break;
 	case 'V':
 		arguments->showversion = 1;
 		break;
-//	case ARGP_KEY_ARG:
-//		arguments->args[state->arg_num] = arg;
-//		break;
-	case ARGP_KEY_END:
-		/* Not enough arguments */
-		if (state->arg_num >= 2)
-			argp_usage (state);
+	case ARGP_KEY_NO_ARGS:
+		arguments->file = arg;
 		break;
-
+	case ARGP_KEY_ARG:
+		arguments->file = arg;
+		break;
 	default:
 		return ARGP_ERR_UNKNOWN;
 	}

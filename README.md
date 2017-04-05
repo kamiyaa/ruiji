@@ -29,7 +29,8 @@ $ make
 
 ## Usage
 ```
-$ ruiji --file=</path/to/image>
+$ ruiji --help
+$ ruiji [options] </path/to/image>
 ```
 
 ## Features

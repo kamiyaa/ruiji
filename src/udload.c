@@ -42,14 +42,17 @@ char *get_html(char *web_url)
 
 	/* Initialize curl */
 	CURL *curl_handle = curl_easy_init();
-	CURLcode res;
+	CURLcode result;
 
 	if (curl_handle) {
+
+		/* Set cURL to follow redirects */
+		curl_easy_setopt(curl_handle, CURLOPT_FOLLOWLOCATION, 1L);
 		/* Set the working website to this domain */
 		curl_easy_setopt(curl_handle, CURLOPT_URL, web_url);
 
 		/* Set the user agent to chrome */
-		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "chrome/55.0.2883.75");
+		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "chrome/57");
 
 		/* Set the function to call when data is received */
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, StoreData);
@@ -57,11 +60,13 @@ char *get_html(char *web_url)
 		/* Set the data to pass when the function is called */
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, &web_data);
 
-		res = curl_easy_perform(curl_handle);
+		/* Perform the network protocol */
+		result = curl_easy_perform(curl_handle);
 
 		/* Check for errors */
-		if (res != CURLE_OK)
-			printf("curl_easy_perform() failed: %s\n", curl_easy_strerror(res));
+		if (result != CURLE_OK)
+			printf("curl_easy_perform() failed: %s\n",
+				curl_easy_strerror(result));
 
 		/* cleanup */
 		curl_easy_cleanup(curl_handle);

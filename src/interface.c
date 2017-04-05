@@ -81,11 +81,10 @@ void image_upload_toast(char *file_name, char *website_url)
 void print_help(void)
 {
 	puts("Reverse image searching program using iqdb.org\n");
-	puts("Usage: ruiji -f [file] [options]\n");
-	puts("  -f --file \t\t Takes in the given file to upload");
+	puts("Usage: ruiji [options] [file]\n");
 	puts("  -h --help \t\t Show this help message and quit");
 	puts("  -q --quiet \t\t Suppress verbose output");
-	puts("  -t <0-100> \t\t Only process and show images above given");
+	puts("  -t --threshold <0-100> Only process and show images above given");
 	puts("             \t\t similarity percentage");
 	puts("  -v --verbose \t\t Show verbose output");
 	puts("  -V --version \t\t Show version number and quit");
