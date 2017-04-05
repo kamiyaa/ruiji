@@ -6,18 +6,12 @@
 
 #include "interface.h"
 
-#define VERSION "0.2"
+#define VERSION "0.3"
 
 #define IQDB_URL "https://iqdb.org"
 #define IQDB_UPLOAD_FIELD "file"
 #define DANBOORU_SOURCE_ID "Size: <a href=\""
 #define MAX_FILE_SIZE 8192000
-
-/* Program documentation. */
-const char *argp_program_bug_address =
-	"report bugs to https://github.com/Kamiyaa/ruiji";
-static char ruiji_doc[] =
-	"\nReverse image searching program using iqdb.org";
 
 
 /* struct for holding command line arguments */
@@ -59,7 +53,6 @@ void set_default_opt(struct ruiji_arg_opts *arg_opt)
 	arg_opt->showhelp = 0;
 	arg_opt->showversion = 0;
 	arg_opt->threshold = 0;
-	arg_opt->file = "file.png";
 }
 
 
@@ -98,8 +91,7 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
 
 
 static struct argp ruiji_args = {
-	options, parse_opt,
-	0, ruiji_doc
+	options, parse_opt
 };
 
 
