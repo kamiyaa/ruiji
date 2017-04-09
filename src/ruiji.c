@@ -122,26 +122,33 @@ int main(int argc, char *argv[])
 	img_fd = fopen(file_name, "rb");
 	if (!img_fd) {
 		printf("Error: No such file: %s\n", file_name);
-		return 1;
+		exit_code = 1;
 	}
-	/* get the size of the image file */
-	fseek(img_fd, 0L, SEEK_END);
-	int image_size = ftell(img_fd);
-	/* Check if it exceeds the max file size limit */
-	if (image_size > MAX_FILE_SIZE) {
-		printf("Error: File size limit exceeded (%dKB)\n", MAX_FILE_SIZE / 1000);
+	else {
+		/* get the size of the image file */
+		fseek(img_fd, 0L, SEEK_END);
+		int image_size = ftell(img_fd);
+		/* Check if it exceeds the max file size limit */
+		if (image_size > MAX_FILE_SIZE) {
+			printf("Error: Maximum file size exceeded (%dKB)\n",
+				MAX_FILE_SIZE / 1000);
+			exit_code = 1;
+		}
+		/* Close the file handle */
 		fclose(img_fd);
-		return 1;
 	}
-	/* Close the file handle */
-	fclose(img_fd);
+	if (exit_code)
+		return exit_code;
 
 	/* Get the html output after uploading the image */
 	if (arg_opts.verbose)
 		image_upload_toast(file_name, IQDB_URL);
 	char *html_data = upload_image(IQDB_URL, file_name, IQDB_UPLOAD_FIELD);
-	if (arg_opts.verbose)
-		printf("Upload successful\n\n");
+	if (arg_opts.verbose && !html_data) {
+		fprintf(stderr, "Error: Failed to upload file\n");
+		return 1;
+	}
+	printf("\n");
 
 	/* Initialize a struct to hold all the images similar
 	 * to the uploaded image */
@@ -163,7 +170,7 @@ int main(int argc, char *argv[])
 		}
 
 		if (user_input < 0 || user_input >= sim_db.size) {
-			printf("Error: Invalid option selected\n");
+			fprintf(stderr, "Error: Invalid option selected\n");
 			exit_code = 1;
 		}
 
@@ -202,16 +209,14 @@ int main(int argc, char *argv[])
 				free(dl_url);
 			}
 			/* Report back to the user how the download went */
-			if (arg_opts.verbose) {
-				if (!dl_state)
-					printf("Done!\n");
-				else
-					printf("Error: Download failed\n");
+			if (arg_opts.verbose && dl_state) {
+				fprintf(stderr, "Error: Download failed\n");
+				exit_code = 1;
 			}
 		}
 	}
 	else {
-		printf("No results! :(\n");
+		printf("No results found! :(\n");
 		exit_code = 1;
 	}
 

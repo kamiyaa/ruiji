@@ -18,7 +18,7 @@ size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *us
 
 	if (mem->data == NULL) {
 		/* out of memory! */
-		printf("not enough memory (realloc returned NULL)\n");
+		fprintf(stderr, "not enough memory (realloc returned NULL)\n");
 		return 0;
 	}
 
@@ -36,7 +36,7 @@ char *get_html(char *web_url)
 {
 	struct html_data web_data;
 	/* will be grown as needed by the realloc above */
-	web_data.data = malloc(1);
+	web_data.data = NULL;
 	/* no data at this point */
 	web_data.size = 0;
 
@@ -65,7 +65,8 @@ char *get_html(char *web_url)
 
 		/* Check for errors */
 		if (result != CURLE_OK)
-			printf("curl_easy_perform() failed: %s\n",
+			fprintf(stderr,
+				"curl_easy_perform() failed: %s\n",
 				curl_easy_strerror(result));
 
 		/* cleanup */
@@ -81,7 +82,7 @@ char *upload_image(char *website, char *file_name, char *field_name)
 {
 	struct html_data web_data;
 	/* will be grown as needed by the realloc above */
-	web_data.data = malloc(1);
+	web_data.data = NULL;
 	/* no data at this point */
 	web_data.size = 0;
 
@@ -115,7 +116,8 @@ char *upload_image(char *website, char *file_name, char *field_name)
 
 		/* Check for errors */
 		if (res != CURLE_OK)
-			printf("curl_easy_perform() failed: %s\n",
+			fprintf(stderr,
+				"curl_easy_perform() failed: %s\n",
 				curl_easy_strerror(res));
 
 		/* then cleanup the formpost chain */
@@ -142,7 +144,7 @@ short download_image(char *web_url, char *file_name)
 
 	/* Check if we have write permissions */
 	if (!img_fp) {
-		printf("Error: No write permissions");
+		fprintf(stderr, "Error: No write permissions");
 		result = 1;
 		return result;
 	}
@@ -170,7 +172,8 @@ short download_image(char *web_url, char *file_name)
 		curl_easy_cleanup(curl_handle);
 		/* Check for errors */
 		if (res != CURLE_OK) {
-			printf("curl_easy_perform() failed: %s\n",
+			fprintf(stderr,
+				"curl_easy_perform() failed: %s\n",
 				curl_easy_strerror(res));
 			result = 1;
 		}
