@@ -8,12 +8,14 @@
 #define IQDB_RESULT_ID	"match</th></tr><tr><td class='image'><a href=\""
 
 /* get how far away a char is from the beginning of the string */
-unsigned int get_distance(char *string, char find)
+int get_distance(char *string, char find)
 {
 	unsigned int distance = 0;
 	/* keep on incrementing until we've found the char */
-	while (string[distance] != find)
+	while (string[distance] && string[distance] != find)
 		distance++;
+	if (!string[distance])
+		distance = -1;
 	/* return the distance */
 	return distance;
 }
@@ -197,33 +199,59 @@ char *get_server_file_name(char *web_url, char stop)
 char *get_image_url(char *link, char *stop_seq)
 {
 	char *dl_url = NULL;
+	/* Fetch the html source code of the website */
+	char *html_content = get_html(link);
 	/* if the link given is a yandere domain */
 	if (strstr(link, YANDERE_DOMAIN))
-		dl_url = yandere_get_image_url(link);
+		dl_url = yandere_get_image_url(html_content);
+
 	/* danbooru domain */
 	else if (strstr(link, DANBOORU_DOMAIN))
-		dl_url = danbooru_get_image_url(link);
+		dl_url = danbooru_get_image_url(html_content);
+
 	/* konachan domain */
 	else if (strstr(link, KONACHAN_DOMAIN))
-		dl_url = konachan_get_image_url(link);
+		dl_url = konachan_get_image_url(html_content);
+
 	/* eshuushuu domain */
 	else if (strstr(link, ESHUUSHUU_DOMAIN))
-		dl_url = eshuushuu_get_image_url(link);
+		dl_url = eshuushuu_get_image_url(html_content);
+
 	/* gelbooru domain */
 	else if (strstr(link, GELBOORU_DOMAIN))
-		dl_url = gelbooru_get_image_url(link);
+		dl_url = gelbooru_get_image_url(html_content);
+
+	/* mangadrawing domain */
 	else if (strstr(link, MANGADRAWING_DOMAIN))
-		dl_url = mangadrawing_get_image_url(link);
+		dl_url = mangadrawing_get_image_url(html_content);
+
 	/* sankakucomplex domain */
 	else if (strstr(link, SANKAKU_COMPLEX_DOMAIN)) {
-		dl_url = sankaku_complex_get_image_url(link);
+		dl_url = sankaku_complex_get_image_url(html_content);
 		/* change the sequence to stop parsing at
 		 * to '?' for sankakucomplex */
 		*stop_seq = '?';
 	}
+
+	/* deallocate the memory used to download
+	 * and store the webpage's content */
+	free(html_content);
 	/* return the url */
 	return dl_url;
 }
+
+/*
+struct image_tags *get_image_tags(char *link)
+{
+	struct image_tags *tags;
+	char *html_content = get_html(link);
+	if (strstr(link, YANDERE_DOMAIN)) {
+		tags = yandere_get_image_tags(html_content);
+	}
+
+	return tags;
+}*/
+
 
 
 /* Frees the allocated memory for a similar_image_db */

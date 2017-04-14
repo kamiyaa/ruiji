@@ -21,6 +21,7 @@ struct ruiji_arg_opts {
 	short verbose;
 	short prompt;
 	short showhelp;
+	short showtags;
 	short showversion;
 	unsigned short threshold;
 	char *file;
@@ -37,6 +38,8 @@ static struct argp_option options[] = {
 		"Suppress verbose output" },
 	{ "threshold",	't',	"number", 0,
 		"Only show images above certain similarity percentage" },
+	{ "Tags",	'T',	"number", 0,
+		"Outputs tags of downloaded image" },
 	{ "verbose",	'v',	0, 0,
 		"Produce verbose output" },
 	{ "version",	'V',	0, 0,
@@ -53,6 +56,7 @@ void set_default_opt(struct ruiji_arg_opts *arg_opt)
 	arg_opt->showhelp = 0;
 	arg_opt->showversion = 0;
 	arg_opt->threshold = 0;
+	arg_opt->showtags = 1;
 }
 
 
@@ -73,6 +77,9 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
 		break;
 	case 'y':
 		arguments->prompt = 0;
+		break;
+	case 'T':
+		arguments->showtags = 1;
 		break;
 	case 'V':
 		arguments->showversion = 1;

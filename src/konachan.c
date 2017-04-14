@@ -11,15 +11,12 @@
 /* Given a https://konachan.com/ url,
  * parse the html to get the source image url
  */
-char* konachan_get_image_url(char *web_url)
+char* konachan_get_image_url(char *html_content)
 {
-	/* Fetch the html source code of the website */
-	char *html_content = get_html(web_url);
-
 	/* get png html pattern index and jpg html pattern index */
 	char *png_index = strstr(html_content, KONACHAN_PNG_SOURCE_ID);
 	char *jpg_index = strstr(html_content, KONACHAN_JPG_SOURCE_ID);
-	char *img_src_url;
+	char *img_src_url = "\0";
 
 	/* check if png html pattern has been found */
 	if (png_index) {
@@ -51,13 +48,9 @@ char* konachan_get_image_url(char *web_url)
 		strcat(img_src_url, HTTP);
 		strncat(img_src_url, jpg_index, url_len);
 	}
-	else {
-		printf("Error: konachan_get_image_url():\n\tFailed to parse \"%s\"\n", web_url);
-		img_src_url = "Error\0";
-	}
-	/* deallocate the memory used to download
-	 * and store the webpage's content */
-	free(html_content);
+	else
+		printf("konachan_get_image_url(): Error: Failed to parse website\n");
+
 	/* return the image source url */
 	return img_src_url;
 }
