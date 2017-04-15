@@ -116,11 +116,11 @@ int main(int argc, char *argv[])
 	/* If one wants to see, version number, just print and exit */
 	if (arg_opts.showversion) {
 		printf("ruiji-%s\n", VERSION);
-		return exit_code;
+		return 0;
 	}
 	if (arg_opts.showhelp) {
 		print_help();
-		return exit_code;
+		return 0;
 	}
 
 	/* check if selected image file exists */
@@ -150,8 +150,10 @@ int main(int argc, char *argv[])
 	/* Get the html output after uploading the image */
 	if (arg_opts.verbose)
 		image_upload_toast(file_name, IQDB_URL);
+
 	char *html_data = upload_image(IQDB_URL, file_name, IQDB_UPLOAD_FIELD);
-	if (arg_opts.verbose && !html_data) {
+
+	if (!html_data) {
 		fprintf(stderr, "Error: Failed to upload file\n");
 		return 1;
 	}
@@ -161,6 +163,8 @@ int main(int argc, char *argv[])
 	 * to the uploaded image */
 	struct similar_image_db sim_db;
 	populate_sim_db(&sim_db, html_data, arg_opts.threshold);
+
+	/* free up allocated memory */
 	free(html_data);
 
 	/* if any results were found, ask user which to download */

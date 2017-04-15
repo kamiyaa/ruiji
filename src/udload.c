@@ -145,8 +145,7 @@ short download_image(char *web_url, char *file_name)
 	/* Check if we have write permissions */
 	if (!img_fp) {
 		fprintf(stderr, "Error: No write permissions");
-		result = 1;
-		return result;
+		return 1;
 	}
 
 	/* Initialize curl */
@@ -161,7 +160,7 @@ short download_image(char *web_url, char *file_name)
 		curl_easy_setopt(curl_handle, CURLOPT_URL, web_url);
 
 		/* Set the user agent to chrome */
-		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "chrome/55.0.2883.75");
+		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "chrome/57");
 
 		/* Set the data to pass when the function is called */
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, img_fp);

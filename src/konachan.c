@@ -13,17 +13,19 @@
  */
 char* konachan_get_image_url(char *html_content)
 {
+	/* initialize the image source url to be returned later */
+	char *img_src_url = NULL;
+
 	/* get png html pattern index and jpg html pattern index */
 	char *png_index = strstr(html_content, KONACHAN_PNG_SOURCE_ID);
 	char *jpg_index = strstr(html_content, KONACHAN_JPG_SOURCE_ID);
-	char *img_src_url = "\0";
 
 	/* check if png html pattern has been found */
 	if (png_index) {
 		/* move png_index pointer to the beginning of the source image
 		 * url */
 		png_index = &png_index[strlen(KONACHAN_PNG_SOURCE_ID)];
-		unsigned int url_len = get_distance(png_index, '"');
+		int url_len = get_distance(png_index, '"');
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
@@ -38,7 +40,7 @@ char* konachan_get_image_url(char *html_content)
 		/* move jpg_index pointer to the beginning of the source image
 		 * url */
 		jpg_index = &jpg_index[strlen(KONACHAN_JPG_SOURCE_ID)];
-		unsigned int url_len = get_distance(jpg_index, '"');
+		int url_len = get_distance(jpg_index, '"');
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */

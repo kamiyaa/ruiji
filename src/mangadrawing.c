@@ -9,22 +9,20 @@
 /* Given a https://mangadrawing.net/ url,
  * parse the html to get the source image url
  */
-char* mangadrawing_get_image_url(char *web_url)
+char* mangadrawing_get_image_url(char *html_content)
 {
-	/* Fetch the html source code of the website */
-	char *html_content = get_html(web_url);
+	/* initialize the image source url to be returned later */
+	char *img_src_url = NULL;
 
 	/* get png html pattern index and jpg html pattern index */
 	char *source_index = strstr(html_content, MANGADRAWING_SOURCE_ID);
-	/* initialize the image source url to be returned later */
-	char *img_src_url;
 
 	/* check if png html pattern has been found */
 	if (source_index) {
 		/* move source_index pointer to the beginning of
 		 * the source image url */
 		source_index = &source_index[strlen(MANGADRAWING_SOURCE_ID)];
-		unsigned int url_len = get_distance(source_index, '"');
+		int url_len = get_distance(source_index, '"');
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
@@ -47,10 +45,9 @@ char* mangadrawing_get_image_url(char *web_url)
 	}
 	/* otherwise, this html content did not contain any html pattern we
 	 * recognize, so error */
-	else {
-		printf("Error: mangadrawing_get_image_url():\n\tFailed to parse \"%s\"\n", web_url);
-		img_src_url = "Error\0";
-	}
+	else
+		printf("yandere_get_image_url(): Error: Failed to parse website\n");
+
 	/* deallocate the memory used to download
 	 * and store the webpage's content */
 	free(html_content);

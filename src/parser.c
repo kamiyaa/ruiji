@@ -10,7 +10,7 @@
 /* get how far away a char is from the beginning of the string */
 int get_distance(char *string, char find)
 {
-	unsigned int distance = 0;
+	int distance = 0;
 	/* keep on incrementing until we've found the char */
 	while (string[distance] && string[distance] != find)
 		distance++;
@@ -59,6 +59,9 @@ create_sim_image(char *web_url, unsigned short similarity,
  */
 char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 {
+	/* initialize pointer to hold where walker leaves off */
+	char *next_weblink;
+
 	/* Set an arbitrary pointer to point to the first element of contents */
 	char *walker = contents;
 
@@ -69,7 +72,7 @@ char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 	/* Null terminate the string at the next space in the string, and
 	 * point next_weblink to the rest of the sliced string
 	 */
-	char *next_weblink = strstr(walker, "</td>");
+	next_weblink = strstr(walker, "</td>");
 
 	/* Set x,y to the image dimensions */
 	sscanf(walker, "<td>%u×%u ", x, y);
@@ -85,6 +88,9 @@ char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
  */
 char *parse_percent_similar(char* contents, unsigned short *similarity)
 {
+	/* initialize pointer to hold where walker leaves off */
+	char *next_weblink;
+
 	/* Get size of char to prevent excessive function calling */
 	char *walker = contents;
 	/* Parse for the similarity percentage of the image and slice it */
@@ -93,7 +99,7 @@ char *parse_percent_similar(char* contents, unsigned short *similarity)
 	/* Get the similarity percentage of image and set it to similarity */
 	sscanf(walker, "<td>%hu%%", similarity);
 
-	char *next_weblink = strstr(walker, "</div>");
+	next_weblink = strstr(walker, "</div>");
 	/* Return a pointer to the rest of the sliced string */
 	return next_weblink;
 }
@@ -125,7 +131,7 @@ void populate_sim_db(struct similar_image_db *sim_db,
 
 		/* Go through the string, looking for '"'. Once found,
 		 * slice the string */
-		unsigned url_len = get_distance(url_begin, '"');
+		int url_len = get_distance(url_begin, '"');
 		/* Set a arbitrary pointer to go through the string */
 		char *walker = &(url_begin[url_len+1]);
 		url_begin[url_len] = '\0';
@@ -179,7 +185,7 @@ char *get_server_file_name(char *web_url, char stop)
 	/* get memory address we stopped at */
 	char *slash_ptr = &(web_url[index+1]);
 
-	unsigned short filename_len = strlen(slash_ptr);
+	int filename_len = strlen(slash_ptr);
 	/* If a stop sequence is given, terminate the
 	 * string copy at stop sequence */
 	if (stop)

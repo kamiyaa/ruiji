@@ -11,14 +11,16 @@
  */
 char* gelbooru_get_image_url(char *html_content)
 {
+	/* initialize the image source url to be returned later */
+	char *img_src_url = NULL;
+
 	/* Find the source image link */
 	char *source_index = strstr(html_content, GELBOORU_SOURCE_ID);
-	char *img_src_url = "\0";
 
 	/* If found, add the danbooru url to it and return it */
 	if (source_index) {
 		source_index = &source_index[strlen(GELBOORU_SOURCE_ID)];
-		unsigned int url_len = get_distance(source_index, '"');
+		int url_len = get_distance(source_index, '"');
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */

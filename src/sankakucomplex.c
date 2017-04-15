@@ -12,9 +12,11 @@
  */
 char* sankaku_complex_get_image_url(char *html_content)
 {
+	/* initialize the image source url to be returned later */
+	char *img_src_url = NULL;
+
 	/* Find the source image link */
 	char *source_index = strstr(html_content, SANKAKU_COMPLEX_SOURCE_ID);
-	char *img_src_url = "\0";
 
 	/* If source image link is found,
 	 * add http extension to it and return it */
@@ -22,7 +24,7 @@ char* sankaku_complex_get_image_url(char *html_content)
 		/* move source_index pointer to the beginning of
 		 * the source image url */
 		source_index = &source_index[strlen(SANKAKU_COMPLEX_SOURCE_ID)];
-		unsigned int url_len = get_distance(source_index, '"');
+		int url_len = get_distance(source_index, '"');
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
