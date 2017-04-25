@@ -24,25 +24,6 @@ void print_sim_results(struct similar_image_db *sim_db);
 
 #ifdef COLOR
 
-/* Given a similar_image, print out all its information */
-void print_image_info(struct similar_image *img)
-{
-	char *sim_color;
-	if (img->similarity >= 90)
-		sim_color = COLOR_GREEN;
-	else if (img->similarity >= 70)
-		sim_color = COLOR_YELLOW;
-	else
-		sim_color = COLOR_RED;
-
-	printf("source: %s%s%s\n", COLOR_BLUE, img->link, COLOR_DEFAULT);
-	printf("similarity: %s%u%%%s\n",
-		sim_color, img->similarity, COLOR_DEFAULT);
-	printf("dimensions: %ux%u\n\n",
-		img->dimensions[0], img->dimensions[1]);
-}
-
-
 void image_download_toast(char *website_url)
 {
 	printf("Downloading from %s%s%s...\n",
@@ -63,18 +44,59 @@ void image_upload_toast(char *file_name, char *website_url)
 		COLOR_BLUE, website_url, COLOR_DEFAULT);
 }
 
+/* Given a similar_image, print out all its information */
+void print_image_info(struct similar_image *img)
+{
+	char *sim_color;
+	if (img->similarity >= 90)
+		sim_color = COLOR_GREEN;
+	else if (img->similarity >= 70)
+		sim_color = COLOR_YELLOW;
+	else
+		sim_color = COLOR_RED;
+
+	printf("source: %s%s%s\n", COLOR_BLUE, img->link, COLOR_DEFAULT);
+	printf("similarity: %s%u%%%s\n",
+		sim_color, img->similarity, COLOR_DEFAULT);
+	printf("dimensions: %ux%u\n\n",
+		img->dimensions[0], img->dimensions[1]);
+}
+
+void print_image_tags(struct image_tag_db *tags_db)
+{
+	char *tag_names[] = {
+		"artist",
+		"character",
+		"circle",
+		"copyright",
+		"fault",
+		"general"
+	};
+	char *color_scheme[] = {
+		COLOR_YELLOW,
+		COLOR_GREEN,
+		COLOR_CYAN,
+		COLOR_MAGENTA,
+		COLOR_RED,
+		COLOR_WHITE
+	};
+
+	struct ll_node *ptr;
+	for (int i = 0; i < 6; i++) {
+		ptr = tags_db->tags[i];
+		printf("%s%s: ", COLOR_DEFAULT, tag_names[i]);
+		while (ptr) {
+			printf("%s%s %s", color_scheme[i], ptr->data, COLOR_DEFAULT);
+			ptr = ptr->next;
+		}
+		printf("\n");
+	}
+}
+
 #endif
 
 
 #ifndef COLOR
-
-/* Given a similar_image, print out all its information */
-void print_image_info(struct similar_image *img)
-{
-	printf("source: %s\nsimilarity: %u%%\ndimensions: %ux%u\n\n",
-		img->link, img->similarity,
-		img->dimensions[0], img->dimensions[1]);
-}
 
 void image_download_toast(char *website_url)
 {
@@ -89,6 +111,37 @@ void image_save_toast(char *file_name)
 void image_upload_toast(char *file_name, char *website_url)
 {
 	printf("Uploading %s to %s...\n", file_name, website_url);
+}
+
+/* Given a similar_image, print out all its information */
+void print_image_info(struct similar_image *img)
+{
+	printf("source: %s\nsimilarity: %u%%\ndimensions: %ux%u\n\n",
+		img->link, img->similarity,
+		img->dimensions[0], img->dimensions[1]);
+}
+
+void print_image_tags(struct image_tag_db *tags_db)
+{
+	char *tag_names[] = {
+		"artist",
+		"character",
+		"circle",
+		"copyright",
+		"fault",
+		"general"
+	};
+
+	struct ll_node *ptr;
+	for (int i = 0; i < 6; i++) {
+		ptr = tags_db->tags[i];
+		printf("%s: ", tag_names[i]);
+		while (ptr) {
+			printf("%s ", ptr->data);
+			ptr = ptr->next;
+		}
+		printf("\n");
+	}
 }
 
 #endif
@@ -117,38 +170,6 @@ void print_sim_results(struct similar_image_db *sim_db)
 		print_image_info(sim_db->img_db[i]);
 	}
 }
-
-void print_image_tags(struct image_tag_db *tags_db)
-{
-	char *tag_names[] = {
-		"artist",
-		"character",
-		"circle",
-		"copyright",
-		"fault",
-		"general"
-	};
-	char *color_scheme[] = {
-		COLOR_YELLOW,
-		COLOR_GREEN,
-		COLOR_CYAN,
-		COLOR_MAGENTA,
-		COLOR_RED,
-		COLOR_WHITE
-	};
-
-	for (int i = 0, n = 6; i < n; i++) {
-		struct ll_node *ptr = tags_db->tags[i];
-		printf("%s%s: ", COLOR_DEFAULT, tag_names[i]);
-		while (ptr) {
-			printf("%s%s %s", color_scheme[i], ptr->data,
-				COLOR_DEFAULT);
-			ptr = ptr->next;
-		}
-		printf("\n");
-	}
-}
-
 
 
 
