@@ -11,100 +11,133 @@
 /* Given a https://yande.re/ url,
  * parse the html to get the source image url
  */
-char* yandere_get_image_url(char *html_content)
+char *yandere_get_image_url(char *html_content)
 {
 	/* initialize the image source url to be returned later */
 	char *img_src_url = NULL;
+
+	/* initialize generic source image index */
+	char *source_index = NULL;
 
 	/* get png html pattern index and jpg html pattern index */
 	char *png_index = strstr(html_content, YANDERE_PNG_SOURCE_ID);
 	char *jpg_index = strstr(html_content, YANDERE_JPG_SOURCE_ID);
 
-	/* check if png html pattern has been found */
-	if (png_index) {
-		/* move png_index pointer to the beginning of
-		 * the source image url */
-		png_index = &png_index[strlen(YANDERE_PNG_SOURCE_ID)];
-		int url_len = get_distance(png_index, '"');
+
+	/* find source image link */
+	if (png_index)
+		source_index = &png_index[strlen(YANDERE_PNG_SOURCE_ID)];
+	else if (jpg_index)
+		source_index = &jpg_index[strlen(YANDERE_JPG_SOURCE_ID)];
+
+	/* check if any html pattern was detected */
+	if (source_index) {
+		/* get the length of the source image url */
+		int url_len = get_distance(source_index, '"');
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
 		img_src_url = malloc(sizeof(char) * (url_len + 1));
 		img_src_url[0] = '\0';
-		strncat(img_src_url, png_index, url_len);
-	}
-	/* otherwise, check if jpg html pattern has been found */
-	else if (jpg_index) {
-		/* move jpg_index pointer to the beginning of
-		 * the source image url */
-		jpg_index = &jpg_index[strlen(YANDERE_JPG_SOURCE_ID)];
-		int url_len = get_distance(jpg_index, '"');
-
-		/* allocate enough memory to hold the image source url,
-		 * then copy the string over to img_src_url and return it */
-		img_src_url = malloc(sizeof(char) * (url_len + 1));
-		img_src_url[0] = '\0';
-		strncat(img_src_url, jpg_index, url_len);
+		strncat(img_src_url, source_index, url_len);
 	}
 	/* otherwise, this html content did not contain any html pattern we
 	 * recognize, so error */
-	else
+	else {
 		printf("yandere_get_image_url(): Error: Failed to parse website\n");
+	}
+
 	/* return the image source url */
 	return img_src_url;
 }
 
-/*
-struct image_tags* yandere_get_image_tags(char *html_content)
+struct image_tag_db *yandere_get_image_tags(char *html_content)
 {
-	char *tags_ptr = strstr(html_content, YANDERE_TAG_ID);
+	/* set tag_ptr to the beginning in which the tags begin */
+	char *tag_contents = strstr(html_content, YANDERE_TAG_ID);
+	tag_contents = &(tag_contents[strlen(YANDERE_TAG_ID)]);
 
-	tags_ptr = &tags_ptr[strlen(YANDERE_TAG_ID)];
+	/* get how long the string of tags are */
+	int slice_distance = get_distance(tag_contents, '}');
+	/* isolate the tags with the rest of html */
+	tag_contents[slice_distance] = ',';
+	tag_contents[slice_distance+1] = '\0';
 
-	int slice_distance = get_distance(tags_ptr, '}');
-	tags_ptr[slice_distance] = ',';
-	tags_ptr[slice_distance+1] = '\0';
-
-	struct image_tags *tags_db = malloc(sizeof(struct image_tags));
-
-	struct ll_node *tag_array[6] = { tags_db->artist,
-					tags_db->character,
-					tags_db->circle,
-					tags_db->copyright,
-					tags_db->fault,
-					tags_db->general };
-
-	char *tag_category;
-	int colon_distance = get_distance(tags_ptr, ':');
-	int comma_distance;
-	unsigned int tag_index;
-
-	while (colon_distance > 0) {
-		comma_distance = get_distance(tags_ptr, ',');
-		tags_ptr[comma_distance] = '\0';
-
-		tag_category = &(tags_ptr[colon_distance]);
-
-		tag_index = 5;
-		if (strstr(tag_category, "\"artist\""))
-			tag_index = 0;
-		else if (strstr(tag_category, "\"character\""))
-			tag_index = 1;
-		else if (strstr(tag_category, "\"circle\""))
-			tag_index = 2;
-		else if (strstr(tag_category, "\"copyright\""))
-			tag_index = 3;
-		else if (strstr(tag_category, "\"fault\""))
-			tag_index = 4;
-
-		tag_array[tag_index] = malloc(sizeof(struct llnode));
-		tags_ptr[colon_distance-1] = '\0';
-		tag_array[tag_index]->data = &(tags_ptr[1]);
-		tag_array[tag_index] = tag_array[tag_index]->next;
-
-		colon_distance = get_distance(tags_ptr, ':');
+	/* initialize a image tag database to store all the tags */
+	struct image_tag_db *tag_db = malloc(sizeof(struct image_tag_db));
+	struct ll_node *tag_ptrs[6];
+	/* set all values to 0 and NULL */
+	for (int i = 0; i < 6; i++) {
+		tag_db->tags[i] = NULL;
+		tag_ptrs[i] = NULL;
+		tag_db->tag_size[i] = 0;
 	}
 
-	return tags_db;
+	/* get the next colon */
+	int colon_distance = get_distance(tag_contents, ':');
+	int comma_distance;
+	/* store tag name category and size of tag name */
+	unsigned int tag_index;
+	unsigned int tag_name_size;
+
+	while (colon_distance > 0) {
+		/* get where the next comma is */
+		comma_distance = get_distance(tag_contents, ',');
+
+		/* change comma to escape char, essentially slicing the string
+		at comma */
+		tag_contents[comma_distance] = '\0';
+
+		/* figure out which tag category this tag belongs to */
+		if (strstr(tag_contents, "artist"))
+			tag_index = 0;
+		else if (strstr(tag_contents, "character"))
+			tag_index = 1;
+		else if (strstr(tag_contents, "circle"))
+			tag_index = 2;
+		else if (strstr(tag_contents, "copyright"))
+			tag_index = 3;
+		else if (strstr(tag_contents, "fault"))
+			tag_index = 4;
+		else
+			tag_index = 5;
+
+		/* put back comma to reunite the string */
+		tag_contents[comma_distance] = ',';
+
+		/* get length of tag name */
+		tag_name_size = get_distance(&(tag_contents[1]), '"');
+
+		/* create the linked list node to store the information */
+		if (!(tag_db->tags[tag_index])) {
+			tag_db->tags[tag_index] = malloc(sizeof(struct ll_node));
+			tag_db->tags[tag_index]->next = NULL;
+			tag_db->tags[tag_index]->data = malloc(sizeof(char) * (tag_name_size + 1));
+			tag_db->tags[tag_index]->data[0] = '\0';
+			strncat(tag_db->tags[tag_index]->data, &(tag_contents[1]), tag_name_size);
+
+			tag_ptrs[tag_index] = tag_db->tags[tag_index];
+		}
+		else {
+			tag_ptrs[tag_index]->next = malloc(sizeof(struct ll_node));
+			tag_ptrs[tag_index]->next->data = malloc(sizeof(char) *
+							(tag_name_size + 1));
+			tag_ptrs[tag_index]->next->data[0] = '\0';
+			strncat(tag_ptrs[tag_index]->next->data,
+				&(tag_contents[1]), tag_name_size);
+
+			tag_ptrs[tag_index] = tag_ptrs[tag_index]->next;
+			tag_ptrs[tag_index]->next = NULL;
+		}
+
+		/* increment the amount of tags in this category we currently
+		found */
+		(tag_db->tag_size[tag_index])++;
+
+		/* search for next colon */
+		tag_contents = &(tag_contents[comma_distance+1]);
+		colon_distance = get_distance(tag_contents, ':');
+	}
+
+	return tag_db;
 }
-*/

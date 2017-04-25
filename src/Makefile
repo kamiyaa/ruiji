@@ -12,6 +12,14 @@ ruiji: $(HELPERS) ruiji.c config.mk
 	${CC} ${CFLAGS} ${USE_FLAGS} -c ${HELPERS} ruiji.c
 	${CC} ${CFLAGS} ${USE_FLAGS} ${HELPERS_OBJ} ruiji.o -o ruiji ${LIBS}
 
+test: $(HELPERS) test.c config.mk
+	@echo "CC      =" ${CC}
+	@echo "CFLAGS  =" ${CFLAGS}
+	@echo "LIBS    =" ${LIBS}
+	@echo "USE     =" ${USE_FLAGS}
+	${CC} ${CFLAGS} ${USE_FLAGS} -c ${HELPERS} test.c
+	${CC} ${CFLAGS} ${USE_FLAGS} ${HELPERS_OBJ} test.o -o test ${LIBS}
+
 install:
 	@echo installing to ${PREFIX}/bin
 	@mkdir -p ${PREFIX}/bin

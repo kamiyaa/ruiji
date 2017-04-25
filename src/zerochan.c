@@ -9,7 +9,7 @@
 /* Given a http://www.zerochan.net/ url,
  * parse the html to get the source image url
  */
-char* zerochan_get_image_url(char *html_content)
+char *zerochan_get_image_url(char *html_content)
 {
 	/* initialize the image source url to be returned later */
 	char *img_src_url = NULL;
@@ -30,8 +30,9 @@ char* zerochan_get_image_url(char *html_content)
 		img_src_url[0] = '\0';
 		strncat(img_src_url, source_index, url_len);
 	}
-	else
+	else {
 		printf("zerochan_get_image_url(): Error: Failed to parse website\n");
+	}
 
 	/* return the image source url */
 	return img_src_url;

@@ -6,4 +6,4 @@
 
 char* yandere_get_image_url(char *html_content);
 
-struct image_tags* yandere_get_image_tags(char *html_content);
+struct image_tag_db *yandere_get_image_tags(char *html_content);

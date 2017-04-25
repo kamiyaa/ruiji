@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "interface.h"
+#include "structs.h"
 
 #define COLOR_DEFAULT	"\x1B[0m"
 #define COLOR_RED	"\x1B[31m"
@@ -11,6 +11,16 @@
 #define COLOR_MAGENTA	"\x1B[35m"
 #define COLOR_CYAN	"\x1B[36m"
 #define COLOR_WHITE	"\x1B[37m"
+
+
+void image_download_toast(char *website_url);
+void image_save_toast(char *file_name);
+void image_upload_toast(char *file_name, char *website_url);
+void print_help(void);
+void print_image_info(struct similar_image *img);
+void print_image_tags(struct image_tag_db *tags_db);
+void print_sim_results(struct similar_image_db *sim_db);
+
 
 #ifdef COLOR
 
@@ -107,3 +117,38 @@ void print_sim_results(struct similar_image_db *sim_db)
 		print_image_info(sim_db->img_db[i]);
 	}
 }
+
+void print_image_tags(struct image_tag_db *tags_db)
+{
+	char *tag_names[] = {
+		"artist",
+		"character",
+		"circle",
+		"copyright",
+		"fault",
+		"general"
+	};
+	char *color_scheme[] = {
+		COLOR_YELLOW,
+		COLOR_GREEN,
+		COLOR_CYAN,
+		COLOR_MAGENTA,
+		COLOR_RED,
+		COLOR_WHITE
+	};
+
+	for (int i = 0, n = 6; i < n; i++) {
+		struct ll_node *ptr = tags_db->tags[i];
+		printf("%s%s: ", COLOR_DEFAULT, tag_names[i]);
+		while (ptr) {
+			printf("%s%s %s", color_scheme[i], ptr->data,
+				COLOR_DEFAULT);
+			ptr = ptr->next;
+		}
+		printf("\n");
+	}
+}
+
+
+
+

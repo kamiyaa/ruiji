@@ -4,7 +4,7 @@
 #include <unistd.h>
 #include <argp.h>
 
-#include "interface.h"
+#include "parser.h"
 
 #define VERSION "0.3"
 
@@ -15,7 +15,7 @@
 
 
 /* struct for holding command line arguments */
-struct ruiji_arg_opts {
+struct ruiji_cmd_args {
 	char *args[2];
 	short silent;
 	short verbose;
@@ -38,7 +38,7 @@ static struct argp_option options[] = {
 		"Suppress verbose output" },
 	{ "threshold",	't',	"number", 0,
 		"Only show images above certain similarity percentage" },
-	{ "Tags",	'T',	"number", 0,
+	{ "Tags",	'T',	0, 0,
 		"Outputs tags of downloaded image" },
 	{ "verbose",	'v',	0, 0,
 		"Produce verbose output" },
@@ -49,21 +49,21 @@ static struct argp_option options[] = {
 
 
 /* set default command line options */
-void set_default_opt(struct ruiji_arg_opts *arg_opt)
+void set_default_opt(struct ruiji_cmd_args *arg_opt)
 {
 	arg_opt->verbose = 1;
 	arg_opt->prompt = 1;
 	arg_opt->showhelp = 0;
+	arg_opt->showtags = 0;
 	arg_opt->showversion = 0;
 	arg_opt->threshold = 0;
-	arg_opt->showtags = 1;
 }
 
 
 /* Parse and process command line arguments */
 error_t parse_opt(int key, char *arg, struct argp_state *state)
 {
-	struct ruiji_arg_opts *arguments = state->input;
+	struct ruiji_cmd_args *arguments = state->input;
 
 	switch (key) {
 	case 'h':
@@ -105,27 +105,29 @@ static struct argp ruiji_args = {
 
 int main(int argc, char *argv[])
 {
-	int exit_code = 0;
+	/* return value */
+	short exit_code = 0;
+
 	/* create new arguments struct for ruiji and set them to default values */
-	struct ruiji_arg_opts arg_opts;
-	set_default_opt(&arg_opts);
+	struct ruiji_cmd_args cmd_args;
+	set_default_opt(&cmd_args);
 
 	/* parse given command line arguments */
-	argp_parse(&ruiji_args, argc, argv, 0, 0, &arg_opts);
+	argp_parse(&ruiji_args, argc, argv, 0, 0, &cmd_args);
 
 	/* If one wants to see, version number, just print and exit */
-	if (arg_opts.showversion) {
+	if (cmd_args.showversion) {
 		printf("ruiji-%s\n", VERSION);
 		return 0;
 	}
-	if (arg_opts.showhelp) {
+	if (cmd_args.showhelp) {
 		print_help();
 		return 0;
 	}
 
 	/* check if selected image file exists */
 	FILE *img_fd;
-	char *file_name = arg_opts.file;
+	char *file_name = cmd_args.file;
 	img_fd = fopen(file_name, "rb");
 	if (!img_fd) {
 		printf("Error: No such file: %s\n", file_name);
@@ -148,7 +150,7 @@ int main(int argc, char *argv[])
 		return exit_code;
 
 	/* Get the html output after uploading the image */
-	if (arg_opts.verbose)
+	if (cmd_args.verbose)
 		image_upload_toast(file_name, IQDB_URL);
 
 	char *html_data = upload_image(IQDB_URL, file_name, IQDB_UPLOAD_FIELD);
@@ -162,15 +164,16 @@ int main(int argc, char *argv[])
 	/* Initialize a struct to hold all the images similar
 	 * to the uploaded image */
 	struct similar_image_db sim_db;
-	populate_sim_db(&sim_db, html_data, arg_opts.threshold);
+	populate_sim_db(&sim_db, html_data, cmd_args.threshold);
 
 	/* free up allocated memory */
 	free(html_data);
 
 	/* if any results were found, ask user which to download */
 	if (sim_db.size) {
+		/* initialize image selection to 0 */
 		short user_input = 0;
-		if (arg_opts.prompt) {
+		if (cmd_args.prompt) {
 			/* print out all results and its properties */
 			print_sim_results(&sim_db);
 
@@ -195,13 +198,14 @@ int main(int argc, char *argv[])
 			 * file name. Default is NULL character */
 			char stop_seq = '\0';
 			/* get source image url */
-			char *dl_url = get_image_url(dl_image->link, &stop_seq);
+			char *dl_url = get_source_image_url(dl_image->link,
+								&stop_seq);
 
 			/* Check if we've successfully parsed the source image
 			 * url */
 			if (dl_url) {
 				/* Notify the user we are downloading the image */
-				if (arg_opts.verbose)
+				if (cmd_args.verbose)
 					image_download_toast(dl_image->link);
 
 				/* get the name of the file from its server */
@@ -209,7 +213,7 @@ int main(int argc, char *argv[])
 					get_server_file_name(dl_url, stop_seq);
 
 				/* notify the user */
-				if (arg_opts.verbose)
+				if (cmd_args.verbose)
 					image_save_toast(file_save_name);
 
 				/* save the image as it's name on the server */
@@ -218,9 +222,16 @@ int main(int argc, char *argv[])
 				/* free allocated memory */
 				free(file_save_name);
 				free(dl_url);
+				if (cmd_args.showtags) {
+					struct image_tag_db *tags_db;
+					tags_db = get_image_tags(dl_image->link);
+					printf("Tags:\n");
+					print_image_tags(tags_db);
+					free_image_tags(tags_db);
+				}
 			}
 			/* Report back to the user how the download went */
-			if (arg_opts.verbose && dl_state) {
+			if (cmd_args.verbose && dl_state) {
 				fprintf(stderr, "Error: Download failed\n");
 				exit_code = 1;
 			}

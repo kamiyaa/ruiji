@@ -4,29 +4,75 @@
 
 #include <curl/curl.h>
 
-#include "interface.h"
+#include "structs.h"
 
 #define IQDB_LOOKFOR "match</th></tr><tr><td class='image'><a href=\""
 
-size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *userp)
+
+short download_image(char *dl_url, char *file_name);
+char *get_html(char *web_url);
+void ruiji_curl_cleanup(void);
+size_t StoreData(char *contents, size_t size, size_t nmemb,
+			struct html_data *userp);
+char *upload_image(char *website, char *file_name, char *field_name);
+
+
+/* Given a url and the name to save as, download the file from the website
+ * and return a integer indicating if successful or not.
+ * 0 = successful
+ * !0 = something went wrong
+ */
+short download_image(char *web_url, char *file_name)
 {
-	size_t realsize = size * nmemb;
+	short result = 0;
+	FILE *img_fp;
+	img_fp = fopen(file_name, "wb");
 
-	struct html_data *mem = userp;
-
-	mem->data = realloc(mem->data, mem->size + realsize + 1);
-
-	if (mem->data == NULL) {
-		/* out of memory! */
-		fprintf(stderr, "not enough memory (realloc returned NULL)\n");
-		return 0;
+	/* Check if we have write permissions */
+	if (!img_fp) {
+		fprintf(stderr, "Error: No write permissions");
+		return 1;
 	}
 
-	memcpy(&(mem->data[mem->size]), contents, realsize);
-	mem->size += realsize;
-	mem->data[mem->size] = 0;
+	/* Initialize curl */
+	CURL *curl_handle = curl_easy_init();
+	CURLcode res;
 
-	return realsize;
+	if (curl_handle) {
+		/* ask libcurl to show us the verbose output */
+		/* curl_easy_setopt(curl_handle, CURLOPT_VERBOSE, 1L); */
+
+		/* set the working website to this domain */
+		curl_easy_setopt(curl_handle, CURLOPT_URL, web_url);
+
+		/* Set the user agent to chrome */
+		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "chrome/57");
+
+		/* Set the data to pass when the function is called */
+		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, img_fp);
+
+		res = curl_easy_perform(curl_handle);
+
+		/* cleanup */
+		curl_easy_cleanup(curl_handle);
+		/* Check for errors */
+		if (res != CURLE_OK) {
+			fprintf(stderr,
+				"curl_easy_perform() failed: %s\n",
+				curl_easy_strerror(res));
+			result = 1;
+		}
+	}
+	fclose(img_fp);
+
+	return result;
+}
+
+/* clean up curl */
+void ruiji_curl_cleanup(void)
+{
+	/* clean up curl */
+	curl_global_cleanup();
 }
 
 /* Given the full link of a website, fetch and return the
@@ -73,6 +119,27 @@ char *get_html(char *web_url)
 		curl_easy_cleanup(curl_handle);
 	}
 	return web_data.data;
+}
+
+size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *userp)
+{
+	size_t realsize = size * nmemb;
+
+	struct html_data *mem = userp;
+
+	mem->data = realloc(mem->data, mem->size + realsize + 1);
+
+	if (mem->data == NULL) {
+		/* out of memory! */
+		fprintf(stderr, "not enough memory (realloc returned NULL)\n");
+		return 0;
+	}
+
+	memcpy(&(mem->data[mem->size]), contents, realsize);
+	mem->size += realsize;
+	mem->data[mem->size] = 0;
+
+	return realsize;
 }
 
 /* Given the name of an existing file and a website to upload it to,
@@ -128,64 +195,4 @@ char *upload_image(char *website, char *file_name, char *field_name)
 	}
 
 	return web_data.data;
-}
-
-
-/* Given a url and the name to save as, download the file from the website
- * and return a integer indicating if successful or not.
- * 0 = successful
- * !0 = something went wrong
- */
-short download_image(char *web_url, char *file_name)
-{
-	short result = 0;
-	FILE *img_fp;
-	img_fp = fopen(file_name, "wb");
-
-	/* Check if we have write permissions */
-	if (!img_fp) {
-		fprintf(stderr, "Error: No write permissions");
-		return 1;
-	}
-
-	/* Initialize curl */
-	CURL *curl_handle = curl_easy_init();
-	CURLcode res;
-
-	if (curl_handle) {
-		/* ask libcurl to show us the verbose output */
-		/* curl_easy_setopt(curl_handle, CURLOPT_VERBOSE, 1L); */
-
-		/* set the working website to this domain */
-		curl_easy_setopt(curl_handle, CURLOPT_URL, web_url);
-
-		/* Set the user agent to chrome */
-		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "chrome/57");
-
-		/* Set the data to pass when the function is called */
-		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, img_fp);
-
-		res = curl_easy_perform(curl_handle);
-
-		/* cleanup */
-		curl_easy_cleanup(curl_handle);
-		/* Check for errors */
-		if (res != CURLE_OK) {
-			fprintf(stderr,
-				"curl_easy_perform() failed: %s\n",
-				curl_easy_strerror(res));
-			result = 1;
-		}
-	}
-	fclose(img_fp);
-
-	return result;
-}
-
-
-/* clean up curl */
-void ruiji_curl_cleanup(void)
-{
-	/* clean up curl */
-	curl_global_cleanup();
 }

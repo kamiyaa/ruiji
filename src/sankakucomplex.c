@@ -10,7 +10,7 @@
 /* Given a https://chan.sankakucomplex.com url,
  * parse the html to get the source image url
  */
-char* sankaku_complex_get_image_url(char *html_content)
+char *sankaku_complex_get_image_url(char *html_content)
 {
 	/* initialize the image source url to be returned later */
 	char *img_src_url = NULL;
