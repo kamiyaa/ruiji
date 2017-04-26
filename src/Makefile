@@ -12,13 +12,13 @@ ruiji: $(HELPERS) ruiji.c config.mk
 	${CC} ${CFLAGS} ${USE_FLAGS} -c ${HELPERS} ruiji.c
 	${CC} ${CFLAGS} ${USE_FLAGS} ${HELPERS_OBJ} ruiji.o -o ruiji ${LIBS}
 
-test: $(HELPERS) test.c config.mk
+test_tags: $(HELPERS) test_tags.c config.mk
 	@echo "CC      =" ${CC}
 	@echo "CFLAGS  =" ${CFLAGS}
 	@echo "LIBS    =" ${LIBS}
 	@echo "USE     =" ${USE_FLAGS}
-	${CC} ${CFLAGS} ${USE_FLAGS} -c ${HELPERS} test.c
-	${CC} ${CFLAGS} ${USE_FLAGS} ${HELPERS_OBJ} test.o -o test ${LIBS}
+	${CC} ${CFLAGS} ${USE_FLAGS} -c ${HELPERS} test_tags.c
+	${CC} ${CFLAGS} ${USE_FLAGS} ${HELPERS_OBJ} test_tags.o -o test_tags ${LIBS}
 
 install:
 	@echo installing to ${PREFIX}/bin
@@ -31,6 +31,7 @@ install:
 
 uninstall:
 	@rm -f ${PREFIX}/bin/ruiji
+	@rm -f ${PREFIX}/share/man/man1/ruiji.1
 
 clean:
 	rm -v *.o ruiji

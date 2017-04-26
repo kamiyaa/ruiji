@@ -1,10 +1,13 @@
-.TH "ruiji" "1" "Jan 05 2017" "\ \&" "\ \&"
+.TH "ruiji" "1" "Apr 26 2017" "\ \&" "\ \&"
 
 .SH "NAME"
 ruiji \- reverse image searching program using iqdb.org
 
 .SH "SYNOPSIS"
 ruiji [options] [image file]
+
+.SH "DESCRIPTION"
+Command that uploads a supported image format to http://iqdb.org, parses the subsequent html for similar image results and prompt the user which one to download.
 
 .SH "OPTIONS"
 .sp
@@ -24,9 +27,9 @@ Suppress verbose output (currently, doesn't work)\&.
 Only show images above certain similarity percentage (default: 0)\&.
 .RE
 .PP
-\fB\-v, --version\fR
+\fB\-v, --verbose\fR
 .RS 4
-Show version number and quit\&.
+Show verbose output\&.
 .RE
 .PP
 \fB\-y, --noprompt\fR
@@ -34,7 +37,13 @@ Show version number and quit\&.
 Skips user interactions and downloads the most similar image\&.
 .RE
 .PP
-
-.SH "DESCRIPTION"
-Command that uploads a supported image format to http://iqdb.org, parses the subsequent html for similar image results and prompt the user which one to download.
-
+\fB\-T, --tags\fR
+.RS 4
+Show tags of downloaded image\&.
+.RE
+.PP
+\fB\-V, --version\fR
+.RS 4
+Show version number and quit\&.
+.RE
+.PP

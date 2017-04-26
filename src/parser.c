@@ -12,9 +12,12 @@ struct similar_image *create_sim_image(char *url_begin, unsigned short similarit
 					unsigned int x, unsigned int y);
 int get_distance(char *string, char find);
 struct image_tag_db *get_image_tags(char *link);
+void free_image_tags(struct image_tag_db *tags_db);
+void free_linked_list(struct ll_node *head);
+void free_similar_image_db(struct similar_image_db *sim_db);
 char *get_server_file_name(char *web_url, char stop);
 char *get_source_image_url(char *url, char *stop_seq);
-void free_similar_image_db(struct similar_image_db *sim_db);
+struct image_tag_db *init_image_tag_db(void);
 char *parse_percent_similar(char *contents, unsigned short *similarity);
 char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y);
 void populate_sim_db(struct similar_image_db *sim_db, char *html_content,
@@ -51,6 +54,18 @@ create_sim_image(char *web_url, unsigned short similarity,
 		strcpy(image->link, web_url);
 	}
 	return image;
+}
+
+struct image_tag_db *init_image_tag_db(void)
+{
+	/* initialize a image tag database to store all the tags */
+	struct image_tag_db *tag_db = malloc(sizeof(struct image_tag_db));
+	/* set all values to 0 and NULL */
+	for (int i = 0; i < 6; i++) {
+		tag_db->tags[i] = NULL;
+		tag_db->tag_size[i] = 0;
+	}
+	return tag_db;
 }
 
 /* get how far away a char is from the beginning of the string */

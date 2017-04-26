@@ -6,11 +6,11 @@
 struct similar_image *create_sim_image(char *url_begin, unsigned short similarity,
 					unsigned int x, unsigned int y);
 
-/* Frees the allocated memory for a similar_image_db */
-void free_similar_image_db(struct similar_image_db *sim_db);
-
 void free_image_tags(struct image_tag_db *tags_db);
 void free_linked_list(struct ll_node *head);
+
+/* Frees the allocated memory for a similar_image_db */
+void free_similar_image_db(struct similar_image_db *sim_db);
 
 /* get the character distance from the beginning of the string to find */
 int get_distance(char *string, char find);
@@ -27,6 +27,8 @@ char *get_server_file_name(char *web_url, char stop);
  * name later, assign it to stop_seq
  */
 char *get_source_image_url(char *url, char *stop_seq);
+
+struct image_tag_db *init_image_tag_db(void);
 
 /* Given the html contents of http://iqdb.org after an image has been uploaded,
  * get the x, y dimensions of the image and return a pointer pointing to the

@@ -63,15 +63,8 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 	tag_contents[slice_distance] = ',';
 	tag_contents[slice_distance+1] = '\0';
 
-	/* initialize a image tag database to store all the tags */
-	struct image_tag_db *tag_db = malloc(sizeof(struct image_tag_db));
-	struct ll_node *tag_ptrs[6];
-	/* set all values to 0 and NULL */
-	for (int i = 0; i < 6; i++) {
-		tag_db->tags[i] = NULL;
-		tag_ptrs[i] = NULL;
-		tag_db->tag_size[i] = 0;
-	}
+	struct image_tag_db *tag_db = init_image_tag_db();
+	struct ll_node *tag_ptrs[6] = { NULL, NULL, NULL, NULL, NULL, NULL };
 
 	/* get the next colon */
 	int colon_distance = get_distance(tag_contents, ':');
