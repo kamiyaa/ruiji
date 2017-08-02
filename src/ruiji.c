@@ -38,7 +38,7 @@ static struct argp_option options[] = {
 		"Suppress verbose output" },
 	{ "threshold",	't',	"number", 0,
 		"Only show images above certain similarity percentage" },
-	{ "Tags",	'T',	0, 0,
+	{ "tags",	'T',	0, 0,
 		"Outputs tags of downloaded image" },
 	{ "verbose",	'v',	0, 0,
 		"Produce verbose output" },
