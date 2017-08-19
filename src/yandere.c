@@ -8,6 +8,9 @@
 #define YANDERE_JPG_SOURCE_ID "<li><a class=\"original-file-changed\" id=\"highres\" href=\""
 #define YANDERE_TAG_ID "\"tags\":{"
 
+struct image_tag_db *yandere_get_image_tags(char *html_content);
+char *yandere_get_image_url(char *html_content);
+
 /* Given a https://yande.re/ url,
  * parse the html to get the source image url
  */
@@ -44,7 +47,8 @@ char *yandere_get_image_url(char *html_content)
 	/* otherwise, this html content did not contain any html pattern we
 	 * recognize, so error */
 	else {
-		printf("yandere_get_image_url(): Error: Failed to parse website\n");
+		fprintf(stderr,
+			"yandere_get_image_url(): Error: Failed to parse website\n");
 	}
 
 	/* return the image source url */
@@ -78,7 +82,7 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 		comma_distance = get_distance(tag_contents, ',');
 
 		/* change comma to escape char, essentially slicing the string
-		at comma */
+		 * at comma */
 		tag_contents[comma_distance] = '\0';
 
 		/* figure out which tag category this tag belongs to */
@@ -98,8 +102,11 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 		/* put back comma to reunite the string */
 		tag_contents[comma_distance] = ',';
 
+		/* move pointer to beginning of tag name */
+		tag_contents = &(tag_contents[1]);
+
 		/* get length of tag name */
-		tag_name_size = get_distance(&(tag_contents[1]), '"');
+		tag_name_size = get_distance(tag_contents, '"');
 
 		/* create the linked list node to store the information */
 		if (!(tag_db->tags[tag_index])) {
@@ -107,7 +114,7 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 			tag_db->tags[tag_index]->next = NULL;
 			tag_db->tags[tag_index]->data = malloc(sizeof(char) * (tag_name_size + 1));
 			tag_db->tags[tag_index]->data[0] = '\0';
-			strncat(tag_db->tags[tag_index]->data, &(tag_contents[1]), tag_name_size);
+			strncat(tag_db->tags[tag_index]->data, tag_contents, tag_name_size);
 
 			tag_ptrs[tag_index] = tag_db->tags[tag_index];
 		}
@@ -117,18 +124,18 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 							(tag_name_size + 1));
 			tag_ptrs[tag_index]->next->data[0] = '\0';
 			strncat(tag_ptrs[tag_index]->next->data,
-				&(tag_contents[1]), tag_name_size);
+				tag_contents, tag_name_size);
 
 			tag_ptrs[tag_index] = tag_ptrs[tag_index]->next;
 			tag_ptrs[tag_index]->next = NULL;
 		}
 
 		/* increment the amount of tags in this category we currently
-		found */
+		 * found */
 		(tag_db->tag_size[tag_index])++;
 
 		/* search for next colon */
-		tag_contents = &(tag_contents[comma_distance+1]);
+		tag_contents = &(tag_contents[comma_distance]);
 		colon_distance = get_distance(tag_contents, ':');
 	}
 
