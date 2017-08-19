@@ -10,13 +10,16 @@
 
 struct similar_image *create_sim_image(char *url_begin, unsigned short similarity,
 					unsigned int x, unsigned int y);
-int get_distance(char *string, char find);
-struct image_tag_db *get_image_tags(char *link);
 void free_image_tags(struct image_tag_db *tags_db);
 void free_linked_list(struct ll_node *head);
 void free_similar_image_db(struct similar_image_db *sim_db);
+
+int get_distance(char *string, char find);
+struct image_tag_db *get_image_tags(int domain_uuid, char *html_content);
+unsigned int get_internal_domain_value(char *link);
 char *get_server_file_name(char *web_url, char stop);
-char *get_source_image_url(char *url, char *stop_seq);
+char *get_source_image_url(int domain_uuid, char *html_content, char *stop_seq);
+
 struct image_tag_db *init_image_tag_db(void);
 char *parse_percent_similar(char *contents, unsigned short *similarity);
 char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y);
@@ -82,63 +85,93 @@ int get_distance(char *string, char find)
 	return distance;
 }
 
-/* Given a website url, a unique html pattern to look for and */
-char *get_source_image_url(char *link, char *stop_seq)
+struct image_tag_db *get_image_tags(int domain_uuid, char *html_content)
 {
-	char *dl_url = NULL;
-	/* Fetch the html source code of the website */
-	char *html_content = get_html(link);
+	struct image_tag_db *tags_db;
+
+	switch (domain_uuid) {
 	/* if the link given is a yandere domain */
-	if (strstr(link, YANDERE_DOMAIN)) {
-		dl_url = yandere_get_image_url(html_content);
+	case YANDERE_UUID:
+		tags_db = yandere_get_image_tags(html_content);
+		break;
+	case DANBOORU_UUID:
+		tags_db = danbooru_get_image_tags(html_content);
+		break;
+	default:
+		tags_db = NULL;
+		break;
 	}
+
+	return tags_db;
+}
+
+unsigned int get_internal_domain_value(char *link) {
+
+	/* if the link given is a yandere domain */
+	if (strstr(link, YANDERE_DOMAIN))
+		return YANDERE_UUID;
 	/* danbooru domain */
-	else if (strstr(link, DANBOORU_DOMAIN)) {
-		dl_url = danbooru_get_image_url(html_content);
-	}
+	if (strstr(link, DANBOORU_DOMAIN))
+		return DANBOORU_UUID;
 	/* konachan domain */
-	else if (strstr(link, KONACHAN_DOMAIN)) {
-		dl_url = konachan_get_image_url(html_content);
-	}
+	if (strstr(link, KONACHAN_DOMAIN))
+		return KONACHAN_UUID;
 	/* eshuushuu domain */
-	else if (strstr(link, ESHUUSHUU_DOMAIN)) {
-		dl_url = eshuushuu_get_image_url(html_content);
-	}
+	if (strstr(link, ESHUUSHUU_DOMAIN))
+		return ESHUUSHUU_UUID;
 	/* gelbooru domain */
-	else if (strstr(link, GELBOORU_DOMAIN)) {
-		dl_url = gelbooru_get_image_url(html_content);
-	}
+	if (strstr(link, GELBOORU_DOMAIN))
+		return GELBOORU_UUID;
 	/* mangadrawing domain */
-	else if (strstr(link, MANGADRAWING_DOMAIN)) {
-		dl_url = mangadrawing_get_image_url(html_content);
-	}
+	if (strstr(link, MANGADRAWING_DOMAIN))
+		return MANGADRAWING_UUID;
 	/* sankakucomplex domain */
-	else if (strstr(link, SANKAKU_COMPLEX_DOMAIN)) {
+	if (strstr(link, SANKAKUCOMPLEX_DOMAIN))
+		return SANKAKUCOMPLEX_UUID;
+	return 0;
+}
+
+/* Given a website url, a unique html pattern to look for and */
+char *get_source_image_url(int domain_uuid, char *html_content, char *stop_seq)
+{
+	char *dl_url;
+	switch (domain_uuid) {
+	/* if the link given is a yandere domain */
+	case YANDERE_UUID:
+		dl_url = yandere_get_image_url(html_content);
+		break;
+	/* danbooru domain */
+	case DANBOORU_UUID:
+		dl_url = danbooru_get_image_url(html_content);
+		break;
+	/* konachan domain */
+	case KONACHAN_UUID:
+		dl_url = konachan_get_image_url(html_content);
+		break;
+	/* eshuushuu domain */
+	case ESHUUSHUU_UUID:
+		dl_url = eshuushuu_get_image_url(html_content);
+		break;
+	/* gelbooru domain */
+	case GELBOORU_UUID:
+		dl_url = gelbooru_get_image_url(html_content);
+		break;
+	/* mangadrawing domain */
+	case MANGADRAWING_UUID:
+		dl_url = mangadrawing_get_image_url(html_content);
+		break;
+	/* sankakucomplex domain */
+	case SANKAKUCOMPLEX_UUID:
 		dl_url = sankaku_complex_get_image_url(html_content);
 		/* change the sequence to stop parsing at
 		 * to '?' for sankakucomplex */
 		*stop_seq = '?';
+		break;
+	default:
+		dl_url = NULL;
+		break;
 	}
-
-	/* deallocate the memory used to download
-	 * and store the webpage's content */
-	free(html_content);
-	/* return the url */
 	return dl_url;
-}
-
-struct image_tag_db *get_image_tags(char *link)
-{
-	struct image_tag_db *tags_db = NULL;
-	/* Fetch the html source code of the website */
-	char *html_content = get_html(link);
-	/* if the link given is a yandere domain */
-	if (strstr(link, YANDERE_DOMAIN)) {
-		tags_db = yandere_get_image_tags(html_content);
-	}
-	free(html_content);
-
-	return tags_db;
 }
 
 /* Given the full link of a website, parse the link to get the file name */

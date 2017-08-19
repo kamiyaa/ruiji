@@ -198,8 +198,10 @@ int main(int argc, char *argv[])
 			 * file name. Default is NULL character */
 			char stop_seq = '\0';
 			/* get source image url */
-			char *dl_url = get_source_image_url(dl_image->link,
-								&stop_seq);
+			int domain_uuid = get_internal_domain_value(dl_image->link);
+			char *html_content = get_html(dl_image->link);
+			char *dl_url = get_source_image_url(domain_uuid,
+					html_content, &stop_seq);
 
 			/* Check if we've successfully parsed the source image
 			 * url */
@@ -224,7 +226,7 @@ int main(int argc, char *argv[])
 				free(dl_url);
 				if (cmd_args.showtags) {
 					struct image_tag_db *tags_db;
-					tags_db = get_image_tags(dl_image->link);
+					tags_db = get_image_tags(domain_uuid, html_content);
 					printf("Tags:\n");
 					print_image_tags(tags_db);
 					free_image_tags(tags_db);
@@ -235,6 +237,8 @@ int main(int argc, char *argv[])
 				fprintf(stderr, "Error: Download failed\n");
 				exit_code = 1;
 			}
+			if (html_content)
+				free(html_content);
 		}
 	}
 	else {

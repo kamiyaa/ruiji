@@ -15,7 +15,7 @@ void free_similar_image_db(struct similar_image_db *sim_db);
 /* get the character distance from the beginning of the string to find */
 int get_distance(char *string, char find);
 
-struct image_tag_db *get_image_tags(char *link);
+struct image_tag_db *get_image_tags(int domain_uuid, char *html_content);
 
 /* Given the full link of a website,
  * parse the link to get the file name
@@ -26,7 +26,9 @@ char *get_server_file_name(char *web_url, char stop);
  * if a stop sequence is needed for extracting the file
  * name later, assign it to stop_seq
  */
-char *get_source_image_url(char *url, char *stop_seq);
+char *get_source_image_url(int domain_uuid, char *html_content, char *stop_seq);
+
+unsigned int get_internal_domain_value(char *link);
 
 struct image_tag_db *init_image_tag_db(void);
 
