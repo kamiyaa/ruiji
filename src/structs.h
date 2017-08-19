@@ -1,3 +1,5 @@
+#ifndef STRUCTS_H
+
 struct html_data;
 struct image_tag_db;
 struct llnode;
@@ -38,3 +40,5 @@ struct similar_image_db {
 	struct similar_image *img_db[16];
 	unsigned short size;
 };
+
+#endif

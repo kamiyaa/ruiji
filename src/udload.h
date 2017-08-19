@@ -1,4 +1,3 @@
-#include "interface.h"
 
 /* Given a url and the name to save as, download the file from the website
  * and return a integer indicating if successful or not.

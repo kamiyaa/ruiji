@@ -5,15 +5,18 @@
 #include "yandere.h"
 #include "parser.h"
 
-#define YANDERE_PNG_SOURCE_ID "<li><a class=\"original-file-unchanged\" id=\"png\" href=\""
-#define YANDERE_JPG_SOURCE_ID "<li><a class=\"original-file-changed\" id=\"highres\" href=\""
-#define YANDERE_TAG_ID "\"tags\":{"
-
 /* Given a https://yande.re/ url,
  * parse the html to get the source image url
  */
 char *yandere_get_image_url(char *html_content)
 {
+	const char png_source_uuid[] = "<li><a class=\"original-file-unchanged\" id=\"png\" href=\"";
+	const char jpg_source_uuid[] = "<li><a class=\"original-file-changed\" id=\"highres\" href=\"";
+	const char source_url_end = '"';
+
+	const unsigned int len_png = strlen(png_source_uuid);
+	const unsigned int len_jpg = strlen(jpg_source_uuid);
+
 	/* initialize the image source url to be returned later */
 	char *img_src_url = NULL;
 
@@ -21,25 +24,24 @@ char *yandere_get_image_url(char *html_content)
 	char *source_index = NULL;
 
 	/* get png html pattern index and jpg html pattern index */
-	char *png_index = strstr(html_content, YANDERE_PNG_SOURCE_ID);
-	char *jpg_index = strstr(html_content, YANDERE_JPG_SOURCE_ID);
+	char *png_index = strstr(html_content, png_source_uuid);
+	char *jpg_index = strstr(html_content, jpg_source_uuid);
 
-	static int png_len = sizeof(YANDERE_PNG_SOURCE_ID);
-	static int jpg_len = sizeof(YANDERE_JPG_SOURCE_ID);
+
 	/* find source image link */
 	if (png_index)
-		source_index = &png_index[png_len];
+		source_index = &(png_index[len_png]);
 	else if (jpg_index)
-		source_index = &jpg_index[jpg_len];
+		source_index = &(jpg_index[len_jpg]);
 
 	/* check if any html pattern was detected */
 	if (source_index) {
 		/* get the length of the source image url */
-		int url_len = get_distance(source_index, '"');
+		int url_len = get_distance(source_index, source_url_end);
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(CHARSIZE * (url_len + 1));
+		img_src_url = malloc(CHAR_SIZE * (url_len + 1));
 		img_src_url[0] = '\0';
 		strncat(img_src_url, source_index, url_len);
 	}
@@ -56,83 +58,95 @@ char *yandere_get_image_url(char *html_content)
 
 struct image_tag_db *yandere_get_image_tags(char *html_content)
 {
+	/* constants for finding values */
+	const char tags_uuid[] = "\"tags\":{";
+	const char tags_end = '}';
+	const char tag_category_uuid = ':';
+	const char tag_name_uuid = ',';
+
+	/* offsets from actual value */
+	const unsigned int initial_offset = strlen(tags_uuid);
+
+	/* get the next colon */
+	int next_tag_distance = 0;
+
 	/* set tag_ptr to the beginning in which the tags begin */
-	char *tag_contents = strstr(html_content, YANDERE_TAG_ID);
-	tag_contents = &(tag_contents[strlen(YANDERE_TAG_ID)]);
+	char *tag_contents = strstr(html_content, tags_uuid);
+	if (tag_contents) {
+		/* move pointer to start of tag */
+		tag_contents = &(tag_contents[initial_offset]);
+		/* get the end of tags section and slice string at the end */
+		int tag_contents_end = get_distance(tag_contents, tags_end);
+		/* replace end of tags with tag_name_uuid for easier parsing */
+		tag_contents[tag_contents_end] = tag_name_uuid;
+		/* slice string after it */
+		tag_contents[tag_contents_end+1] = '\0';
+		next_tag_distance = get_distance(tag_contents, tag_name_uuid);
+	}
 
-	/* get how long the string of tags are */
-	int slice_distance = get_distance(tag_contents, '}');
-	/* isolate the tags with the rest of html */
-	tag_contents[slice_distance] = ',';
-	tag_contents[slice_distance+1] = '\0';
-
+	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
 	struct ll_node *tag_ptrs[6] = { NULL, NULL, NULL, NULL, NULL, NULL };
 
-	/* get the next colon */
-	int colon_distance = get_distance(tag_contents, ':');
-	int comma_distance;
-	/* store tag name category and size of tag name */
-	unsigned int tag_index;
-	unsigned int tag_name_size;
+	while (next_tag_distance > 0) {
+		/* store tag name category and size of tag name */
+		unsigned int tag_index;
+		unsigned int len_tag_name;
+		unsigned int category_end_distance;
 
-	while (colon_distance > 0) {
-		/* get where the next comma is */
-		comma_distance = get_distance(tag_contents, ',');
+		/* get the end of the category name */
+		category_end_distance = get_distance(tag_contents,
+						tag_name_uuid);
 
-		/* change comma to escape char, essentially slicing the string
-		 * at comma */
-		tag_contents[comma_distance] = '\0';
-
+		/* temporarily slice the string at the category_end position */
+		tag_contents[category_end_distance] = '\0';
 		/* get the tag type of the tag */
 		tag_index = yandere_get_tag_type(tag_contents);
-
-		/* put back comma to reunite the string */
-		tag_contents[comma_distance] = ',';
+		/* restore sliced string */
+		tag_contents[category_end_distance] = tag_name_uuid;
 
 		/* move pointer to beginning of tag name */
 		tag_contents = &(tag_contents[1]);
-
 		/* get length of tag name */
-		tag_name_size = get_distance(tag_contents, '"');
+		len_tag_name = get_distance(tag_contents, '"');
 
 		/* create the linked list node to store the information */
 		if (!(tag_db->tags[tag_index])) {
 			/* malloc memory for node */
-			tag_db->tags[tag_index] = malloc(sizeof(struct ll_node));
+			tag_db->tags[tag_index] = malloc(LLNODE_SIZE);
 			/* malloc memory for char array in node */
-			tag_db->tags[tag_index]->data = malloc(sizeof(char) * (tag_name_size + 1));
+			tag_db->tags[tag_index]->data = malloc(CHAR_SIZE * (len_tag_name + 1));
 			/* set first element to \0 */
 			tag_db->tags[tag_index]->data[0] = '\0';
 			/* concatentate tag name to char array */
 			strncat(tag_db->tags[tag_index]->data,
-					tag_contents, tag_name_size);
+					tag_contents, len_tag_name);
 
 			/* set tag_ptrs to it */
 			tag_ptrs[tag_index] = tag_db->tags[tag_index];
 		}
 		else {
 			/* malloc memory for node */
-			tag_ptrs[tag_index]->next = malloc(sizeof(struct ll_node));
+			tag_ptrs[tag_index]->next = malloc(LLNODE_SIZE);
 			/* malloc memory for char array in node */
-			tag_ptrs[tag_index]->next->data = malloc(sizeof(char) * (tag_name_size + 1));
+			tag_ptrs[tag_index]->next->data = malloc(CHAR_SIZE * (len_tag_name + 1));
 			/* set first element to \0 */
 			tag_ptrs[tag_index]->next->data[0] = '\0';
 			strncat(tag_ptrs[tag_index]->next->data,
-				tag_contents, tag_name_size);
+				tag_contents, len_tag_name);
 
 			/* set tag_ptrs to its next value */
 			tag_ptrs[tag_index] = tag_ptrs[tag_index]->next;
 		}
 		tag_ptrs[tag_index]->next = NULL;
-
 		/* increment the amount of tags in this category we currently
 		 * found */
 		(tag_db->tag_size[tag_index])++;
 
-		/* search for next colon */
-		tag_contents = &(tag_contents[comma_distance]);
-		colon_distance = get_distance(tag_contents, ':');
+		/* move on to next tag */
+		tag_contents = &(tag_contents[category_end_distance]);
+		/* search for next tag */
+		next_tag_distance = get_distance(tag_contents, tag_name_uuid);
 	}
 
 	return tag_db;

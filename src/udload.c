@@ -5,16 +5,9 @@
 #include <curl/curl.h>
 
 #include "structs.h"
+#include "udload.h"
 
 #define IQDB_LOOKFOR "match</th></tr><tr><td class='image'><a href=\""
-
-
-short download_image(char *dl_url, char *file_name);
-char *get_html(char *web_url);
-void ruiji_curl_cleanup(void);
-size_t StoreData(char *contents, size_t size, size_t nmemb,
-			struct html_data *userp);
-char *upload_image(char *website, char *file_name, char *field_name);
 
 
 /* Given a url and the name to save as, download the file from the website

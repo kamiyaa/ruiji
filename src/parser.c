@@ -78,6 +78,10 @@ struct image_tag_db *get_image_tags(int domain_uuid, char *html_content)
 	case DANBOORU_UUID:
 		tags_db = danbooru_get_image_tags(html_content);
 		break;
+	/* sankakucomplex domain */
+	case SANKAKUCOMPLEX_UUID:
+		tags_db = sankakucomplex_get_image_tags(html_content);
+		break;
 	default:
 		tags_db = init_image_tag_db();
 		break;

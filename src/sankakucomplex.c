@@ -5,42 +5,45 @@
 #include "sankakucomplex.h"
 #include "parser.h"
 
-#define HTTPS "https:"
-#define SANKAKUCOMPLEX_SOURCE_ID "<li>Original: <a href=\""
-#define SANKAKUCOMPLEX_TAG_ID " "
-
 /* Given a https://chan.sankakucomplex.com url,
  * parse the html to get the source image url
  */
 char *sankakucomplex_get_image_url(char *html_content)
 {
-	static int https_len = sizeof(HTTPS);
+	/* constants for finding values */
+	const char https[] = "https:";
+	const char source_uuid[] = "<li>Original: <a href=\"";
+	const char source_end = '"';
+
+	const unsigned int len_https = strlen(https);
+	const unsigned int len_source = strlen(source_uuid);
 
 	/* initialize the image source url to be returned later */
 	char *img_src_url = NULL;
 
 	/* Find the source image link */
-	char *source_index = strstr(html_content, SANKAKUCOMPLEX_SOURCE_ID);
+	char *source_index = strstr(html_content, source_uuid);
 
 	/* If source image link is found,
 	 * add http extension to it and return it */
 	if (source_index) {
 		/* move source_index pointer to the beginning of
 		 * the source image url */
-		source_index = &source_index[strlen(SANKAKUCOMPLEX_SOURCE_ID)];
-		int url_len = get_distance(source_index, '"');
+		source_index = &source_index[len_source];
+		int len_url = get_distance(source_index, source_end);
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(CHARSIZE *
-					(url_len + https_len + 1));
+		img_src_url = malloc(CHAR_SIZE *
+					(len_url + len_https + 1));
 		img_src_url[0] = '\0';
-		strcat(img_src_url, HTTPS);
-		strncat(img_src_url, source_index, url_len);
+		strcat(img_src_url, https);
+		strncat(img_src_url, source_index, len_url);
 	}
-	else
+	else {
 		fprintf(stderr,
 			"sankaku_complex_get_image_url(): Error: Failed to parse website\n");
+	}
 
 	/* return the image source url */
 	return img_src_url;
@@ -48,12 +51,115 @@ char *sankakucomplex_get_image_url(char *html_content)
 
 struct image_tag_db *sankakucomplex_get_image_tags(char *html_content)
 {
-	/* set tag_ptr to the beginning in which the tags begin */
-	char *tag_contents = strstr(html_content, SANKAKUCOMPLEX_TAG_ID);
-	tag_contents = &(tag_contents[strlen(SANKAKUCOMPLEX_TAG_ID)]);
+	/* constants for finding values */
+	const char tags_uuid[] = "<h5>Tags</h5>";
+	const char tags_end[] = "</ul>";
+	const char tag_category_uuid[] = "<li class=tag-type-";
+	const char tag_category_end = '>';
+	const char tag_name_uuid[] = "href=\"/?tags=";
+	const char tag_name_end = '"';
 
+	/* offsets from actual value */
+	const unsigned int initial_offset = strlen(tags_uuid);
+	const unsigned int category_offset = strlen(tag_category_uuid);
+	const unsigned int name_offset = strlen(tag_name_uuid);
+
+	/* set tag_contents to the beginning in which the tags begin */
+	char *tag_contents = strstr(html_content, tags_uuid);
+	/* set pointer to beginning of first tag */
+	if (tag_contents) {
+		/* slice string at where all tags section ends */
+		char *tag_contents_end = strstr(tag_contents, tags_end);
+		tag_contents_end[0] = '\0';
+		tag_contents = &(tag_contents[initial_offset]);
+		tag_contents = strstr(tag_contents, tag_category_uuid);
+	}
+
+	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
 	struct ll_node *tag_ptrs[6] = { NULL, NULL, NULL, NULL, NULL, NULL };
 
+	while (tag_contents) {
+		/* indicates what type of tag it is */
+		unsigned int tag_index;
+		/* the length of the tag name */
+		unsigned int len_tag_name;
+		tag_contents = &(tag_contents[category_offset]);
+
+		/* get how far we are from the end of current tag */
+		unsigned int category_end_distance = get_distance(tag_contents,
+					tag_category_end);
+		/* temporarily slice the string at the category_end position */
+		tag_contents[category_end_distance] = '\0';
+		/* get the tag type of the tag */
+		tag_index = sankakucomplex_get_tag_type(tag_contents);
+		/* restore sliced string */
+		tag_contents[category_end_distance] = tag_category_end;
+
+		/* move pointer to start of tag name */
+		tag_contents = strstr(tag_contents, tag_name_uuid);
+		tag_contents = &(tag_contents[name_offset]);
+		/* get length of tag name and slice it at the end */
+		len_tag_name = get_distance(tag_contents, tag_name_end);
+
+		/* create the linked list node to store the information */
+		if (!(tag_db->tags[tag_index])) {
+			/* malloc memory for node */
+			tag_db->tags[tag_index] = malloc(LLNODE_SIZE);
+			/* malloc memory for char array in node */
+			tag_db->tags[tag_index]->data = malloc(CHAR_SIZE * (len_tag_name + 1));
+			/* set first element to \0 */
+			tag_db->tags[tag_index]->data[0] = '\0';
+			/* concatentate tag name to char array */
+			strncat(tag_db->tags[tag_index]->data,
+					tag_contents, len_tag_name);
+
+			/* set tag_ptrs to it */
+			tag_ptrs[tag_index] = tag_db->tags[tag_index];
+		}
+		else {
+			/* malloc memory for node */
+			tag_ptrs[tag_index]->next = malloc(LLNODE_SIZE);
+			/* malloc memory for char array in node */
+			tag_ptrs[tag_index]->next->data = malloc(CHAR_SIZE * (len_tag_name + 1));
+			/* set first element to \0 */
+			tag_ptrs[tag_index]->next->data[0] = '\0';
+			strncat(tag_ptrs[tag_index]->next->data,
+				tag_contents, len_tag_name);
+
+			/* set tag_ptrs to its next value */
+			tag_ptrs[tag_index] = tag_ptrs[tag_index]->next;
+		}
+		tag_ptrs[tag_index]->next = NULL;
+		/* increment the amount of tags in this category we currently
+		 * found */
+		(tag_db->tag_size[tag_index])++;
+
+		/* move on to next tag */
+		tag_contents = &(tag_contents[len_tag_name]);
+		/* search for next tag */
+		tag_contents = strstr(tag_contents, tag_category_uuid);
+	}
+
 	return tag_db;
+}
+
+unsigned int sankakucomplex_get_tag_type(char *tag_contents)
+{
+	unsigned int tag_index;
+	/* figure out which tag category this tag belongs to */
+	if (strstr(tag_contents, "artist"))
+		tag_index = 0;
+	else if (strstr(tag_contents, "character"))
+		tag_index = 1;
+	else if (strstr(tag_contents, "circle"))
+		tag_index = 2;
+	else if (strstr(tag_contents, "copyright"))
+		tag_index = 3;
+	else if (strstr(tag_contents, "fault"))
+		tag_index = 4;
+	else
+		tag_index = 5;
+
+	return tag_index;
 }
