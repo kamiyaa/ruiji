@@ -61,7 +61,7 @@ struct image_tag_db *danbooru_get_image_tags(char *html_content)
 
 	const unsigned int initial_offset = strlen(tags_uuid);
 	const unsigned int category_offset = strlen(tag_category_uuid);
-	const unsigned int tag_name_offset = strlen(tag_name_uuid);
+	const unsigned int name_offset = strlen(tag_name_uuid);
 
 	/* set tag_ptr to the beginning in which the tags begin */
 	char *tag_contents = strstr(html_content, tags_uuid);
@@ -85,7 +85,7 @@ struct image_tag_db *danbooru_get_image_tags(char *html_content)
 
 		/* move pointer to the start of the tag name */
 		tag_contents = strstr(tag_contents, tag_name_uuid);
-		tag_contents = &(tag_contents[tag_name_offset]);
+		tag_contents = &(tag_contents[name_offset]);
 
 		/* get where the tag name ends is */
 		int len_tag_name = get_distance(tag_contents, tag_name_end);
@@ -130,7 +130,8 @@ struct image_tag_db *danbooru_get_image_tags(char *html_content)
 	return tag_db;
 }
 
-unsigned int danbooru_get_tag_type(char category) {
+unsigned int danbooru_get_tag_type(char category)
+{
 	unsigned int tag_index;
 	/* figure out what tag type this is */
 	switch (category) {

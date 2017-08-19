@@ -80,10 +80,6 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *html_content)
 	struct ll_node *tag_ptrs[6] = { NULL, NULL, NULL, NULL, NULL, NULL };
 
 	while (tag_contents) {
-		/* indicates what type of tag it is */
-		unsigned int tag_index;
-		/* the length of the tag name */
-		unsigned int len_tag_name;
 		tag_contents = &(tag_contents[category_offset]);
 
 		/* get how far we are from the end of current tag */
@@ -92,15 +88,15 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *html_content)
 		/* temporarily slice the string at the category_end position */
 		tag_contents[category_end_distance] = '\0';
 		/* get the tag type of the tag */
-		tag_index = sankakucomplex_get_tag_type(tag_contents);
+		unsigned tag_index = sankakucomplex_get_tag_type(tag_contents);
 		/* restore sliced string */
 		tag_contents[category_end_distance] = tag_category_end;
 
 		/* move pointer to start of tag name */
 		tag_contents = strstr(tag_contents, tag_name_uuid);
 		tag_contents = &(tag_contents[name_offset]);
-		/* get length of tag name and slice it at the end */
-		len_tag_name = get_distance(tag_contents, tag_name_end);
+		/* get length of tag name */
+		int len_tag_name = get_distance(tag_contents, tag_name_end);
 
 		/* create the linked list node to store the information */
 		if (!(tag_db->tags[tag_index])) {
