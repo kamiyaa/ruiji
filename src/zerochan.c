@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "zerochan.h"
 #include "parser.h"
 
 #define ZEROCHAN_SOURCE_ID "fullsizeUrl = '"
@@ -26,7 +27,7 @@ char *zerochan_get_image_url(char *html_content)
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(sizeof(char) * (url_len + 1));
+		img_src_url = malloc(CHARSIZE * (url_len + 1));
 		img_src_url[0] = '\0';
 		strncat(img_src_url, source_index, url_len);
 	}

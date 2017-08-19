@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "eshuushuu.h"
 #include "parser.h"
 
 #define ESHUUSHUU_URL "http://e-shuushuu.net"
@@ -28,7 +29,7 @@ char *eshuushuu_get_image_url(char *html_content)
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(sizeof(char) *
+		img_src_url = malloc(CHARSIZE *
 					(url_len + strlen(ESHUUSHUU_URL) + 1));
 		img_src_url[0] = '\0';
 		strcat(img_src_url, ESHUUSHUU_URL);

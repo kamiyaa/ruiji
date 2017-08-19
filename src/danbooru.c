@@ -2,15 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "danbooru.h"
 #include "parser.h"
 
 #define DANBOORU_URL "https://danbooru.donmai.us"
 #define DANBOORU_SOURCE_ID "Size: <a href=\""
 #define DANBOORU_TAG_ID "<section id=\"tag-list\">"
-
-char *danbooru_get_image_url(char *html_content);
-struct image_tag_db *danbooru_get_image_tags(char *html_content);
-unsigned int get_tag_index(char category);
 
 /* Given a https://danbooru.donmai.us url,
  * parse the html to get the source image url
@@ -34,7 +31,7 @@ char *danbooru_get_image_url(char *html_content)
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(sizeof(char) *
+		img_src_url = malloc(CHARSIZE *
 					(url_len + strlen(DANBOORU_URL) + 1));
 		img_src_url[0] = '\0';
 		strcat(img_src_url, DANBOORU_URL);
@@ -55,8 +52,8 @@ struct image_tag_db *danbooru_get_image_tags(char *html_content)
 	char *tag_contents = strstr(html_content, DANBOORU_TAG_ID);
 	tag_contents = &(tag_contents[strlen(DANBOORU_TAG_ID)]);
 
-	char *tag_end = strstr(tag_contents, "</section>");
-	tag_end[0] = '\0';
+	char *slice_pos = strstr(tag_contents, "</section>");
+	slice_pos[0] = '\0';
 
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
@@ -72,10 +69,10 @@ struct image_tag_db *danbooru_get_image_tags(char *html_content)
 	int category_offset = strlen("category-");
 	int tag_name_offset = strlen("href=\"/posts?tags=");
 	while (tag_contents) {
+		/* move to beginning of tag type */
 		tag_contents = &(tag_contents[category_offset]);
-		/* get tag type and index */
-		tag_index = get_tag_index(tag_contents[0]);
-
+		/* get the tag type of the tag */
+		tag_index = danbooru_get_tag_type(tag_contents[0]);
 
 		/* move pointer to the start of the tag name */
 		tag_contents = strstr(tag_contents, "class=\"search-tag\"");
@@ -88,25 +85,33 @@ struct image_tag_db *danbooru_get_image_tags(char *html_content)
 
 		/* create the linked list node to store the information */
 		if (!(tag_db->tags[tag_index])) {
+			/* malloc memory for node */
 			tag_db->tags[tag_index] = malloc(sizeof(struct ll_node));
-			tag_db->tags[tag_index]->next = NULL;
+			/* malloc memory for char array in node */
 			tag_db->tags[tag_index]->data = malloc(sizeof(char) * (tag_name_size + 1));
+			/* set first element to \0 */
 			tag_db->tags[tag_index]->data[0] = '\0';
-			strncat(tag_db->tags[tag_index]->data, tag_contents, tag_name_size);
+			/* concatentate tag name to char array */
+			strncat(tag_db->tags[tag_index]->data,
+					tag_contents, tag_name_size);
 
+			/* set tag_ptrs to it */
 			tag_ptrs[tag_index] = tag_db->tags[tag_index];
 		}
 		else {
+			/* malloc memory for node */
 			tag_ptrs[tag_index]->next = malloc(sizeof(struct ll_node));
-			tag_ptrs[tag_index]->next->data = malloc(sizeof(char) *
-							(tag_name_size + 1));
+			/* malloc memory for char array in node */
+			tag_ptrs[tag_index]->next->data = malloc(sizeof(char) * (tag_name_size + 1));
+			/* set first element to \0 */
 			tag_ptrs[tag_index]->next->data[0] = '\0';
 			strncat(tag_ptrs[tag_index]->next->data,
 				tag_contents, tag_name_size);
 
+			/* set tag_ptrs to its next value */
 			tag_ptrs[tag_index] = tag_ptrs[tag_index]->next;
-			tag_ptrs[tag_index]->next = NULL;
 		}
+		/* change value back to " */
 		tag_contents[tag_name_size] = '"';
 
 		/* increment the amount of tags in this category we currently
@@ -120,7 +125,7 @@ struct image_tag_db *danbooru_get_image_tags(char *html_content)
 	return tag_db;
 }
 
-unsigned int get_tag_index(char category) {
+unsigned int danbooru_get_tag_type(char category) {
 	unsigned int tag_index;
 	/* figure out what tag type this is */
 	switch (category) {

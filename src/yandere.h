@@ -7,3 +7,5 @@
 char* yandere_get_image_url(char *html_content);
 
 struct image_tag_db *yandere_get_image_tags(char *html_content);
+
+unsigned int yandere_get_tag_type(char *tag_contents);

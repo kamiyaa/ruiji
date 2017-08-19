@@ -2,30 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "parser.h"
 #include "domains.h"
-#include "udload.h"
 
 #define IQDB_RESULT_ID	"match</th></tr><tr><td class='image'><a href=\""
-
-
-struct similar_image *create_sim_image(char *url_begin, unsigned short similarity,
-					unsigned int x, unsigned int y);
-void free_image_tags(struct image_tag_db *tags_db);
-void free_linked_list(struct ll_node *head);
-void free_similar_image_db(struct similar_image_db *sim_db);
-
-int get_distance(char *string, char find);
-struct image_tag_db *get_image_tags(int domain_uuid, char *html_content);
-unsigned int get_internal_domain_value(char *link);
-char *get_server_file_name(char *web_url, char stop);
-char *get_source_image_url(int domain_uuid, char *html_content, char *stop_seq);
-
-struct image_tag_db *init_image_tag_db(void);
-char *parse_percent_similar(char *contents, unsigned short *similarity);
-char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y);
-void populate_sim_db(struct similar_image_db *sim_db, char *html_content,
-			unsigned short similar_threshold);
-
 
 /* Given the necessary information of a similar image, create a similar image
  * struct with the given values and return it.
@@ -94,11 +74,12 @@ struct image_tag_db *get_image_tags(int domain_uuid, char *html_content)
 	case YANDERE_UUID:
 		tags_db = yandere_get_image_tags(html_content);
 		break;
+	/* danbooru domain */
 	case DANBOORU_UUID:
 		tags_db = danbooru_get_image_tags(html_content);
 		break;
 	default:
-		tags_db = NULL;
+		tags_db = init_image_tag_db();
 		break;
 	}
 
@@ -162,7 +143,7 @@ char *get_source_image_url(int domain_uuid, char *html_content, char *stop_seq)
 		break;
 	/* sankakucomplex domain */
 	case SANKAKUCOMPLEX_UUID:
-		dl_url = sankaku_complex_get_image_url(html_content);
+		dl_url = sankakucomplex_get_image_url(html_content);
 		/* change the sequence to stop parsing at
 		 * to '?' for sankakucomplex */
 		*stop_seq = '?';

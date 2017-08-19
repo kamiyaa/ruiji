@@ -1,12 +1,16 @@
 #include "udload.h"
 
+static int CHARSIZE = sizeof(char);
+
 /* Given the necessary information of a similar image, create a similar image
  * struct with the given values and return it.
  */
 struct similar_image *create_sim_image(char *url_begin, unsigned short similarity,
 					unsigned int x, unsigned int y);
 
+/* Frees the allocated memory for a image_tag_db */
 void free_image_tags(struct image_tag_db *tags_db);
+/* Frees the allocated memory for a linked list of ll_node */
 void free_linked_list(struct ll_node *head);
 
 /* Frees the allocated memory for a similar_image_db */
@@ -15,6 +19,7 @@ void free_similar_image_db(struct similar_image_db *sim_db);
 /* get the character distance from the beginning of the string to find */
 int get_distance(char *string, char find);
 
+/* get the tags for a given image */
 struct image_tag_db *get_image_tags(int domain_uuid, char *html_content);
 
 /* Given the full link of a website,
@@ -28,8 +33,10 @@ char *get_server_file_name(char *web_url, char stop);
  */
 char *get_source_image_url(int domain_uuid, char *html_content, char *stop_seq);
 
+/* get unique id for domain names */
 unsigned int get_internal_domain_value(char *link);
 
+/* initialize an empty database of tags */
 struct image_tag_db *init_image_tag_db(void);
 
 /* Given the html contents of http://iqdb.org after an image has been uploaded,

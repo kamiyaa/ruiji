@@ -2,14 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "yandere.h"
 #include "parser.h"
 
 #define YANDERE_PNG_SOURCE_ID "<li><a class=\"original-file-unchanged\" id=\"png\" href=\""
 #define YANDERE_JPG_SOURCE_ID "<li><a class=\"original-file-changed\" id=\"highres\" href=\""
 #define YANDERE_TAG_ID "\"tags\":{"
-
-struct image_tag_db *yandere_get_image_tags(char *html_content);
-char *yandere_get_image_url(char *html_content);
 
 /* Given a https://yande.re/ url,
  * parse the html to get the source image url
@@ -26,12 +24,13 @@ char *yandere_get_image_url(char *html_content)
 	char *png_index = strstr(html_content, YANDERE_PNG_SOURCE_ID);
 	char *jpg_index = strstr(html_content, YANDERE_JPG_SOURCE_ID);
 
-
+	static int png_len = sizeof(YANDERE_PNG_SOURCE_ID);
+	static int jpg_len = sizeof(YANDERE_JPG_SOURCE_ID);
 	/* find source image link */
 	if (png_index)
-		source_index = &png_index[strlen(YANDERE_PNG_SOURCE_ID)];
+		source_index = &png_index[png_len];
 	else if (jpg_index)
-		source_index = &jpg_index[strlen(YANDERE_JPG_SOURCE_ID)];
+		source_index = &jpg_index[jpg_len];
 
 	/* check if any html pattern was detected */
 	if (source_index) {
@@ -40,7 +39,7 @@ char *yandere_get_image_url(char *html_content)
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(sizeof(char) * (url_len + 1));
+		img_src_url = malloc(CHARSIZE * (url_len + 1));
 		img_src_url[0] = '\0';
 		strncat(img_src_url, source_index, url_len);
 	}
@@ -85,19 +84,8 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 		 * at comma */
 		tag_contents[comma_distance] = '\0';
 
-		/* figure out which tag category this tag belongs to */
-		if (strstr(tag_contents, "artist"))
-			tag_index = 0;
-		else if (strstr(tag_contents, "character"))
-			tag_index = 1;
-		else if (strstr(tag_contents, "circle"))
-			tag_index = 2;
-		else if (strstr(tag_contents, "copyright"))
-			tag_index = 3;
-		else if (strstr(tag_contents, "fault"))
-			tag_index = 4;
-		else
-			tag_index = 5;
+		/* get the tag type of the tag */
+		tag_index = yandere_get_tag_type(tag_contents);
 
 		/* put back comma to reunite the string */
 		tag_contents[comma_distance] = ',';
@@ -110,25 +98,33 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 
 		/* create the linked list node to store the information */
 		if (!(tag_db->tags[tag_index])) {
+			/* malloc memory for node */
 			tag_db->tags[tag_index] = malloc(sizeof(struct ll_node));
-			tag_db->tags[tag_index]->next = NULL;
+			/* malloc memory for char array in node */
 			tag_db->tags[tag_index]->data = malloc(sizeof(char) * (tag_name_size + 1));
+			/* set first element to \0 */
 			tag_db->tags[tag_index]->data[0] = '\0';
-			strncat(tag_db->tags[tag_index]->data, tag_contents, tag_name_size);
+			/* concatentate tag name to char array */
+			strncat(tag_db->tags[tag_index]->data,
+					tag_contents, tag_name_size);
 
+			/* set tag_ptrs to it */
 			tag_ptrs[tag_index] = tag_db->tags[tag_index];
 		}
 		else {
+			/* malloc memory for node */
 			tag_ptrs[tag_index]->next = malloc(sizeof(struct ll_node));
-			tag_ptrs[tag_index]->next->data = malloc(sizeof(char) *
-							(tag_name_size + 1));
+			/* malloc memory for char array in node */
+			tag_ptrs[tag_index]->next->data = malloc(sizeof(char) * (tag_name_size + 1));
+			/* set first element to \0 */
 			tag_ptrs[tag_index]->next->data[0] = '\0';
 			strncat(tag_ptrs[tag_index]->next->data,
 				tag_contents, tag_name_size);
 
+			/* set tag_ptrs to its next value */
 			tag_ptrs[tag_index] = tag_ptrs[tag_index]->next;
-			tag_ptrs[tag_index]->next = NULL;
 		}
+		tag_ptrs[tag_index]->next = NULL;
 
 		/* increment the amount of tags in this category we currently
 		 * found */
@@ -140,4 +136,24 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 	}
 
 	return tag_db;
+}
+
+unsigned int yandere_get_tag_type(char *tag_contents)
+{
+	unsigned int tag_index;
+	/* figure out which tag category this tag belongs to */
+	if (strstr(tag_contents, "artist"))
+		tag_index = 0;
+	else if (strstr(tag_contents, "character"))
+		tag_index = 1;
+	else if (strstr(tag_contents, "circle"))
+		tag_index = 2;
+	else if (strstr(tag_contents, "copyright"))
+		tag_index = 3;
+	else if (strstr(tag_contents, "fault"))
+		tag_index = 4;
+	else
+		tag_index = 5;
+
+	return tag_index;
 }
