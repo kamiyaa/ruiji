@@ -1,47 +1,31 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "structs.h"
+#include "interface.h"
+#include "config.h"
 
 #define COLOR_DEFAULT	"\x1B[0m"
-#define COLOR_RED	"\x1B[31m"
-#define COLOR_GREEN	"\x1B[32m"
-#define COLOR_YELLOW	"\x1B[33m"
-#define COLOR_BLUE	"\x1B[34m"
-#define COLOR_MAGENTA	"\x1B[35m"
-#define COLOR_CYAN	"\x1B[36m"
-#define COLOR_WHITE	"\x1B[37m"
-
-
-void image_download_toast(char *website_url);
-void image_save_toast(char *file_name);
-void image_upload_toast(char *file_name, char *website_url);
-void print_help(void);
-void print_image_info(struct similar_image *img);
-void print_image_tags(struct image_tag_db *tag_db);
-void print_sim_results(struct similar_image_db *sim_db);
-
 
 #ifdef COLOR
 
 void image_download_toast(char *website_url)
 {
 	printf("Downloading from %s%s%s...\n",
-		COLOR_BLUE, website_url, COLOR_DEFAULT);
+		url_color, website_url, COLOR_DEFAULT);
 }
 
 /* A verbose message to the user when saving an image */
 void image_save_toast(char *file_name)
 {
 	printf("Saving image as %s%s%s...\n",
-		COLOR_YELLOW, file_name, COLOR_DEFAULT);
+		file_color, file_name, COLOR_DEFAULT);
 }
 
 void image_upload_toast(char *file_name, char *website_url)
 {
 	printf("Uploading %s%s%s to %s%s%s...\n",
-		COLOR_YELLOW, file_name, COLOR_DEFAULT,
-		COLOR_BLUE, website_url, COLOR_DEFAULT);
+		file_color, file_name, COLOR_DEFAULT,
+		url_color, website_url, COLOR_DEFAULT);
 }
 
 /* Given a similar_image, print out all its information */
@@ -49,13 +33,13 @@ void print_image_info(struct similar_image *img)
 {
 	char *sim_color;
 	if (img->similarity >= 90)
-		sim_color = COLOR_GREEN;
+		sim_color = good_match_color;
 	else if (img->similarity >= 70)
-		sim_color = COLOR_YELLOW;
+		sim_color = med_match_color;
 	else
-		sim_color = COLOR_RED;
+		sim_color = bad_match_color;
 
-	printf("source: %s%s%s\n", COLOR_BLUE, img->link, COLOR_DEFAULT);
+	printf("source: %s%s%s\n", url_color, img->link, COLOR_DEFAULT);
 	printf("similarity: %s%u%%%s\n",
 		sim_color, img->similarity, COLOR_DEFAULT);
 	printf("dimensions: %ux%u\n\n",
@@ -64,7 +48,7 @@ void print_image_info(struct similar_image *img)
 
 void print_image_tags(struct image_tag_db *tag_db)
 {
-	char *tag_names[] = {
+	const char *tag_names[] = {
 		"artist",
 		"character",
 		"circle",
@@ -72,13 +56,13 @@ void print_image_tags(struct image_tag_db *tag_db)
 		"fault",
 		"general"
 	};
-	char *color_scheme[] = {
-		COLOR_YELLOW,
-		COLOR_GREEN,
-		COLOR_CYAN,
-		COLOR_MAGENTA,
-		COLOR_RED,
-		COLOR_WHITE
+	const char *color_scheme[] = {
+		artist_tag_color,
+		character_tag_color,
+		circle_tag_color,
+		copyright_tag_color,
+		fault_tag_color,
+		general_tag_color
 	};
 
 	struct ll_node *ptr;

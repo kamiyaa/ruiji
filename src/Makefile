@@ -4,7 +4,11 @@ include config.mk
 
 all: ruiji
 
-ruiji: $(HELPERS) ruiji.c config.mk
+config.h: config.def.h
+	@echo "cp config.def.h -> config.h"
+	cp config.def.h config.h
+
+ruiji: config.h ${HELPERS} ruiji.c config.mk
 	@echo "CC      =" ${CC}
 	@echo "CFLAGS  =" ${CFLAGS}
 	@echo "LIBS    =" ${LIBS}

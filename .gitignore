@@ -4,5 +4,6 @@
 *.mp4
 src/*.png
 /src/ruiji
+/src/config.h
 /src/test*
 /debug

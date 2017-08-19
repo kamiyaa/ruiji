@@ -10,7 +10,6 @@
 
 #define IQDB_URL "https://iqdb.org"
 #define IQDB_UPLOAD_FIELD "file"
-#define DANBOORU_SOURCE_ID "Size: <a href=\""
 #define MAX_FILE_SIZE 8192000
 
 
@@ -180,7 +179,7 @@ int main(int argc, char *argv[])
 			/* ask user which website they would like to download from */
 			printf("Which one would you like to download? (-1 to exit): ");
 			/* get short int input */
-			scanf("%hd", &user_input);
+			short retval = scanf("%hd", &user_input);
 		}
 
 		if (user_input < 0 || user_input >= sim_db.size) {

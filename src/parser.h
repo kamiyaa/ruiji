@@ -1,6 +1,6 @@
 #include "udload.h"
 
-static int CHARSIZE = sizeof(char);
+static const int CHARSIZE = sizeof(char);
 
 /* Given the necessary information of a similar image, create a similar image
  * struct with the given values and return it.
