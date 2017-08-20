@@ -55,11 +55,10 @@ struct image_tag_db *init_image_tag_db(void)
 int get_distance(char *string, char find)
 {
 	int distance = 0;
-	unsigned int len_string = strlen(string);
 	/* keep on incrementing until we've found the char */
-	while (distance < len_string && string[distance] != find)
+	while (string[distance] != '\0' && string[distance] != find)
 		distance++;
-	if (distance == len_string)
+	if (string[distance] == '\0')
 		distance = -1;
 	/* return the distance */
 	return distance;
@@ -70,7 +69,8 @@ struct image_tag_db *get_image_tags(int domain_uuid, char *html_content)
 	struct image_tag_db *tags_db;
 
 	switch (domain_uuid) {
-	/* if the link given is a yandere domain */
+	/* if the link given is a yandere domain or konachan domain */
+	case KONACHAN_UUID:
 	case YANDERE_UUID:
 		tags_db = yandere_get_image_tags(html_content);
 		break;

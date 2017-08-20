@@ -33,7 +33,8 @@ char *gelbooru_get_image_url(char *html_content)
 		strncat(img_src_url, source_index, url_len);
 	}
 	else {
-		printf("gelbooru_get_image_url(): Error: Failed to parse website\n");
+		fprintf(stderr,
+			"gelbooru_get_image_url(): Error: Failed to parse website\n");
 	}
 
 	/* return the image source url */

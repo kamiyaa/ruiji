@@ -10,6 +10,7 @@
  */
 char *danbooru_get_image_url(char *html_content)
 {
+	/* constants used to find values */
 	const char danbooru_url[] = "https://danbooru.donmai.us";
 
 	const char source_uuid[] = "Size: <a href=\"";
@@ -29,7 +30,7 @@ char *danbooru_get_image_url(char *html_content)
 	if (source_index) {
 		/* move source_index pointer to the beginning of
 		 * the source image url */
-		source_index = &source_index[len_source_uuid];
+		source_index = &(source_index[len_source_uuid]);
 		/* get the length of the source image url */
 		int url_len = get_distance(source_index, source_end);
 

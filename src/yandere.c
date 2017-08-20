@@ -10,9 +10,10 @@
  */
 char *yandere_get_image_url(char *html_content)
 {
+	/* constants used to find values */
 	const char png_source_uuid[] = "<li><a class=\"original-file-unchanged\" id=\"png\" href=\"";
 	const char jpg_source_uuid[] = "<li><a class=\"original-file-changed\" id=\"highres\" href=\"";
-	const char source_url_end = '"';
+	const char source_end = '"';
 
 	const unsigned int len_png = strlen(png_source_uuid);
 	const unsigned int len_jpg = strlen(jpg_source_uuid);
@@ -37,7 +38,7 @@ char *yandere_get_image_url(char *html_content)
 	/* check if any html pattern was detected */
 	if (source_index) {
 		/* get the length of the source image url */
-		int url_len = get_distance(source_index, source_url_end);
+		int url_len = get_distance(source_index, source_end);
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
@@ -63,6 +64,7 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 	const char tags_end = '}';
 	const char tag_category_uuid = ':';
 	const char tag_name_uuid = ',';
+	const char tag_name_end = '"';
 
 	/* offsets from actual value */
 	const unsigned int initial_offset = strlen(tags_uuid);
@@ -89,26 +91,24 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 	struct ll_node *tag_ptrs[6] = { NULL, NULL, NULL, NULL, NULL, NULL };
 
 	while (next_tag_distance > 0) {
-		/* store tag name category and size of tag name */
-		unsigned int tag_index;
-		unsigned int len_tag_name;
-		unsigned int category_end_distance;
-
 		/* get the end of the category name */
-		category_end_distance = get_distance(tag_contents,
-						tag_name_uuid);
+		unsigned int category_end_distance =
+			get_distance(tag_contents, tag_name_uuid);
+		unsigned int category_start_distance =
+			get_distance(tag_contents, tag_category_uuid);
 
 		/* temporarily slice the string at the category_end position */
 		tag_contents[category_end_distance] = '\0';
 		/* get the tag type of the tag */
-		tag_index = yandere_get_tag_type(tag_contents);
+		unsigned int tag_index = yandere_get_tag_type(
+				&(tag_contents[category_start_distance]));
 		/* restore sliced string */
 		tag_contents[category_end_distance] = tag_name_uuid;
 
 		/* move pointer to beginning of tag name */
 		tag_contents = &(tag_contents[1]);
 		/* get length of tag name */
-		len_tag_name = get_distance(tag_contents, '"');
+		unsigned int len_tag_name = get_distance(tag_contents, tag_name_end);
 
 		/* create the linked list node to store the information */
 		if (!(tag_db->tags[tag_index])) {

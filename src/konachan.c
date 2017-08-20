@@ -4,9 +4,8 @@
 
 #include "konachan.h"
 #include "parser.h"
+#include "yandere.h"
 
-#define KONACHAN_PNG_SOURCE_ID "<li><a class=\"original-file-unchanged\" href=\""
-#define KONACHAN_JPG_SOURCE_ID "<li><a class=\"original-file-changed\" href=\""
 #define HTTP "http:"
 
 /* Given a https://konachan.com/ url,
@@ -14,6 +13,16 @@
  */
 char *konachan_get_image_url(char *html_content)
 {
+	/* constants used to find values */
+	const char png_source_uuid[] = "<li><a class=\"original-file-unchanged\" href=\"";
+	const char jpg_source_uuid[] = "<li><a class=\"original-file-changed\" href=\"";
+	const char source_end = '"';
+	const char http[] = "http:";
+
+	const unsigned int len_png = strlen(png_source_uuid);
+	const unsigned int len_jpg = strlen(jpg_source_uuid);
+	const unsigned int len_http = strlen(http);
+
 	/* initialize the image source url to be returned later */
 	char *img_src_url = NULL;
 
@@ -21,33 +30,39 @@ char *konachan_get_image_url(char *html_content)
 	char *source_index = NULL;
 
 	/* get png html pattern index and jpg html pattern index */
-	char *png_index = strstr(html_content, KONACHAN_PNG_SOURCE_ID);
-	char *jpg_index = strstr(html_content, KONACHAN_JPG_SOURCE_ID);
-
+	char *png_index = strstr(html_content, png_source_uuid);
+	char *jpg_index = strstr(html_content, jpg_source_uuid);
 
 	/* find source image link */
 	if (png_index)
-		source_index = &png_index[strlen(KONACHAN_PNG_SOURCE_ID)];
+		source_index = &(png_index[len_png]);
 	else if (jpg_index)
-		source_index = &jpg_index[strlen(KONACHAN_JPG_SOURCE_ID)];
+		source_index = &(jpg_index[len_jpg]);
 
 	/* check if any html pattern was detected */
 	if (source_index) {
 		/* get the length of the source image url */
-		int url_len = get_distance(png_index, '"');
+		int url_len = get_distance(source_index, source_end);
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
 		img_src_url = malloc(CHAR_SIZE *
-					(url_len + strlen(HTTP) + 1));
+					(url_len + len_http + 1));
 		img_src_url[0] = '\0';
-		strcat(img_src_url, HTTP);
+		strcat(img_src_url, http);
 		strncat(img_src_url, source_index, url_len);
 	}
 	else {
-		printf("konachan_get_image_url(): Error: Failed to parse website\n");
+		fprintf(stderr,
+			"konachan_get_image_url(): Error: Failed to parse website\n");
 	}
 
 	/* return the image source url */
 	return img_src_url;
+}
+
+struct image_tag_db *konachan_get_image_tags(char *html_content)
+{
+	struct image_tag_db *tag_db = yandere_get_image_tags(html_content);
+	return tag_db;
 }
