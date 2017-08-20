@@ -6,8 +6,6 @@
 #include "parser.h"
 #include "yandere.h"
 
-#define HTTP "http:"
-
 /* Given a https://konachan.com/ url,
  * parse the html to get the source image url
  */

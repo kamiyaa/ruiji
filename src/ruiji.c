@@ -12,7 +12,6 @@
 #define IQDB_UPLOAD_FIELD "file"
 #define MAX_FILE_SIZE 8192000
 
-
 /* struct for holding command line arguments */
 struct ruiji_cmd_args {
 	char *args[2];
@@ -127,6 +126,7 @@ int main(int argc, char *argv[])
 	/* check if selected image file exists */
 	FILE *img_fd;
 	char *file_name = cmd_args.file;
+	/* rb for reading binary file */
 	img_fd = fopen(file_name, "rb");
 	if (!img_fd) {
 		printf("Error: No such file: %s\n", file_name);
@@ -232,7 +232,7 @@ int main(int argc, char *argv[])
 				}
 			}
 			/* Report back to the user how the download went */
-			if (cmd_args.verbose && dl_state) {
+			if (dl_state) {
 				fprintf(stderr, "Error: Download failed\n");
 				exit_code = 1;
 			}
