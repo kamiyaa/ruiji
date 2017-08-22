@@ -11,9 +11,6 @@ short download_image(char *dl_url, char *file_name);
  */
 char *get_html(char *web_url);
 
-/* Clean up curl */
-void ruiji_curl_cleanup(void);
-
 size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *userp);
 
 /* Given the name of an existing file and a website to upload it to,
@@ -21,4 +18,7 @@ size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *us
  */
 char *upload_image(char *website, char *file_name, char *field_name);
 
+void free_html_data(struct html_data *web_data);
 
+/* Clean up curl */
+void ruiji_curl_cleanup(void);

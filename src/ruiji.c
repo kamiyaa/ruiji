@@ -99,6 +99,33 @@ static struct argp ruiji_args = {
 	options, parse_opt
 };
 
+int validate_upload_file(char *file_name)
+{
+	int valid = 0;
+
+	/* check if selected image file exists */
+	FILE *img_fd;
+	/* rb for reading binary file */
+	img_fd = fopen(file_name, "rb");
+	if (!img_fd) {
+		printf("Error: No such file: %s\n", file_name);
+		valid = 1;
+	}
+	else {
+		/* get the size of the image file */
+		fseek(img_fd, 0L, SEEK_END);
+		int image_size = ftell(img_fd);
+		/* Check if it exceeds the max file size limit */
+		if (image_size > MAX_FILE_SIZE) {
+			printf("Error: Maximum file size exceeded (%dKB)\n",
+				MAX_FILE_SIZE / 1000);
+			valid = 1;
+		}
+		/* Close the file handle */
+		fclose(img_fd);
+	}
+	return valid;
+}
 
 
 int main(int argc, char *argv[])
@@ -123,41 +150,21 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 
-	/* check if selected image file exists */
-	FILE *img_fd;
-	char *file_name = cmd_args.file;
-	/* rb for reading binary file */
-	img_fd = fopen(file_name, "rb");
-	if (!img_fd) {
-		printf("Error: No such file: %s\n", file_name);
-		exit_code = 1;
-	}
-	else {
-		/* get the size of the image file */
-		fseek(img_fd, 0L, SEEK_END);
-		int image_size = ftell(img_fd);
-		/* Check if it exceeds the max file size limit */
-		if (image_size > MAX_FILE_SIZE) {
-			printf("Error: Maximum file size exceeded (%dKB)\n",
-				MAX_FILE_SIZE / 1000);
-			exit_code = 1;
-		}
-		/* Close the file handle */
-		fclose(img_fd);
-	}
+	exit_code = validate_upload_file(cmd_args.file);
 	if (exit_code)
 		return exit_code;
 
-	/* Get the html output after uploading the image */
+	/* notify user we are uploading their file */
 	if (cmd_args.verbose)
-		image_upload_toast(file_name, IQDB_URL);
-
-	char *html_data = upload_image(IQDB_URL, file_name, IQDB_UPLOAD_FIELD);
+		image_upload_toast(cmd_args.file, IQDB_URL);
+	char *html_data = upload_image(IQDB_URL, cmd_args.file, IQDB_UPLOAD_FIELD);
 
 	if (!html_data) {
 		fprintf(stderr, "Error: Failed to upload file\n");
+		ruiji_curl_cleanup();
 		return 1;
 	}
+
 	printf("\n");
 
 	/* Initialize a struct to hold all the images similar
@@ -196,9 +203,11 @@ int main(int argc, char *argv[])
 			/* used to know where to slice string for getting
 			 * file name. Default is NULL character */
 			char stop_seq = '\0';
-			/* get source image url */
+			/* get internal uuid of domain */
 			int domain_uuid = get_internal_domain_value(dl_image->link);
+			/* get the html contents of the website */
 			char *html_content = get_html(dl_image->link);
+			/* parse for the source url of the image */
 			char *dl_url = get_source_image_url(domain_uuid,
 					html_content, &stop_seq);
 
@@ -220,14 +229,18 @@ int main(int argc, char *argv[])
 				/* save the image as it's name on the server */
 				dl_state =
 					download_image(dl_url, file_save_name);
+
 				/* free allocated memory */
 				free(file_save_name);
 				free(dl_url);
+
+				/* print tags if told to */
 				if (cmd_args.showtags) {
-					struct image_tag_db *tags_db;
-					tags_db = get_image_tags(domain_uuid, html_content);
+					struct image_tag_db *tags_db =
+						get_image_tags(domain_uuid, html_content);
 					printf("Tags:\n");
 					print_image_tags(tags_db);
+					/* free allocated memory */
 					free_image_tags(tags_db);
 				}
 			}

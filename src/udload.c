@@ -140,11 +140,7 @@ size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *us
  */
 char *upload_image(char *website, char *file_name, char *field_name)
 {
-	struct html_data web_data;
-	/* will be grown as needed by the realloc above */
-	web_data.data = NULL;
-	/* no data at this point */
-	web_data.size = 0;
+	struct html_data web_data = { 0 };
 
 	/* Initialize curl */
 	CURL *curl_handle = curl_easy_init();
@@ -175,10 +171,10 @@ char *upload_image(char *website, char *file_name, char *field_name)
 		res = curl_easy_perform(curl_handle);
 
 		/* Check for errors */
-		if (res != CURLE_OK)
-			fprintf(stderr,
-				"curl_easy_perform() failed: %s\n",
+		if (res != CURLE_OK) {
+			fprintf(stderr, "curl_easy_perform() failed: %s\n",
 				curl_easy_strerror(res));
+		}
 
 		/* then cleanup the formpost chain */
 		curl_formfree(formpost);
@@ -188,4 +184,11 @@ char *upload_image(char *website, char *file_name, char *field_name)
 	}
 
 	return web_data.data;
+}
+
+void free_html_data(struct html_data *web_data)
+{
+	if (web_data->data)
+		free(web_data->data);
+	free(web_data);
 }
