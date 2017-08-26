@@ -151,7 +151,7 @@ void print_sim_results(struct similar_image_db *sim_db)
 {
 	for (int i = 0; i < sim_db->size; i++) {
 		printf("[%d]\n", i);
-		print_image_info(sim_db->img_db[i]);
+		print_image_info(sim_db->images[i]);
 	}
 }
 

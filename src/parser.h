@@ -4,6 +4,13 @@
 static const int CHAR_SIZE = sizeof(char);
 static const int LLNODE_SIZE = sizeof(struct ll_node);
 
+
+/* Given the html contents of http://iqdb.org after an image has been uploaded,
+ * parse all the results and store them in the struct similar_image_db *sim_db
+ */
+struct similar_image_db *create_sim_db(char *html_content,
+			unsigned short similar_threshold);
+
 /* Given the necessary information of a similar image, create a similar image
  * struct with the given values and return it.
  */
@@ -52,10 +59,4 @@ char *parse_percent_similar(char *contents, unsigned short *similarity);
  * html contents where the parsing stopped.
  */
 char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y);
-
-/* Given the html contents of http://iqdb.org after an image has been uploaded,
- * parse all the results and store them in the struct similar_image_db *sim_db
- */
-void populate_sim_db(struct similar_image_db *sim_db, char *html_content,
-			unsigned short similar_threshold);
 

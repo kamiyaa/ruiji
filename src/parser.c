@@ -7,6 +7,74 @@
 
 #define IQDB_RESULT_ID	"match</th></tr><tr><td class='image'><a href=\""
 
+
+/* Given the html contents of http://iqdb.org after an image has been uploaded,
+ * parse all the results and store them in the struct similar_image_db *sim_db
+ */
+struct similar_image_db *
+create_sim_db(char *html_content, unsigned short similar_threshold)
+{
+	const int db_struct_size = sizeof(struct similar_image_db);
+	struct similar_image_db *sim_db =
+		malloc(db_struct_size);
+
+	sim_db->images = NULL;
+
+	/* Initialize the number of similar images in database to 0 */
+	sim_db->size = 0;
+
+	/* Check if matching string is found */
+	char *index = strstr(html_content, IQDB_RESULT_ID);
+	if (!index) {
+		fprintf(stderr, "Error: Failed to populate similar image database: No results found!\n");
+		return sim_db;
+	}
+
+	/* Get length of the string we are looking for and search for it */
+	unsigned short iqdb_result_len = strlen(IQDB_RESULT_ID);
+
+	/* Go through the data and get every valid link to a similar image */
+	while (index != NULL) {
+		/* Get where the url of the website begins */
+		char *url_begin = &index[iqdb_result_len];
+
+		/* Go through the string, looking for '"'. Once found,
+		 * slice the string */
+		int url_len = get_distance(url_begin, '"');
+		/* Set a arbitrary pointer to go through the string */
+		char *walker = &(url_begin[url_len+1]);
+		url_begin[url_len] = '\0';
+
+		/* Get the image x,y dimensions as well as the similarity
+		 * of the image */
+		unsigned short similarity = 0;
+		unsigned int x = 0, y = 0;
+		walker = parse_xy_img_dimensions(walker, &x, &y);
+		walker = parse_percent_similar(walker, &similarity);
+
+		/* If the image passes given threshold, add it to
+		 * the collection of similar images */
+		if (similarity >= similar_threshold) {
+			/* Create a new similar_image struct to
+			 * hold all the image's information */
+			struct similar_image *image =
+				create_sim_image(url_begin, similarity, x, y);
+
+			sim_db->images = realloc(sim_db->images,
+				sim_db->size * db_struct_size + db_struct_size);
+
+			/* Add it to our database of similar images */
+			sim_db->images[sim_db->size] = image;
+			sim_db->size++;
+		}
+
+		/* set the starting point of the string
+		 * to the next valid weblink */
+		index = strstr(walker, IQDB_RESULT_ID);
+	}
+	return sim_db;
+}
+
 /* Given the necessary information of a similar image, create a similar image
  * struct with the given values and return it.
  */
@@ -238,71 +306,14 @@ char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 	return next_weblink;
 }
 
-/* Given the html contents of http://iqdb.org after an image has been uploaded,
- * parse all the results and store them in the struct similar_image_db *sim_db
- */
-void
-populate_sim_db(struct similar_image_db *sim_db,
-		char *html_content, unsigned short similar_threshold)
-{
-	/* Initialize the number of similar images in database to 0 */
-	sim_db->size = 0;
-
-	/* Check if matching string is found */
-	char *index = strstr(html_content, IQDB_RESULT_ID);
-	if (!index) {
-		printf("Error: Failed to populate similar image database: No results found!\n");
-		return;
-	}
-
-	/* Get length of the string we are looking for and search for it */
-	unsigned short iqdb_result_len = strlen(IQDB_RESULT_ID);
-
-	/* Go through the data and get every valid link to a similar image */
-	while (index != NULL) {
-		/* Get where the url of the website begins */
-		char *url_begin = &index[iqdb_result_len];
-
-		/* Go through the string, looking for '"'. Once found,
-		 * slice the string */
-		int url_len = get_distance(url_begin, '"');
-		/* Set a arbitrary pointer to go through the string */
-		char *walker = &(url_begin[url_len+1]);
-		url_begin[url_len] = '\0';
-
-		/* Get the image x,y dimensions as well as the similarity
-		 * of the image */
-		unsigned short similarity = 0;
-		unsigned int x = 0, y = 0;
-		walker = parse_xy_img_dimensions(walker, &x, &y);
-		walker = parse_percent_similar(walker, &similarity);
-
-		/* If the image passes given threshold, add it to
-		 * the collection of similar images */
-		if (similarity >= similar_threshold) {
-			/* Create a new similar_image struct to
-			 * hold all the image's information */
-			struct similar_image *image =
-				create_sim_image(url_begin, similarity, x, y);
-
-			/* Add it to our database of similar images */
-			sim_db->img_db[sim_db->size] = image;
-			sim_db->size++;
-		}
-
-		/* set the starting point of the string
-		 * to the next valid weblink */
-		index = strstr(walker, IQDB_RESULT_ID);
-	}
-}
-
 /* Frees the allocated memory for a similar_image_db */
 void free_similar_image_db(struct similar_image_db *sim_db)
 {
 	for (int i = 0; i < sim_db->size; i++) {
-		free(sim_db->img_db[i]->link);
-		free(sim_db->img_db[i]);
+		free(sim_db->images[i]->link);
+		free(sim_db->images[i]);
 	}
+	free(sim_db);
 }
 
 

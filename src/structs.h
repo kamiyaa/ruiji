@@ -37,7 +37,7 @@ struct similar_image {
  * all to the same parent image.
  */
 struct similar_image_db {
-	struct similar_image *img_db[16];
+	struct similar_image **images;
 	unsigned short size;
 };
 
