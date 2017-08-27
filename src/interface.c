@@ -147,12 +147,16 @@ void print_help(void)
 
 
 /* Given a similar_image_db, print out all its contents */
-void print_sim_results(struct similar_image_db *sim_db)
+unsigned int print_sim_results(struct similar_image_llnode *image_list)
 {
-	for (int i = 0; i < sim_db->size; i++) {
-		printf("[%d]\n", i);
-		print_image_info(sim_db->images[i]);
+	unsigned int size = 0;
+	while (image_list) {
+		printf("[%d]\n", size);
+		print_image_info(image_list->image);
+		image_list = image_list->next;
+		size++;
 	}
+	return size;
 }
 
 

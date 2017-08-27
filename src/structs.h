@@ -4,7 +4,7 @@ struct html_data;
 struct image_tag_db;
 struct llnode;
 struct similar_image;
-struct similar_image_db;
+struct similar_image_llnode;
 
 
 /* struct for storing html content */
@@ -36,9 +36,9 @@ struct similar_image {
 /* struct representing a database of similar images
  * all to the same parent image.
  */
-struct similar_image_db {
-	struct similar_image **images;
-	unsigned short size;
+struct similar_image_llnode {
+	struct similar_image *image;
+	struct similar_image_llnode *next;
 };
 
 #endif

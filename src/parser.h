@@ -8,7 +8,7 @@ static const int LLNODE_SIZE = sizeof(struct ll_node);
 /* Given the html contents of http://iqdb.org after an image has been uploaded,
  * parse all the results and store them in the struct similar_image_db *sim_db
  */
-struct similar_image_db *create_sim_db(char *html_content,
+struct similar_image_llnode *create_image_list(char *html_content,
 			unsigned short similar_threshold);
 
 /* Given the necessary information of a similar image, create a similar image
@@ -16,14 +16,6 @@ struct similar_image_db *create_sim_db(char *html_content,
  */
 struct similar_image *create_sim_image(char *url_begin, unsigned short similarity,
 					unsigned int x, unsigned int y);
-
-/* Frees the allocated memory for a image_tag_db */
-void free_image_tags(struct image_tag_db *tags_db);
-/* Frees the allocated memory for a linked list of ll_node */
-void free_linked_list(struct ll_node *head);
-
-/* Frees the allocated memory for a similar_image_db */
-void free_similar_image_db(struct similar_image_db *sim_db);
 
 /* get the character distance from the beginning of the string to find */
 int get_distance(char *string, char find);
@@ -59,4 +51,16 @@ char *parse_percent_similar(char *contents, unsigned short *similarity);
  * html contents where the parsing stopped.
  */
 char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y);
+
+
+
+/* Frees the allocated memory for a image_tag_db */
+void free_image_tags(struct image_tag_db *tags_db);
+/* Frees the allocated memory for a linked list of ll_node */
+void free_linked_list(struct ll_node *head);
+
+void free_similar_image(struct similar_image *image);
+
+/* Frees the allocated memory for a similar_image_db */
+void free_similar_image_list(struct similar_image_llnode *image_list);
 

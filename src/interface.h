@@ -18,5 +18,5 @@ void print_image_info(struct similar_image *img);
 void print_image_tags(struct image_tag_db *tags_db);
 
 /* Given a similar_image_db, print out all its contents */
-void print_sim_results(struct similar_image_db *sim_db);
+unsigned int print_sim_results(struct similar_image_llnode *image_list);
 

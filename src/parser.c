@@ -9,29 +9,25 @@
 
 
 /* Given the html contents of http://iqdb.org after an image has been uploaded,
- * parse all the results and store them in the struct similar_image_db *sim_db
+ * parse all the results and store them in the struct similar_image_db *image_list
  */
-struct similar_image_db *
-create_sim_db(char *html_content, unsigned short similar_threshold)
+struct similar_image_llnode *
+create_image_list(char *html_content, unsigned short similar_threshold)
 {
-	const int db_struct_size = sizeof(struct similar_image_db);
-	struct similar_image_db *sim_db =
-		malloc(db_struct_size);
+	const int node_size = sizeof(struct similar_image_llnode);
+	/* Get length of the string we are looking for and search for it */
+	const unsigned int iqdb_result_len = strlen(IQDB_RESULT_ID);
 
-	sim_db->images = NULL;
-
-	/* Initialize the number of similar images in database to 0 */
-	sim_db->size = 0;
+	struct similar_image_llnode *image_list = NULL;
 
 	/* Check if matching string is found */
 	char *index = strstr(html_content, IQDB_RESULT_ID);
 	if (!index) {
 		fprintf(stderr, "Error: Failed to populate similar image database: No results found!\n");
-		return sim_db;
+		return image_list;
 	}
 
-	/* Get length of the string we are looking for and search for it */
-	unsigned short iqdb_result_len = strlen(IQDB_RESULT_ID);
+	struct similar_image_llnode **list_ptr = &(image_list);
 
 	/* Go through the data and get every valid link to a similar image */
 	while (index != NULL) {
@@ -59,20 +55,19 @@ create_sim_db(char *html_content, unsigned short similar_threshold)
 			 * hold all the image's information */
 			struct similar_image *image =
 				create_sim_image(url_begin, similarity, x, y);
+			/* allocate memory for node */
+			*list_ptr = malloc(node_size);
 
-			sim_db->images = realloc(sim_db->images,
-				sim_db->size * db_struct_size + db_struct_size);
-
-			/* Add it to our database of similar images */
-			sim_db->images[sim_db->size] = image;
-			sim_db->size++;
+			(*list_ptr)->image = image;
+			(*list_ptr)->next = NULL;
+			list_ptr = &((*list_ptr)->next);
 		}
 
 		/* set the starting point of the string
 		 * to the next valid weblink */
 		index = strstr(walker, IQDB_RESULT_ID);
 	}
-	return sim_db;
+	return image_list;
 }
 
 /* Given the necessary information of a similar image, create a similar image
@@ -306,16 +301,26 @@ char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 	return next_weblink;
 }
 
-/* Frees the allocated memory for a similar_image_db */
-void free_similar_image_db(struct similar_image_db *sim_db)
+
+
+/* Frees the allocated memory for a linked list of similar_image_llnode */
+void free_similar_image_list(struct similar_image_llnode *image_list)
 {
-	for (int i = 0; i < sim_db->size; i++) {
-		free(sim_db->images[i]->link);
-		free(sim_db->images[i]);
+	while (image_list) {
+		struct similar_image_llnode *tmp = image_list;
+		image_list = image_list->next;
+		free_similar_image(tmp->image);
+		free(tmp);
 	}
-	free(sim_db);
 }
 
+void free_similar_image(struct similar_image *image)
+{
+	if (image) {
+		free(image->link);
+		free(image);
+	}
+}
 
 void free_linked_list(struct ll_node *head)
 {

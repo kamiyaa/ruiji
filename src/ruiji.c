@@ -169,18 +169,19 @@ int main(int argc, char *argv[])
 
 	/* Initialize a struct to hold all the images similar
 	 * to the uploaded image */
-	struct similar_image_db *sim_db = create_sim_db(html_data, cmd_args.threshold);
+	struct similar_image_llnode *image_list = create_image_list(html_data, cmd_args.threshold);
 
 	/* free up allocated memory */
 	free(html_data);
 
 	/* if any results were found, ask user which to download */
-	if (sim_db->size) {
+	if (image_list) {
 		/* initialize image selection to 0 */
 		short user_input = 0;
+		unsigned int image_list_size = 1;
 		if (cmd_args.prompt) {
 			/* print out all results and its properties */
-			print_sim_results(sim_db);
+			image_list_size = print_sim_results(image_list);
 
 			/* ask user which website they would like to download from */
 			printf("Which one would you like to download? (-1 to exit): ");
@@ -188,14 +189,19 @@ int main(int argc, char *argv[])
 			short retval = scanf("%hd", &user_input);
 		}
 
-		if (user_input < 0 || user_input >= sim_db->size) {
+		if (user_input < 0 || user_input >= image_list_size) {
 			fprintf(stderr, "Error: Invalid option selected\n");
 			exit_code = 1;
 		}
 
 		else {
+			struct similar_image_llnode *list_ptr = image_list;
 			/* select the selected image */
-			struct similar_image *dl_image = sim_db->images[user_input];
+			struct similar_image *dl_image;
+			for (int i = 0; i < user_input; i++) {
+				list_ptr = list_ptr->next;
+			}
+			dl_image = list_ptr->image;
 
 			/* used to check if download was successful */
 			short dl_state = -1;
@@ -258,7 +264,7 @@ int main(int argc, char *argv[])
 	}
 
 	/* free up allocated memory */
-	free_similar_image_db(sim_db);
+	free_similar_image_list(image_list);
 	/* clean up curl */
 	ruiji_curl_cleanup();
 
