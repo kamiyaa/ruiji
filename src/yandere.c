@@ -88,7 +88,14 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
-	struct ll_node *tag_ptrs[6] = { NULL, NULL, NULL, NULL, NULL, NULL };
+	struct ll_node **tag_ptrs[6] = {
+		&(tag_db->tags[0]),
+		&(tag_db->tags[1]),
+		&(tag_db->tags[2]),
+		&(tag_db->tags[3]),
+		&(tag_db->tags[4]),
+		&(tag_db->tags[5])
+	};
 
 	while (next_tag_distance > 0) {
 		/* get the end of the category name */
@@ -110,35 +117,22 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 		/* get length of tag name */
 		unsigned int len_tag_name = get_distance(tag_contents, tag_name_end);
 
-		/* create the linked list node to store the information */
-		if (!(tag_db->tags[tag_index])) {
-			/* malloc memory for node */
-			tag_db->tags[tag_index] = malloc(LLNODE_SIZE);
-			/* malloc memory for char array in node */
-			tag_db->tags[tag_index]->data = malloc(CHAR_SIZE * (len_tag_name + 1));
-			/* set first element to \0 */
-			tag_db->tags[tag_index]->data[0] = '\0';
-			/* concatentate tag name to char array */
-			strncat(tag_db->tags[tag_index]->data,
-					tag_contents, len_tag_name);
 
-			/* set tag_ptrs to it */
-			tag_ptrs[tag_index] = tag_db->tags[tag_index];
-		}
-		else {
-			/* malloc memory for node */
-			tag_ptrs[tag_index]->next = malloc(LLNODE_SIZE);
-			/* malloc memory for char array in node */
-			tag_ptrs[tag_index]->next->data = malloc(CHAR_SIZE * (len_tag_name + 1));
-			/* set first element to \0 */
-			tag_ptrs[tag_index]->next->data[0] = '\0';
-			strncat(tag_ptrs[tag_index]->next->data,
+		/* allocate memory for node */
+		*(tag_ptrs[tag_index]) = malloc(LLNODE_SIZE);
+
+		(*(tag_ptrs[tag_index]))->next = NULL;
+		(*(tag_ptrs[tag_index]))->data = malloc(CHAR_SIZE * (len_tag_name + 1));
+		/* set first element to \0 */
+		(*(tag_ptrs[tag_index]))->data[0] = '\0';
+		/* concatentate tag name to char array */
+		strncat((*(tag_ptrs[tag_index]))->data,
 				tag_contents, len_tag_name);
 
-			/* set tag_ptrs to its next value */
-			tag_ptrs[tag_index] = tag_ptrs[tag_index]->next;
-		}
-		tag_ptrs[tag_index]->next = NULL;
+		/* set tag_ptrs to its next value */
+		tag_ptrs[tag_index] = &((*(tag_ptrs[tag_index]))->next);
+
+
 		/* increment the amount of tags in this category we currently
 		 * found */
 		(tag_db->tag_size[tag_index])++;
