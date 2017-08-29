@@ -16,13 +16,13 @@ ruiji: config.h ${HELPERS} ruiji.c config.mk
 	${CC} ${CFLAGS} ${USE_FLAGS} -c ${HELPERS} ruiji.c
 	${CC} ${CFLAGS} ${USE_FLAGS} ${HELPERS_OBJ} ruiji.o -o ruiji ${LIBS}
 
-test_tags: $(HELPERS) test_tags.c config.mk
+test: $(HELPERS) tester.c config.mk
 	@echo "CC      =" ${CC}
 	@echo "CFLAGS  =" ${CFLAGS}
 	@echo "LIBS    =" ${LIBS}
 	@echo "USE     =" ${USE_FLAGS}
-	${CC} ${CFLAGS} ${USE_FLAGS} -c ${HELPERS} test_tags.c
-	${CC} ${CFLAGS} ${USE_FLAGS} ${HELPERS_OBJ} test_tags.o -o test_tags ${LIBS}
+	${CC} ${CFLAGS} ${USE_FLAGS} -c ${HELPERS} tester.c
+	${CC} ${CFLAGS} ${USE_FLAGS} ${HELPERS_OBJ} tester.o -o tester ${LIBS}
 
 install:
 	@echo installing to ${PREFIX}/bin
