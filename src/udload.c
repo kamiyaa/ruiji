@@ -7,8 +7,7 @@
 #include "structs.h"
 #include "udload.h"
 
-#define IQDB_LOOKFOR "match</th></tr><tr><td class='image'><a href=\""
-
+#define USER_AGENT "chrome/61"
 
 /* Given a url and the name to save as, download the file from the website
  * and return a integer indicating if successful or not.
@@ -39,7 +38,7 @@ short download_image(char *web_url, char *file_name)
 		curl_easy_setopt(curl_handle, CURLOPT_URL, web_url);
 
 		/* Set the user agent to chrome */
-		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "chrome/57");
+		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, USER_AGENT);
 
 		/* Set the data to pass when the function is called */
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, img_fp);
@@ -91,7 +90,7 @@ char *get_html(char *web_url)
 		curl_easy_setopt(curl_handle, CURLOPT_URL, web_url);
 
 		/* Set the user agent to chrome */
-		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, "chrome/57");
+		curl_easy_setopt(curl_handle, CURLOPT_USERAGENT, USER_AGENT);
 
 		/* Set the function to call when data is received */
 		curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, StoreData);
