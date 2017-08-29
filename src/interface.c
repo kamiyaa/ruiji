@@ -39,7 +39,7 @@ void print_image_info(struct similar_image *img)
 	else
 		sim_color = bad_match_color;
 
-	printf("source: %s%s%s\n", url_color, img->link, COLOR_DEFAULT);
+	printf("source: %s%s%s\n", url_color, img->post_link, COLOR_DEFAULT);
 	printf("similarity: %s%u%%%s\n",
 		sim_color, img->similarity, COLOR_DEFAULT);
 	printf("dimensions: %ux%u\n\n",
@@ -65,7 +65,7 @@ void print_image_tags(struct image_tag_db *tag_db)
 		general_tag_color
 	};
 
-	struct ll_node *ptr;
+	struct llnode *ptr;
 	for (int i = 0; i < 6; i++) {
 		ptr = tag_db->tags[i];
 		printf("%s%s (%d)\t: ", COLOR_DEFAULT, tag_names[i], tag_db->tag_size[i]);
@@ -101,7 +101,7 @@ void image_upload_toast(char *file_name, char *website_url)
 void print_image_info(struct similar_image *img)
 {
 	printf("source: %s\nsimilarity: %u%%\ndimensions: %ux%u\n\n",
-		img->link, img->similarity,
+		img->post_link, img->similarity,
 		img->dimensions[0], img->dimensions[1]);
 }
 
@@ -116,7 +116,7 @@ void print_image_tags(struct image_tag_db *tag_db)
 		"general"
 	};
 
-	struct ll_node *ptr;
+	struct llnode *ptr;
 	for (int i = 0; i < 6; i++) {
 		ptr = tag_db->tags[i];
 		printf("%s (%d): ", tag_names[i], tag_db->tag_size[i]);
@@ -138,6 +138,7 @@ void print_help(void)
 	puts("  -q --quiet \t\t Suppress verbose output");
 	puts("  -t --threshold <0-100> Only process and show images above given");
 	puts("             \t\t similarity percentage");
+	puts("  -T --tags \t\t Shows the tags associated with the image downloaded");
 	puts("  -v --verbose \t\t Show verbose output");
 	puts("  -V --version \t\t Show version number and quit");
 	puts("  -y --noprompt \t Skips user interactions and downloads");
@@ -158,6 +159,3 @@ unsigned int print_sim_results(struct similar_image_llnode *image_list)
 	}
 	return size;
 }
-
-
-

@@ -7,16 +7,20 @@
 
 #define IQDB_RESULT_ID	"match</th></tr><tr><td class='image'><a href=\""
 
-
 /* Given the html contents of http://iqdb.org after an image has been uploaded,
  * parse all the results and store them in the struct similar_image_db *image_list
  */
 struct similar_image_llnode *
 create_image_list(char *html_content, unsigned short similar_threshold)
 {
-	const int node_size = sizeof(struct similar_image_llnode);
+
+	const char iqdb_result_uuid[] =
+		"match</th></tr><tr><td class='image'><a href=\"";
 	/* Get length of the string we are looking for and search for it */
-	const unsigned int iqdb_result_len = strlen(IQDB_RESULT_ID);
+	const unsigned int iqdb_result_len = strlen(iqdb_result_uuid);
+
+	const int node_size = sizeof(struct similar_image_llnode);
+
 
 	struct similar_image_llnode *image_list = NULL;
 
@@ -91,13 +95,13 @@ create_sim_image(char *web_url, unsigned short similarity,
 		char *prefix_add = "https:\0";
 
 		len_url += strlen(prefix_add);
-		image->link = malloc(sizeof(char) * len_url);
-		strcpy(image->link, prefix_add);
-		strcat(image->link, web_url);
+		image->post_link = malloc(sizeof(char) * len_url);
+		strcpy(image->post_link, prefix_add);
+		strcat(image->post_link, web_url);
 	}
 	else {
-		image->link = malloc(sizeof(char) * len_url);
-		strcpy(image->link, web_url);
+		image->post_link = malloc(sizeof(char) * len_url);
+		strcpy(image->post_link, web_url);
 	}
 	return image;
 }
@@ -132,22 +136,27 @@ struct image_tag_db *get_image_tags(int domain_uuid, char *html_content)
 	struct image_tag_db *tags_db;
 
 	switch (domain_uuid) {
-	/* if the link given is a yandere domain or konachan domain */
-	case KONACHAN_UUID:
-	case YANDERE_UUID:
-		tags_db = yandere_get_image_tags(html_content);
-		break;
 	/* danbooru domain */
 	case DANBOORU_UUID:
-		tags_db = danbooru_get_image_tags(html_content);
+		tags_db = danbooru_get_image_tags_json(html_content);
 		break;
 	/* sankakucomplex domain */
 	case SANKAKUCOMPLEX_UUID:
 		tags_db = sankakucomplex_get_image_tags(html_content);
 		break;
+	/* gelbooru domain */
 	case GELBOORU_UUID:
 		tags_db = gelbooru_get_image_tags(html_content);
 		break;
+	/* if the link given is a yandere domain or konachan domain */
+	case KONACHAN_UUID:
+	case YANDERE_UUID:
+		tags_db = yandere_get_image_tags(html_content);
+		break;
+	/* all others */
+	case ESHUUSHUU_UUID:
+	case MANGADRAWING_UUID:
+	case ZEROCHAN_UUID:
 	default:
 		tags_db = init_image_tag_db();
 		break;
@@ -158,28 +167,55 @@ struct image_tag_db *get_image_tags(int domain_uuid, char *html_content)
 
 unsigned int get_internal_domain_value(char *link) {
 
-	/* if the link given is a yandere domain */
-	if (strstr(link, YANDERE_DOMAIN))
-		return YANDERE_UUID;
 	/* danbooru domain */
 	if (strstr(link, DANBOORU_DOMAIN))
 		return DANBOORU_UUID;
-	/* konachan domain */
-	if (strstr(link, KONACHAN_DOMAIN))
-		return KONACHAN_UUID;
 	/* eshuushuu domain */
 	if (strstr(link, ESHUUSHUU_DOMAIN))
 		return ESHUUSHUU_UUID;
 	/* gelbooru domain */
 	if (strstr(link, GELBOORU_DOMAIN))
 		return GELBOORU_UUID;
+	/* konachan domain */
+	if (strstr(link, KONACHAN_DOMAIN))
+		return KONACHAN_UUID;
 	/* mangadrawing domain */
 	if (strstr(link, MANGADRAWING_DOMAIN))
 		return MANGADRAWING_UUID;
 	/* sankakucomplex domain */
 	if (strstr(link, SANKAKUCOMPLEX_DOMAIN))
 		return SANKAKUCOMPLEX_UUID;
+	/* if the link given is a yandere domain */
+	if (strstr(link, YANDERE_DOMAIN))
+		return YANDERE_UUID;
 	return 0;
+}
+
+char *generate_api_link(int domain_uuid, char *post_link)
+{
+	char *api_url;
+	switch (domain_uuid) {
+	/* danbooru domain */
+	case DANBOORU_UUID:
+		api_url = danbooru_generate_api_url(post_link);
+		break;
+	/* if the link given is a yandere domain */
+	case YANDERE_UUID:
+	/* konachan domain */
+	case KONACHAN_UUID:
+	/* eshuushuu domain */
+	case ESHUUSHUU_UUID:
+	/* gelbooru domain */
+	case GELBOORU_UUID:
+	/* mangadrawing domain */
+	case MANGADRAWING_UUID:
+	/* sankakucomplex domain */
+	case SANKAKUCOMPLEX_UUID:
+	default:
+		api_url = strdup(post_link);
+		break;
+	}
+	return api_url;
 }
 
 /* Given a website url, a unique html pattern to look for and */
@@ -193,7 +229,7 @@ char *get_source_image_url(int domain_uuid, char *html_content, char *stop_seq)
 		break;
 	/* danbooru domain */
 	case DANBOORU_UUID:
-		dl_url = danbooru_get_image_url(html_content);
+		dl_url = danbooru_get_image_url_json(html_content);
 		break;
 	/* konachan domain */
 	case KONACHAN_UUID:
@@ -317,15 +353,16 @@ void free_similar_image_list(struct similar_image_llnode *image_list)
 void free_similar_image(struct similar_image *image)
 {
 	if (image) {
-		free(image->link);
+		if (image->post_link)
+			free(image->post_link);
 		free(image);
 	}
 }
 
-void free_linked_list(struct ll_node *head)
+void free_linked_list(struct llnode *head)
 {
-	struct ll_node *ptr = head;
-	struct ll_node *prev;
+	struct llnode *ptr = head;
+	struct llnode *prev;
 	while (ptr) {
 		prev = ptr;
 		ptr = ptr->next;

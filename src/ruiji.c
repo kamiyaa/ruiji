@@ -157,9 +157,9 @@ int main(int argc, char *argv[])
 	/* notify user we are uploading their file */
 	if (cmd_args.verbose)
 		image_upload_toast(cmd_args.file, IQDB_URL);
-	char *html_data = upload_image(IQDB_URL, cmd_args.file, IQDB_UPLOAD_FIELD);
+	char *iqdb_html = upload_image(IQDB_URL, cmd_args.file, IQDB_UPLOAD_FIELD);
 
-	if (!html_data) {
+	if (!iqdb_html) {
 		fprintf(stderr, "Error: Failed to upload file\n");
 		ruiji_curl_cleanup();
 		return 1;
@@ -169,10 +169,10 @@ int main(int argc, char *argv[])
 
 	/* Initialize a struct to hold all the images similar
 	 * to the uploaded image */
-	struct similar_image_llnode *image_list = create_image_list(html_data, cmd_args.threshold);
+	struct similar_image_llnode *image_list = create_image_list(iqdb_html, cmd_args.threshold);
 
 	/* free up allocated memory */
-	free(html_data);
+	free(iqdb_html);
 
 	/* if any results were found, ask user which to download */
 	if (image_list) {
@@ -209,9 +209,11 @@ int main(int argc, char *argv[])
 			 * file name. Default is NULL character */
 			char stop_seq = '\0';
 			/* get internal uuid of domain */
-			int domain_uuid = get_internal_domain_value(dl_image->link);
+			int domain_uuid = get_internal_domain_value(dl_image->post_link);
+			char *api_link = generate_api_link(domain_uuid, dl_image->post_link);
 			/* get the html contents of the website */
-			char *html_content = get_html(dl_image->link);
+			char *html_content = get_html(api_link);
+
 			/* parse for the source url of the image */
 			char *dl_url = get_source_image_url(domain_uuid,
 					html_content, &stop_seq);
@@ -221,7 +223,7 @@ int main(int argc, char *argv[])
 			if (dl_url) {
 				/* Notify the user we are downloading the image */
 				if (cmd_args.verbose)
-					image_download_toast(dl_image->link);
+					image_download_toast(dl_image->post_link);
 
 				/* get the name of the file from its server */
 				char *file_save_name =
