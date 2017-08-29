@@ -77,18 +77,21 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 	if (tag_contents) {
 		/* move pointer to start of tag */
 		tag_contents = &(tag_contents[initial_offset]);
+
 		/* get the end of tags section and slice string at the end */
 		int tag_contents_end = get_distance(tag_contents, tags_end);
+
 		/* replace end of tags with tag_name_uuid for easier parsing */
 		tag_contents[tag_contents_end] = tag_name_uuid;
+
 		/* slice string after it */
-		tag_contents[tag_contents_end+1] = '\0';
+		tag_contents[tag_contents_end + 1] = '\0';
 		next_tag_distance = get_distance(tag_contents, tag_name_uuid);
 	}
 
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
-	struct ll_node **tag_ptrs[6] = {
+	struct llnode **tag_ptrs[6] = {
 		&(tag_db->tags[0]),
 		&(tag_db->tags[1]),
 		&(tag_db->tags[2]),
@@ -107,7 +110,7 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 		/* temporarily slice the string at the category_end position */
 		tag_contents[category_end_distance] = '\0';
 		/* get the tag type of the tag */
-		unsigned int tag_index = yandere_get_tag_type(
+		unsigned int tag_type = yandere_get_tag_type(
 				&(tag_contents[category_start_distance]));
 		/* restore sliced string */
 		tag_contents[category_end_distance] = tag_name_uuid;
@@ -115,27 +118,27 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 		/* move pointer to beginning of tag name */
 		tag_contents = &(tag_contents[1]);
 		/* get length of tag name */
-		unsigned int len_tag_name = get_distance(tag_contents, tag_name_end);
+		unsigned int tag_name_len = get_distance(tag_contents, tag_name_end);
+
+		/* allocate enough memory for the tag name + null terminator */
+		char *tag_name = malloc(CHAR_SIZE * (tag_name_len + 1));
+		strncpy(tag_name, tag_contents, tag_name_len);
+		tag_name[tag_name_len] = '\0';
 
 
 		/* allocate memory for node */
-		*(tag_ptrs[tag_index]) = malloc(LLNODE_SIZE);
+		*(tag_ptrs[tag_type]) = malloc(LLNODE_SIZE);
+		/* set next to NULL and data to tag_name */
+		(*(tag_ptrs[tag_type]))->next = NULL;
+		(*(tag_ptrs[tag_type]))->data = tag_name;
 
-		(*(tag_ptrs[tag_index]))->next = NULL;
-		(*(tag_ptrs[tag_index]))->data = malloc(CHAR_SIZE * (len_tag_name + 1));
-		/* set first element to \0 */
-		(*(tag_ptrs[tag_index]))->data[0] = '\0';
-		/* concatentate tag name to char array */
-		strncat((*(tag_ptrs[tag_index]))->data,
-				tag_contents, len_tag_name);
-
-		/* set tag_ptrs to its next value */
-		tag_ptrs[tag_index] = &((*(tag_ptrs[tag_index]))->next);
+		/* set tag_ptrs to next node */
+		tag_ptrs[tag_type] = &((*(tag_ptrs[tag_type]))->next);
 
 
 		/* increment the amount of tags in this category we currently
 		 * found */
-		(tag_db->tag_size[tag_index])++;
+		(tag_db->tag_size[tag_type])++;
 
 		/* move on to next tag */
 		tag_contents = &(tag_contents[category_end_distance]);
@@ -148,20 +151,20 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 
 unsigned int yandere_get_tag_type(char *tag_contents)
 {
-	unsigned int tag_index;
+	unsigned int tag_type;
 	/* figure out which tag category this tag belongs to */
 	if (strstr(tag_contents, "artist"))
-		tag_index = 0;
+		tag_type = 0;
 	else if (strstr(tag_contents, "character"))
-		tag_index = 1;
+		tag_type = 1;
 	else if (strstr(tag_contents, "circle"))
-		tag_index = 2;
+		tag_type = 2;
 	else if (strstr(tag_contents, "copyright"))
-		tag_index = 3;
+		tag_type = 3;
 	else if (strstr(tag_contents, "fault"))
-		tag_index = 4;
+		tag_type = 4;
 	else
-		tag_index = 5;
+		tag_type = 5;
 
-	return tag_index;
+	return tag_type;
 }

@@ -31,8 +31,8 @@ char *zerochan_get_image_url(char *html_content)
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
 		img_src_url = malloc(CHAR_SIZE * (url_len + 1));
-		img_src_url[0] = '\0';
-		strncat(img_src_url, source_index, url_len);
+		strncpy(img_src_url, source_index, url_len);
+		img_src_url[url_len] = '\0';
 	}
 	else {
 		fprintf(stderr,

@@ -45,10 +45,11 @@ char *konachan_get_image_url(char *html_content)
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
 		img_src_url = malloc(CHAR_SIZE *
-					(url_len + len_http + 1));
-		img_src_url[0] = '\0';
-		strcat(img_src_url, http);
-		strncat(img_src_url, source_index, url_len);
+					(len_http + url_len + 1));
+
+		strncpy(img_src_url, http, len_http);
+		strncpy(&(img_src_url[len_http]), source_index, url_len);
+		img_src_url[len_http + url_len] = '\0';
 	}
 	else {
 		fprintf(stderr,

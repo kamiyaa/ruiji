@@ -35,10 +35,11 @@ char *sankakucomplex_get_image_url(char *html_content)
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
 		img_src_url = malloc(CHAR_SIZE *
-					(len_url + len_https + 1));
-		img_src_url[0] = '\0';
-		strcat(img_src_url, https);
-		strncat(img_src_url, source_index, len_url);
+					(len_https + len_url + 1));
+
+		strncpy(img_src_url, https, len_https);
+		strncpy(&(img_src_url[len_https]), source_index, len_url);
+		img_src_url[len_https + len_url] = '\0';
 	}
 	else {
 		fprintf(stderr,
@@ -77,7 +78,7 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *html_content)
 
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
-	struct ll_node **tag_ptrs[6] = {
+	struct llnode **tag_ptrs[6] = {
 		&(tag_db->tags[0]),
 		&(tag_db->tags[1]),
 		&(tag_db->tags[2]),
@@ -103,19 +104,19 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *html_content)
 		tag_contents = strstr(tag_contents, tag_name_uuid);
 		tag_contents = &(tag_contents[name_offset]);
 		/* get length of tag name */
-		int len_tag_name = get_distance(tag_contents, tag_name_end);
+		int tag_name_len = get_distance(tag_contents, tag_name_end);
+
+		/* allocate enough memory for the tag name + null terminator */
+		char *tag_name = malloc(CHAR_SIZE * (tag_name_len + 1));
+		strncpy(tag_name, tag_contents, tag_name_len);
+		tag_name[tag_name_len] = '\0';
 
 
 		/* allocate memory for node */
 		*(tag_ptrs[tag_index]) = malloc(LLNODE_SIZE);
 
 		(*(tag_ptrs[tag_index]))->next = NULL;
-		(*(tag_ptrs[tag_index]))->data = malloc(CHAR_SIZE * (len_tag_name + 1));
-		/* set first element to \0 */
-		(*(tag_ptrs[tag_index]))->data[0] = '\0';
-		/* concatentate tag name to char array */
-		strncat((*(tag_ptrs[tag_index]))->data,
-				tag_contents, len_tag_name);
+		(*(tag_ptrs[tag_index]))->data = tag_name;
 
 		/* set tag_ptrs to its next value */
 		tag_ptrs[tag_index] = &((*(tag_ptrs[tag_index]))->next);
@@ -126,7 +127,7 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *html_content)
 		(tag_db->tag_size[tag_index])++;
 
 		/* move on to next tag */
-		tag_contents = &(tag_contents[len_tag_name]);
+		tag_contents = &(tag_contents[tag_name_len]);
 		/* search for next tag */
 		tag_contents = strstr(tag_contents, tag_category_uuid);
 	}

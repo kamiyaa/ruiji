@@ -28,17 +28,18 @@ char *eshuushuu_get_image_url(char *html_content)
 	if (source_index) {
 		/* move source_index pointer to the beginning of
 		 * the source image url */
-		source_index = &source_index[len_source_uuid];
+		source_index = &(source_index[len_source_uuid]);
 		/* get the length of the source image url */
 		int url_len = get_distance(source_index, source_end);
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
 		img_src_url = malloc(CHAR_SIZE *
-					(url_len + len_eshuushuu_url + 1));
-		img_src_url[0] = '\0';
-		strcat(img_src_url, eshuushuu_url);
-		strncat(img_src_url, source_index, url_len);
+					(len_eshuushuu_url + url_len + 1));
+
+		strncpy(img_src_url, eshuushuu_url, len_eshuushuu_url);
+		strncpy(&(img_src_url[len_eshuushuu_url]), source_index, url_len);
+		img_src_url[url_len + len_eshuushuu_url] = '\0';
 	}
 	else {
 		fprintf(stderr,

@@ -5,32 +5,33 @@
 #include "gelbooru.h"
 #include "parser.h"
 
-#define GELBOORU_SOURCE_ID ">Resize image</a></li><li><a href=\""
-
 /* Given a http://gelbooru.com/ url,
  * parse the html to get the source image url
  */
 char *gelbooru_get_image_url(char *html_content)
 {
+	const char source_uuid[] = ">Resize image</a></li><li><a href=\"";
+	const unsigned int source_uuid_len = strlen(source_uuid);
+
 	/* initialize the image source url to be returned later */
 	char *img_src_url = NULL;
 
 	/* Find the source image link */
-	char *source_index = strstr(html_content, GELBOORU_SOURCE_ID);
+	char *source_index = strstr(html_content, source_uuid);
 
 	/* If found, add the danbooru url to it and return it */
 	if (source_index) {
 		/* move source_index pointer to the beginning of
 		 * the source image url */
-		source_index = &source_index[strlen(GELBOORU_SOURCE_ID)];
+		source_index = &source_index[source_uuid_len];
 		/* get the length of the source image url */
 		int url_len = get_distance(source_index, '"');
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
 		img_src_url = malloc(CHAR_SIZE * (url_len + 1));
-		img_src_url[0] = '\0';
-		strncat(img_src_url, source_index, url_len);
+		strncpy(img_src_url, source_index, url_len);
+		img_src_url[url_len] = '\0';
 	}
 	else {
 		fprintf(stderr,
@@ -65,7 +66,7 @@ struct image_tag_db *gelbooru_get_image_tags(char *html_content)
 
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
-	struct ll_node **tag_ptrs[6] = {
+	struct llnode **tag_ptrs[6] = {
 		&(tag_db->tags[0]),
 		&(tag_db->tags[1]),
 		&(tag_db->tags[2]),
@@ -95,19 +96,19 @@ struct image_tag_db *gelbooru_get_image_tags(char *html_content)
 		tag_contents = &(tag_contents[name_offset]);
 
 		/* get where the tag name ends is */
-		int len_tag_name = get_distance(tag_contents, tag_name_end);
+		int tag_name_len = get_distance(tag_contents, tag_name_end);
+
+		/* allocate enough memory for the tag name + null terminator */
+		char *tag_name = malloc(CHAR_SIZE * (tag_name_len + 1));
+		strncpy(tag_name, tag_contents, tag_name_len);
+		tag_name[tag_name_len] = '\0';
 
 
 		/* allocate memory for node */
 		*(tag_ptrs[tag_index]) = malloc(LLNODE_SIZE);
 
 		(*(tag_ptrs[tag_index]))->next = NULL;
-		(*(tag_ptrs[tag_index]))->data = malloc(CHAR_SIZE * (len_tag_name + 1));
-		/* set first element to \0 */
-		(*(tag_ptrs[tag_index]))->data[0] = '\0';
-		/* concatentate tag name to char array */
-		strncat((*(tag_ptrs[tag_index]))->data,
-				tag_contents, len_tag_name);
+		(*(tag_ptrs[tag_index]))->data = tag_name;
 
 		/* set tag_ptrs to its next value */
 		tag_ptrs[tag_index] = &((*(tag_ptrs[tag_index]))->next);
@@ -117,7 +118,7 @@ struct image_tag_db *gelbooru_get_image_tags(char *html_content)
 		 * found */
 		(tag_db->tag_size[tag_index])++;
 
-		tag_contents = &(tag_contents[len_tag_name]);
+		tag_contents = &(tag_contents[tag_name_len]);
 		tag_contents = strstr(tag_contents, tag_category_uuid);
 	}
 
