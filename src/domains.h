@@ -1,3 +1,5 @@
+#ifndef DOMAINS_H
+
 #include "danbooru.h"
 #include "eshuushuu.h"
 #include "gelbooru.h"
@@ -16,10 +18,13 @@
 #define YANDERE_DOMAIN		"yande.re"
 #define ZEROCHAN_DOMAIN		"www.zerochan.net"
 
-#define YANDERE_UUID		1
-#define DANBOORU_UUID		2
+#define DANBOORU_UUID		1
+#define YANDERE_UUID		2
 #define SANKAKUCOMPLEX_UUID	3
 #define KONACHAN_UUID		4
-#define ESHUUSHUU_UUID		5
-#define GELBOORU_UUID		6
+#define GELBOORU_UUID		5
+#define ESHUUSHUU_UUID		6
 #define MANGADRAWING_UUID	7
+#define ZEROCHAN_UUID		8
+
+#endif
