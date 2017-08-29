@@ -213,6 +213,7 @@ int main(int argc, char *argv[])
 			char *api_link = generate_api_link(domain_uuid, dl_image->post_link);
 			/* get the html contents of the website */
 			char *html_content = get_html(api_link);
+			free(api_link);
 
 			/* parse for the source url of the image */
 			char *dl_url = get_source_image_url(domain_uuid,
