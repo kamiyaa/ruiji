@@ -169,7 +169,8 @@ int main(int argc, char *argv[])
 
 	/* Initialize a struct to hold all the images similar
 	 * to the uploaded image */
-	struct similar_image_llnode *image_list = create_image_list(iqdb_html, cmd_args.threshold);
+	struct similar_image_llnode *image_list =
+		create_image_list(iqdb_html, cmd_args.threshold);
 
 	/* free up allocated memory */
 	free(iqdb_html);
@@ -195,29 +196,32 @@ int main(int argc, char *argv[])
 		}
 
 		else {
+
 			struct similar_image_llnode *list_ptr = image_list;
-			/* select the selected image */
-			struct similar_image *dl_image;
 			for (int i = 0; i < user_input; i++) {
 				list_ptr = list_ptr->next;
 			}
-			dl_image = list_ptr->image;
+			/* select the selected image */
+			struct similar_image *dl_image = list_ptr->image;
 
-			/* used to check if download was successful */
-			short dl_state = -1;
-			/* used to know where to slice string for getting
-			 * file name. Default is NULL character */
-			char stop_seq = '\0';
 			/* get internal uuid of domain */
-			int domain_uuid = get_internal_domain_value(dl_image->post_link);
-			char *api_link = generate_api_link(domain_uuid, dl_image->post_link);
+			int domain_uuid =
+				get_internal_domain_value(dl_image->post_link);
+			char *api_link = generate_api_link(domain_uuid,
+						dl_image->post_link);
 			/* get the html contents of the website */
 			char *html_content = get_html(api_link);
 			free(api_link);
 
+			/* used to know where to slice string for getting
+			 * file name. Default is NULL character */
+			char stop_seq = '\0';
 			/* parse for the source url of the image */
 			char *dl_url = get_source_image_url(domain_uuid,
 					html_content, &stop_seq);
+
+			/* used to check if download was successful */
+			short dl_state = -1;
 
 			/* Check if we've successfully parsed the source image
 			 * url */
@@ -245,7 +249,8 @@ int main(int argc, char *argv[])
 				/* print tags if told to */
 				if (cmd_args.showtags) {
 					struct image_tag_db *tags_db =
-						get_image_tags(domain_uuid, html_content);
+						get_image_tags(
+						domain_uuid, html_content);
 					printf("Tags:\n");
 					print_image_tags(tags_db);
 					/* free allocated memory */
