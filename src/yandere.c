@@ -11,12 +11,13 @@
 char *yandere_get_image_url(char *html_content)
 {
 	/* constants used to find values */
-	const char png_source_uuid[] = "<li><a class=\"original-file-unchanged\" id=\"png\" href=\"";
-	const char jpg_source_uuid[] = "<li><a class=\"original-file-changed\" id=\"highres\" href=\"";
-	const char source_end = '"';
+	const char png_source_uuid[] = "<li><a class=\"original-file-unchanged\"";
+	const char jpg_source_uuid[] = "<li><a class=\"original-file-changed\"";
+	const char url_uuid[] = "href=\"";
 
 	const unsigned int len_png = strlen(png_source_uuid);
 	const unsigned int len_jpg = strlen(jpg_source_uuid);
+	const unsigned int len_url_uuid = strlen(url_uuid);
 
 	/* initialize the image source url to be returned later */
 	char *img_src_url = NULL;
@@ -30,15 +31,20 @@ char *yandere_get_image_url(char *html_content)
 
 
 	/* find source image link */
-	if (png_index)
+	if (png_index) {
 		source_index = &(png_index[len_png]);
-	else if (jpg_index)
+		source_index = strstr(source_index, url_uuid);
+	}
+	else if (jpg_index) {
 		source_index = &(jpg_index[len_jpg]);
+		source_index = strstr(source_index, url_uuid);
+	}
 
 	/* check if any html pattern was detected */
 	if (source_index) {
+		source_index = &(source_index[len_url_uuid]);
 		/* get the length of the source image url */
-		int url_len = get_distance(source_index, source_end);
+		int url_len = get_distance(source_index, '"');
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
