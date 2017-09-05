@@ -30,29 +30,28 @@ $ make
 ## Usage
 ```
 $ ruiji --help
-$ ruiji [options] </path/to/image>
+
+Usage: ruiji [options] [file]
+
+  -h --help		 Show this help message and quit
+  -q --quiet		 Suppress verbose output
+  -t --threshold <0-100> Only process and show images above given
+			 similarity percentage
+  -T --tags		 Shows the tags associated with the image downloaded
+  -v --verbose		 Show verbose output
+  -V --version		 Show version number and quit
+  -y --noprompt		 Skips user interactions and downloads
+			 the most similar image
 ```
 
 ## Features
 Currently supports:
  - http://danbooru.donmai.us/
  - http://e-shuushuu.net/
+ - https://gelbooru.com/
  - https://konachan.com/
  - https://chan.sankakucomplex.com/
  - https://yande.re/
  - http://www.zerochan.net/ **
- - -y option to auto-download image with highest similarity without user input
-
-### Todo
- - Clean code
-  - excess code reuse
-  - hardcoded values
- - Config file support*
- - Add a better interface*
- - Preview support*
- - batch files support*
- - option to only act if a match above a given threshold is found*
-
-_\* possibly_
 
 _\*\* currently broken as zerochan redirects to registry page._
