@@ -144,21 +144,23 @@ struct image_tag_db *get_image_tags(int domain_uuid, char *html_content)
 	case DANBOORU_UUID:
 		tags_db = danbooru_get_image_tags_json(html_content);
 		break;
-	/* sankakucomplex domain */
-	case SANKAKUCOMPLEX_UUID:
-		tags_db = sankakucomplex_get_image_tags(html_content);
+	/* all others */
+	case ESHUUSHUU_UUID:
+		tags_db = eshuushuu_get_image_tags(html_content);
 		break;
 	/* gelbooru domain */
 	case GELBOORU_UUID:
 		tags_db = gelbooru_get_image_tags(html_content);
+		break;
+	/* sankakucomplex domain */
+	case SANKAKUCOMPLEX_UUID:
+		tags_db = sankakucomplex_get_image_tags(html_content);
 		break;
 	/* if the link given is a yandere domain or konachan domain */
 	case KONACHAN_UUID:
 	case YANDERE_UUID:
 		tags_db = yandere_get_image_tags(html_content);
 		break;
-	/* all others */
-	case ESHUUSHUU_UUID:
 	case MANGADRAWING_UUID:
 	case ZEROCHAN_UUID:
 	default:

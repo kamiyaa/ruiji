@@ -49,3 +49,117 @@ char *eshuushuu_get_image_url(char *html_content)
 	/* return the image source url */
 	return img_src_url;
 }
+
+struct image_tag_db *eshuushuu_get_image_tags(char *html_content)
+{
+
+	char artist_tag_uuid[] = "Artist:";
+	char character_tag_uuid[] = "Characters:";
+	char copyright_tag_uuid[] = "Source:";
+	char general_tag_uuid[] = "Tags:";
+
+	/* offset html_content first for easier parsing */
+	html_content = strstr(html_content, "<dt>Dimensions:</dt>");
+
+	/* initialize a tags database to store tags */
+	struct image_tag_db *tag_db = init_image_tag_db();
+
+	/* populate artist tags */
+	tag_db->tags[0] = eshuushuu_parse_tags_html(
+				artist_tag_uuid,
+				html_content,
+				&(tag_db->tag_size[0])
+				);
+
+	/* populate character tags */
+	tag_db->tags[1] = eshuushuu_parse_tags_html(
+				character_tag_uuid,
+				html_content,
+				&(tag_db->tag_size[1])
+				);
+
+	/* populate copyright tags */
+	tag_db->tags[3] = eshuushuu_parse_tags_html(
+				copyright_tag_uuid,
+				html_content,
+				&(tag_db->tag_size[3])
+				);
+
+	/* populate general tags */
+	tag_db->tags[5] = eshuushuu_parse_tags_html(
+				general_tag_uuid,
+				html_content,
+				&(tag_db->tag_size[5])
+				);
+
+	return tag_db;
+}
+
+struct llnode *eshuushuu_parse_tags_html(char *tag_pattern, char *html_content,
+	unsigned int *size)
+{
+	const char tags_uuid[] = "<span class='tag'>\"<a href=\"";
+	const int tag_uuid_len = strlen(tags_uuid);
+	const char tags_end[] = "</dd>";
+
+	char *html_ptr = strstr(html_content, tag_pattern);
+	char *end_ptr = strstr(html_ptr, tags_end);
+
+	if (end_ptr) {
+		end_ptr[0] = '\0';
+
+		/* move html_ptr to next tag starting position */
+		html_ptr = strstr(html_ptr, tags_uuid);
+	}
+
+	struct llnode *tags = NULL;
+	struct llnode **tags_ptr = &(tags);
+
+	while (html_ptr) {
+		/* move html_ptr to end of tags_uuid pattern */
+		html_ptr = &(html_ptr[tag_uuid_len]);
+		/* get where next '>' is and move html_ptr 1 char past it */
+		int tag_start_distance = get_distance(html_ptr, '>');
+		html_ptr = &(html_ptr[tag_start_distance+1]);
+
+		/* get the next '<' offset and set tag_name_len to it */
+		int tag_name_len = get_distance(html_ptr, '<');
+
+		/* allocate enough memory for the tag name +
+		 * null terminator */
+		char *tag_name = malloc(CHAR_SIZE * (tag_name_len + 1));
+		/* copy tag name to tag_name */
+		strncpy(tag_name, html_ptr, tag_name_len);
+		tag_name[tag_name_len] = '\0';
+
+		/* allocate memory for a llnode */
+		*tags_ptr = malloc(LLNODE_SIZE);
+		/* set next to NULL and data to tag_name */
+		(*tags_ptr)->next = NULL;
+		(*tags_ptr)->data = tag_name;
+		/* move tags_ptr to next */
+		tags_ptr = &((*tags_ptr)->next);
+
+		/* move html_ptr to next tag starting position */
+		html_ptr = strstr(html_ptr, tags_uuid);
+
+		(*size)++;
+	}
+
+	/* put value back, unterminating the string */
+	if (end_ptr) {
+		end_ptr[0] = tags_end[0];
+	}
+
+	return tags;
+}
+
+
+
+
+
+
+
+
+
+
