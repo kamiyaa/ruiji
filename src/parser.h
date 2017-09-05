@@ -9,26 +9,14 @@ static const int LLNODE_SIZE = sizeof(struct llnode);
  * parse all the results and store them in a linked list.
  */
 struct similar_image_llnode *create_image_list(char *html_content,
-			unsigned short similar_threshold);
+	unsigned short similar_threshold);
 
 
 /* Given the necessary information of a similar image, create a similar image
  * struct with the given values and return it.
  */
-struct similar_image *create_sim_image(char *url_begin, unsigned short similarity,
-					unsigned int x, unsigned int y);
-
-
-/* get how far a given char is from the beginning of the string
- * -1 if char was not found. Will keep going until null terminator or found char.
- */
-int get_distance(char *string, char find);
-
-
-/* given a known domain type and its downloaded content,
- * parse for the image's tags
- */
-struct image_tag_db *get_image_tags(int domain_uuid, char *html_content);
+struct similar_image *create_sim_image(char *web_url,
+	unsigned short similarity, unsigned int xpx, unsigned int ypx);
 
 
 /* given a known domain type and its link, generate an api
@@ -37,21 +25,33 @@ struct image_tag_db *get_image_tags(int domain_uuid, char *html_content);
 char *generate_api_link(int domain_uuid, char *post_link);
 
 
-/* Given the full link of a website,
- * parse the link to get the file name
+/* get how far a given char is from the beginning of the string
+ * -1 if char was not found. Will keep going until null terminator or found char.
  */
-char *get_server_file_name(char *web_url, char stop);
+int get_distance(char *string, char find);
 
 
 /* Given a link, get the source image url from its html
  * if a stop sequence is needed for extracting the file
  * name later, assign it to stop_seq
  */
-char *get_source_image_url(int domain_uuid, char *html_content, char *stop_seq);
+char *get_image_source_url(int domain_uuid, char *html_content, char *stop_seq);
+
+
+/* given a known domain type and its downloaded content,
+ * parse for the image's tags
+ */
+struct image_tag_db *get_image_tags(int domain_uuid, char *html_content);
 
 
 /* get unique id for known domain names */
 unsigned int get_internal_domain_value(char *link);
+
+
+/* Given the full link of a website,
+ * parse the link to get the file name
+ */
+char *get_server_file_name(char *web_url, char stop);
 
 
 /* initialize an empty database of tags */

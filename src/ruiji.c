@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
 			 * file name. Default is NULL character */
 			char stop_seq = '\0';
 			/* parse for the source url of the image */
-			char *dl_url = get_source_image_url(domain_uuid,
+			char *dl_url = get_image_source_url(domain_uuid,
 					html_content, &stop_seq);
 
 			/* used to check if download was successful */

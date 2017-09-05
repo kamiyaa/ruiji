@@ -5,11 +5,8 @@
 #include "parser.h"
 #include "domains.h"
 
-/* Given the html contents of http://iqdb.org after an image has been uploaded,
- * parse all the results and store them in the struct similar_image_db *image_list
- */
-struct similar_image_llnode *
-create_image_list(char *html_content, unsigned short similar_threshold)
+struct similar_image_llnode *create_image_list(char *html_content,
+	unsigned short similar_threshold)
 {
 
 	const char iqdb_result_uuid[] =
@@ -79,17 +76,16 @@ create_image_list(char *html_content, unsigned short similar_threshold)
 /* Given the necessary information of a similar image, create a similar image
  * struct with the given values and return it.
  */
-struct similar_image *
-create_sim_image(char *web_url, unsigned short similarity,
-		unsigned int x_pixels, unsigned int y_pixels)
+struct similar_image *create_sim_image(char *web_url,
+	unsigned short similarity, unsigned int xpx, unsigned int ypx)
 {
 	/* Create a new similar image struct to store information */
 	struct similar_image *image = malloc(sizeof(struct similar_image));
 
 	/* Set it's values to the given parameters */
 	image->similarity = similarity;
-	image->dimensions[0] = x_pixels;
-	image->dimensions[1] = y_pixels;
+	image->dimensions[0] = xpx;
+	image->dimensions[1] = ypx;
 
 	unsigned int len_url = strlen(web_url) + 1;
 	/* Format url to be complete with protocol, if none is provided */
@@ -108,93 +104,6 @@ create_sim_image(char *web_url, unsigned short similarity,
 		strcpy(image->post_link, web_url);
 	}
 	return image;
-}
-
-struct image_tag_db *init_image_tag_db(void)
-{
-	/* initialize a image tag database to store all the tags */
-	struct image_tag_db *tag_db = malloc(sizeof(struct image_tag_db));
-	/* set all values to 0 and NULL */
-	for (int i = 0; i < 6; i++) {
-		tag_db->tags[i] = NULL;
-		tag_db->tag_size[i] = 0;
-	}
-	return tag_db;
-}
-
-/* get how far away a char is from the beginning of the string */
-int get_distance(char *string, char find)
-{
-	int distance = 0;
-	/* keep on incrementing until we've found the char */
-	while (string[distance] != '\0' && string[distance] != find)
-		distance++;
-	if (string[distance] == '\0')
-		distance = -1;
-	/* return the distance */
-	return distance;
-}
-
-struct image_tag_db *get_image_tags(int domain_uuid, char *html_content)
-{
-	struct image_tag_db *tags_db;
-
-	switch (domain_uuid) {
-	/* danbooru domain */
-	case DANBOORU_UUID:
-		tags_db = danbooru_get_image_tags_json(html_content);
-		break;
-	/* all others */
-	case ESHUUSHUU_UUID:
-		tags_db = eshuushuu_get_image_tags(html_content);
-		break;
-	/* gelbooru domain */
-	case GELBOORU_UUID:
-		tags_db = gelbooru_get_image_tags(html_content);
-		break;
-	/* sankakucomplex domain */
-	case SANKAKUCOMPLEX_UUID:
-		tags_db = sankakucomplex_get_image_tags(html_content);
-		break;
-	/* if the link given is a yandere domain or konachan domain */
-	case KONACHAN_UUID:
-	case YANDERE_UUID:
-		tags_db = yandere_get_image_tags(html_content);
-		break;
-	case MANGADRAWING_UUID:
-	case ZEROCHAN_UUID:
-	default:
-		tags_db = init_image_tag_db();
-		break;
-	}
-
-	return tags_db;
-}
-
-unsigned int get_internal_domain_value(char *link) {
-
-	/* danbooru domain */
-	if (strstr(link, DANBOORU_DOMAIN))
-		return DANBOORU_UUID;
-	/* eshuushuu domain */
-	if (strstr(link, ESHUUSHUU_DOMAIN))
-		return ESHUUSHUU_UUID;
-	/* gelbooru domain */
-	if (strstr(link, GELBOORU_DOMAIN))
-		return GELBOORU_UUID;
-	/* konachan domain */
-	if (strstr(link, KONACHAN_DOMAIN))
-		return KONACHAN_UUID;
-	/* mangadrawing domain */
-	if (strstr(link, MANGADRAWING_DOMAIN))
-		return MANGADRAWING_UUID;
-	/* sankakucomplex domain */
-	if (strstr(link, SANKAKUCOMPLEX_DOMAIN))
-		return SANKAKUCOMPLEX_UUID;
-	/* if the link given is a yandere domain */
-	if (strstr(link, YANDERE_DOMAIN))
-		return YANDERE_UUID;
-	return 0;
 }
 
 char *generate_api_link(int domain_uuid, char *post_link)
@@ -226,8 +135,20 @@ char *generate_api_link(int domain_uuid, char *post_link)
 	return api_url;
 }
 
+int get_distance(char *string, char find)
+{
+	int distance = 0;
+	/* keep on incrementing until we've found the char */
+	while (string[distance] != '\0' && string[distance] != find)
+		distance++;
+	if (string[distance] == '\0')
+		distance = -1;
+	/* return the distance */
+	return distance;
+}
+
 /* Given a website url, a unique html pattern to look for and */
-char *get_source_image_url(int domain_uuid, char *html_content, char *stop_seq)
+char *get_image_source_url(int domain_uuid, char *html_content, char *stop_seq)
 {
 	char *dl_url;
 	switch (domain_uuid) {
@@ -269,7 +190,68 @@ char *get_source_image_url(int domain_uuid, char *html_content, char *stop_seq)
 	return dl_url;
 }
 
-/* Given the full link of a website, parse the link to get the file name */
+struct image_tag_db *get_image_tags(int domain_uuid, char *html_content)
+{
+	struct image_tag_db *tags_db;
+
+	switch (domain_uuid) {
+	/* danbooru domain */
+	case DANBOORU_UUID:
+		tags_db = danbooru_get_image_tags_json(html_content);
+		break;
+	/* all others */
+	case ESHUUSHUU_UUID:
+		tags_db = eshuushuu_get_image_tags(html_content);
+		break;
+	/* gelbooru domain */
+	case GELBOORU_UUID:
+		tags_db = gelbooru_get_image_tags(html_content);
+		break;
+	/* sankakucomplex domain */
+	case SANKAKUCOMPLEX_UUID:
+		tags_db = sankakucomplex_get_image_tags(html_content);
+		break;
+	/* if the link given is a yandere domain or konachan domain */
+	case KONACHAN_UUID:
+	case YANDERE_UUID:
+		tags_db = yandere_get_image_tags(html_content);
+		break;
+	case MANGADRAWING_UUID:
+	case ZEROCHAN_UUID:
+	default:
+		tags_db = init_image_tag_db();
+		break;
+	}
+
+	return tags_db;
+}
+
+unsigned int get_internal_domain_value(char *link)
+{
+	/* danbooru domain */
+	if (strstr(link, DANBOORU_DOMAIN))
+		return DANBOORU_UUID;
+	/* eshuushuu domain */
+	if (strstr(link, ESHUUSHUU_DOMAIN))
+		return ESHUUSHUU_UUID;
+	/* gelbooru domain */
+	if (strstr(link, GELBOORU_DOMAIN))
+		return GELBOORU_UUID;
+	/* konachan domain */
+	if (strstr(link, KONACHAN_DOMAIN))
+		return KONACHAN_UUID;
+	/* mangadrawing domain */
+	if (strstr(link, MANGADRAWING_DOMAIN))
+		return MANGADRAWING_UUID;
+	/* sankakucomplex domain */
+	if (strstr(link, SANKAKUCOMPLEX_DOMAIN))
+		return SANKAKUCOMPLEX_UUID;
+	/* if the link given is a yandere domain */
+	if (strstr(link, YANDERE_DOMAIN))
+		return YANDERE_UUID;
+	return 0;
+}
+
 char *get_server_file_name(char *web_url, char stop)
 {
 	/* Go through and get the last section of a url */
@@ -297,10 +279,18 @@ char *get_server_file_name(char *web_url, char stop)
 	return file_name;
 }
 
-/* Given the html contents of http://iqdb.org after an image has been uploaded,
- * get the x, y dimensions of the image and return a pointer pointing to the
- * html contents where the parsing stopped.
- */
+struct image_tag_db *init_image_tag_db(void)
+{
+	/* initialize a image tag database to store all the tags */
+	struct image_tag_db *tag_db = malloc(sizeof(struct image_tag_db));
+	/* set all values to 0 and NULL */
+	for (int i = 0; i < 6; i++) {
+		tag_db->tags[i] = NULL;
+		tag_db->tag_size[i] = 0;
+	}
+	return tag_db;
+}
+
 char *parse_percent_similar(char* contents, unsigned short *similarity)
 {
 	/* initialize pointer to hold where walker leaves off */
@@ -329,10 +319,6 @@ char *parse_percent_similar(char* contents, unsigned short *similarity)
 	return next_weblink;
 }
 
-/* Given the html contents of http://iqdb.org after an image has been uploaded,
- * get the x, y dimensions of the image and return a pointer pointing to the
- * html contents where the parsing stopped.
- */
 char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 {
 	/* initialize pointer to hold where walker leaves off */
@@ -366,25 +352,11 @@ char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 }
 
 
-
-/* Frees the allocated memory for a linked list of similar_image_llnode */
-void free_similar_image_list(struct similar_image_llnode *image_list)
+void free_image_tags(struct image_tag_db *tags_db)
 {
-	while (image_list) {
-		struct similar_image_llnode *tmp = image_list;
-		image_list = image_list->next;
-		free_similar_image(tmp->image);
-		free(tmp);
-	}
-}
-
-void free_similar_image(struct similar_image *image)
-{
-	if (image) {
-		if (image->post_link)
-			free(image->post_link);
-		free(image);
-	}
+	for (int i = 0; i < 6; i++)
+		free_linked_list(tags_db->tags[i]);
+	free(tags_db);
 }
 
 void free_linked_list(struct llnode *head)
@@ -399,10 +371,21 @@ void free_linked_list(struct llnode *head)
 	}
 }
 
-void free_image_tags(struct image_tag_db *tags_db)
+void free_similar_image(struct similar_image *image)
 {
-	for (int i = 0; i < 6; i++)
-		free_linked_list(tags_db->tags[i]);
-	free(tags_db);
+	if (image) {
+		if (image->post_link)
+			free(image->post_link);
+		free(image);
+	}
 }
 
+void free_similar_image_list(struct similar_image_llnode *image_list)
+{
+	while (image_list) {
+		struct similar_image_llnode *tmp = image_list;
+		image_list = image_list->next;
+		free_similar_image(tmp->image);
+		free(tmp);
+	}
+}

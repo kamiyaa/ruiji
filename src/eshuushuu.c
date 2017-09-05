@@ -153,13 +153,3 @@ struct llnode *eshuushuu_parse_tags_html(char *tag_pattern, char *html_content,
 
 	return tags;
 }
-
-
-
-
-
-
-
-
-
-
