@@ -54,4 +54,4 @@ Currently supports:
  - https://yande.re/
  - http://www.zerochan.net/ **
 
-_\*\* currently broken as zerochan redirects to registry page._
+_\*\* does not support tag parsing._
