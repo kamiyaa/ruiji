@@ -71,24 +71,28 @@ struct image_tag_db *danbooru_get_image_tags_json(char *json_content)
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
 
+	/* populate artist tags */
 	tag_db->tags[0] = danbooru_parse_tags_json(
 				artist_tag_uuid,
 				json_content,
 				&(tag_db->tag_size[0])
 				);
 
+	/* populate character tags */
 	tag_db->tags[1] = danbooru_parse_tags_json(
 				character_tag_uuid,
 				json_content,
 				&(tag_db->tag_size[1])
 				);
 
+	/* populate copyright tags */
 	tag_db->tags[3] = danbooru_parse_tags_json(
 				copyright_tag_uuid,
 				json_content,
 				&(tag_db->tag_size[3])
 				);
 
+	/* populate general tags */
 	tag_db->tags[5] = danbooru_parse_tags_json(
 				general_tag_uuid,
 				json_content,
@@ -102,7 +106,7 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *json_content,
 	unsigned int *size)
 {
 	int tag_name_len = -1;
-	char *ptr_end = NULL;
+	char *end_ptr = NULL;
 
 	int tag_len = strlen(tag_pattern);
 
@@ -114,10 +118,10 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *json_content,
 		json_ptr = &(json_ptr[tag_len]);
 
 		/* get the end of this json property, set
-		 * ptr_end to it and set it to a null terminator */
+		 * end_ptr to it and set it to a null terminator */
 		int tag_end = get_distance(json_ptr, ',');
-		ptr_end = &(json_ptr[tag_end]);
-		*ptr_end = '\0';
+		end_ptr = &(json_ptr[tag_end]);
+		end_ptr[0] = '\0';
 
 		/* set the character before it to be a space */
 		json_ptr[tag_end - 1] = ' ';
@@ -129,6 +133,7 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *json_content,
 	struct llnode **tags_ptr = &(tags);
 
 	while (tag_name_len > 0) {
+
 		/* allocate enough memory for the tag name + null terminator */
 		char *tag_name = malloc(CHAR_SIZE * (tag_name_len + 1));
 		/* copy tag name to tag_name */
@@ -152,9 +157,9 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *json_content,
 
 		(*size)++;
 	}
-	/* put comma back, un null terminating the string */
-	if (ptr_end) {
-		*ptr_end = ',';
+	/* put comma back, unterminating the string */
+	if (end_ptr) {
+		*end_ptr = ',';
 	}
 	return tags;
 }
