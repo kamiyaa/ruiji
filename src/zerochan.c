@@ -25,7 +25,7 @@ char *zerochan_get_image_url(char *html_content)
 	if (source_index) {
 		/* move source_index pointer to the beginning of
 		 * the source image url */
-		source_index = &source_index[len_source_uuid];
+		source_index = &(source_index[len_source_uuid]);
 		int url_len = get_distance(source_index, source_end);
 
 		/* allocate enough memory to hold the image source url,

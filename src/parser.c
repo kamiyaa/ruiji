@@ -183,6 +183,9 @@ char *get_image_source_url(int domain_uuid, char *html_content, char *stop_seq)
 	case YANDERE_UUID:
 		dl_url = yandere_get_image_url(html_content);
 		break;
+	case ZEROCHAN_UUID:
+		dl_url = zerochan_get_image_url(html_content);
+		break;
 	default:
 		dl_url = NULL;
 		break;
@@ -249,6 +252,8 @@ unsigned int get_internal_domain_value(char *link)
 	/* if the link given is a yandere domain */
 	if (strstr(link, YANDERE_DOMAIN))
 		return YANDERE_UUID;
+	if (strstr(link, ZEROCHAN_DOMAIN))
+		return ZEROCHAN_UUID;
 	return 0;
 }
 
