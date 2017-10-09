@@ -73,31 +73,31 @@ struct image_tag_db *danbooru_get_image_tags_json(char *json_content)
 
 	/* populate artist tags */
 	tag_db->tags[0] = danbooru_parse_tags_json(
-				artist_tag_uuid,
-				json_content,
-				&(tag_db->tag_size[0])
-				);
+		artist_tag_uuid,
+		json_content,
+		&(tag_db->tag_size[0])
+		);
 
 	/* populate character tags */
 	tag_db->tags[1] = danbooru_parse_tags_json(
-				character_tag_uuid,
-				json_content,
-				&(tag_db->tag_size[1])
-				);
+		character_tag_uuid,
+		json_content,
+		&(tag_db->tag_size[1])
+		);
 
 	/* populate copyright tags */
 	tag_db->tags[3] = danbooru_parse_tags_json(
-				copyright_tag_uuid,
-				json_content,
-				&(tag_db->tag_size[3])
-				);
+		copyright_tag_uuid,
+		json_content,
+		&(tag_db->tag_size[3])
+		);
 
 	/* populate general tags */
 	tag_db->tags[5] = danbooru_parse_tags_json(
-				general_tag_uuid,
-				json_content,
-				&(tag_db->tag_size[5])
-				);
+		general_tag_uuid,
+		json_content,
+		&(tag_db->tag_size[5])
+		);
 
 	return tag_db;
 }
@@ -133,7 +133,6 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *json_content,
 	struct llnode **tags_ptr = &(tags);
 
 	while (tag_name_len > 0) {
-
 		/* allocate enough memory for the tag name + null terminator */
 		char *tag_name = malloc(CHAR_SIZE * (tag_name_len + 1));
 		/* copy tag name to tag_name */

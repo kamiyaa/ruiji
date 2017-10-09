@@ -110,6 +110,7 @@ char *get_html(char *web_url)
 		/* cleanup */
 		curl_easy_cleanup(curl_handle);
 	}
+
 	return web_data.data;
 }
 
@@ -129,7 +130,7 @@ size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *us
 
 	memcpy(&(mem->data[mem->size]), contents, realsize);
 	mem->size += realsize;
-	mem->data[mem->size] = 0;
+	mem->data[mem->size] = '\0';
 
 	return realsize;
 }

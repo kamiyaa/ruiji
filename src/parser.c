@@ -114,18 +114,18 @@ char *generate_api_link(int domain_uuid, char *post_link)
 	case DANBOORU_UUID:
 		api_url = danbooru_generate_api_url(post_link);
 		break;
-	/* if the link given is a yandere domain */
-	case YANDERE_UUID:
-	/* konachan domain */
-	case KONACHAN_UUID:
 	/* eshuushuu domain */
 	case ESHUUSHUU_UUID:
 	/* gelbooru domain */
 	case GELBOORU_UUID:
+	/* konachan domain */
+	case KONACHAN_UUID:
 	/* mangadrawing domain */
 	case MANGADRAWING_UUID:
 	/* sankakucomplex domain */
 	case SANKAKUCOMPLEX_UUID:
+	/* yandere domain */
+	case YANDERE_UUID:
 	/* zerochan domain */
 	case ZEROCHAN_UUID:
 	default:
