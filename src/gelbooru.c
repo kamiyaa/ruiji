@@ -95,7 +95,7 @@ struct image_tag_db *gelbooru_get_image_tags(char *html_content)
 		tag_contents = strstr(tag_contents, tag_name_uuid);
 		tag_contents = &(tag_contents[name_offset]);
 
-		/* get where the tag name ends is */
+		/* get length of tag name */
 		int tag_name_len = get_distance(tag_contents, tag_name_end);
 
 		/* allocate enough memory for the tag name + null terminator */
