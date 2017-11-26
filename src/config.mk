@@ -2,8 +2,10 @@
 # change to clang for clang compiler
 CC = cc
 
+STD = -std=c99
+
 # cflags
-CFLAGS = -std=gnu99 -ggdb3 -Os -Wall -Werror -Wno-unused-variable -march=native -fno-stack-protector
+CFLAGS = ${STD} -ggdb3 -Os -Wall -Werror -Wno-unused-variable -march=native -fno-stack-protector
 
 # libraries required
 LIBS = -lcurl

@@ -137,7 +137,8 @@ char *generate_api_link(int domain_uid, char *post_link)
 	/* zerochan domain */
 	case ZEROCHAN_UID:
 	default:
-		api_url = strdup(post_link);
+		api_url = malloc(sizeof(CHAR_SIZE) * (strlen(post_link) + 1));
+		strcpy(api_url, post_link);
 		break;
 	}
 	return api_url;
