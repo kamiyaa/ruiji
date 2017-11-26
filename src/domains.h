@@ -18,13 +18,13 @@
 #define YANDERE_DOMAIN		"yande.re"
 #define ZEROCHAN_DOMAIN		"www.zerochan.net"
 
-#define DANBOORU_UUID		1
-#define YANDERE_UUID		2
-#define SANKAKUCOMPLEX_UUID	3
-#define KONACHAN_UUID		4
-#define GELBOORU_UUID		5
-#define ESHUUSHUU_UUID		6
-#define MANGADRAWING_UUID	7
-#define ZEROCHAN_UUID		8
+#define DANBOORU_UID		1
+#define YANDERE_UID		2
+#define SANKAKUCOMPLEX_UID	3
+#define KONACHAN_UID		4
+#define GELBOORU_UID		5
+#define ESHUUSHUU_UID		6
+#define MANGADRAWING_UID	7
+#define ZEROCHAN_UID		8
 
 #endif

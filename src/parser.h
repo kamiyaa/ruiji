@@ -22,7 +22,7 @@ struct similar_image *create_sim_image(char *web_url,
 /* given a known domain type and its link, generate an api
  * link that is much easier to parse later
  */
-char *generate_api_link(int domain_uuid, char *post_link);
+char *generate_api_link(int domain_uid, char *post_link);
 
 
 /* get how far a given char is from the beginning of the string
@@ -35,17 +35,17 @@ int get_distance(char *string, char find);
  * if a stop sequence is needed for extracting the file
  * name later, assign it to stop_seq
  */
-char *get_image_source_url(int domain_uuid, char *html_content, char *stop_seq);
+char *get_image_source_url(int domain_uid, char *html_content, char *stop_seq);
 
 
 /* given a known domain type and its downloaded content,
  * parse for the image's tags
  */
-struct image_tag_db *get_image_tags(int domain_uuid, char *html_content);
+struct image_tag_db *get_image_tags(int domain_uid, char *html_content);
 
 
 /* get unique id for known domain names */
-unsigned int get_internal_domain_value(char *link);
+unsigned int get_domain_uid(char *link);
 
 
 /* Given the full link of a website,

@@ -9,10 +9,10 @@ struct similar_image_llnode *create_image_list(char *html_content,
 	unsigned short similar_threshold)
 {
 
-	const char iqdb_result_uuid[] =
+	const char iqdb_result_uid[] =
 		"match</th></tr><tr><td class='image'><a href=\"";
 	/* Get length of the string we are looking for and search for it */
-	const unsigned int iqdb_result_len = strlen(iqdb_result_uuid);
+	const unsigned int iqdb_result_len = strlen(iqdb_result_uid);
 
 	const int node_size = sizeof(struct similar_image_llnode);
 
@@ -20,7 +20,7 @@ struct similar_image_llnode *create_image_list(char *html_content,
 	struct similar_image_llnode *image_list = NULL;
 
 	/* Check if matching string is found */
-	char *url_begin = strstr(html_content, iqdb_result_uuid);
+	char *url_begin = strstr(html_content, iqdb_result_uid);
 	if (url_begin == NULL) {
 		fprintf(stderr, "Error: Failed to populate similar image database: No results found!\n");
 		return image_list;
@@ -68,7 +68,7 @@ struct similar_image_llnode *create_image_list(char *html_content,
 
 		/* set the starting point of the string
 		 * to the next valid weblink */
-		url_begin = strstr(url_begin, iqdb_result_uuid);
+		url_begin = strstr(url_begin, iqdb_result_uid);
 	}
 	return image_list;
 }
@@ -106,28 +106,28 @@ struct similar_image *create_sim_image(char *web_url,
 	return image;
 }
 
-char *generate_api_link(int domain_uuid, char *post_link)
+char *generate_api_link(int domain_uid, char *post_link)
 {
 	char *api_url;
-	switch (domain_uuid) {
+	switch (domain_uid) {
 	/* danbooru domain */
-	case DANBOORU_UUID:
+	case DANBOORU_UID:
 		api_url = danbooru_generate_api_url(post_link);
 		break;
 	/* eshuushuu domain */
-	case ESHUUSHUU_UUID:
+	case ESHUUSHUU_UID:
 	/* gelbooru domain */
-	case GELBOORU_UUID:
+	case GELBOORU_UID:
 	/* konachan domain */
-	case KONACHAN_UUID:
+	case KONACHAN_UID:
 	/* mangadrawing domain */
-	case MANGADRAWING_UUID:
+	case MANGADRAWING_UID:
 	/* sankakucomplex domain */
-	case SANKAKUCOMPLEX_UUID:
+	case SANKAKUCOMPLEX_UID:
 	/* yandere domain */
-	case YANDERE_UUID:
+	case YANDERE_UID:
 	/* zerochan domain */
-	case ZEROCHAN_UUID:
+	case ZEROCHAN_UID:
 	default:
 		api_url = strdup(post_link);
 		break;
@@ -148,42 +148,42 @@ int get_distance(char *string, char find)
 }
 
 /* Given a website url, a unique html pattern to look for and */
-char *get_image_source_url(int domain_uuid, char *html_content, char *stop_seq)
+char *get_image_source_url(int domain_uid, char *html_content, char *stop_seq)
 {
 	char *dl_url;
-	switch (domain_uuid) {
+	switch (domain_uid) {
 	/* danbooru domain */
-	case DANBOORU_UUID:
+	case DANBOORU_UID:
 		dl_url = danbooru_get_image_url_json(html_content);
 		break;
 	/* eshuushuu domain */
-	case ESHUUSHUU_UUID:
+	case ESHUUSHUU_UID:
 		dl_url = eshuushuu_get_image_url(html_content);
 		break;
 	/* gelbooru domain */
-	case GELBOORU_UUID:
+	case GELBOORU_UID:
 		dl_url = gelbooru_get_image_url(html_content);
 		break;
 	/* konachan domain */
-	case KONACHAN_UUID:
+	case KONACHAN_UID:
 		dl_url = konachan_get_image_url(html_content);
 		break;
 	/* mangadrawing domain */
-	case MANGADRAWING_UUID:
+	case MANGADRAWING_UID:
 		dl_url = mangadrawing_get_image_url(html_content);
 		break;
 	/* sankakucomplex domain */
-	case SANKAKUCOMPLEX_UUID:
+	case SANKAKUCOMPLEX_UID:
 		dl_url = sankakucomplex_get_image_url(html_content);
 		/* change the sequence to stop parsing at
 		 * to '?' for sankakucomplex */
 		*stop_seq = '?';
 		break;
 	/* yandere domain */
-	case YANDERE_UUID:
+	case YANDERE_UID:
 		dl_url = yandere_get_image_url(html_content);
 		break;
-	case ZEROCHAN_UUID:
+	case ZEROCHAN_UID:
 		dl_url = zerochan_get_image_url(html_content);
 		break;
 	default:
@@ -193,34 +193,34 @@ char *get_image_source_url(int domain_uuid, char *html_content, char *stop_seq)
 	return dl_url;
 }
 
-struct image_tag_db *get_image_tags(int domain_uuid, char *html_content)
+struct image_tag_db *get_image_tags(int domain_uid, char *html_content)
 {
 	struct image_tag_db *tags_db;
 
-	switch (domain_uuid) {
+	switch (domain_uid) {
 	/* danbooru domain */
-	case DANBOORU_UUID:
+	case DANBOORU_UID:
 		tags_db = danbooru_get_image_tags_json(html_content);
 		break;
 	/* all others */
-	case ESHUUSHUU_UUID:
+	case ESHUUSHUU_UID:
 		tags_db = eshuushuu_get_image_tags(html_content);
 		break;
 	/* gelbooru domain */
-	case GELBOORU_UUID:
+	case GELBOORU_UID:
 		tags_db = gelbooru_get_image_tags(html_content);
 		break;
 	/* sankakucomplex domain */
-	case SANKAKUCOMPLEX_UUID:
+	case SANKAKUCOMPLEX_UID:
 		tags_db = sankakucomplex_get_image_tags(html_content);
 		break;
 	/* if the link given is a yandere domain or konachan domain */
-	case KONACHAN_UUID:
-	case YANDERE_UUID:
+	case KONACHAN_UID:
+	case YANDERE_UID:
 		tags_db = yandere_get_image_tags(html_content);
 		break;
-	case MANGADRAWING_UUID:
-	case ZEROCHAN_UUID:
+	case MANGADRAWING_UID:
+	case ZEROCHAN_UID:
 	default:
 		tags_db = init_image_tag_db();
 		break;
@@ -229,31 +229,31 @@ struct image_tag_db *get_image_tags(int domain_uuid, char *html_content)
 	return tags_db;
 }
 
-unsigned int get_internal_domain_value(char *link)
+unsigned int get_domain_uid(char *link)
 {
 	/* danbooru domain */
 	if (strstr(link, DANBOORU_DOMAIN))
-		return DANBOORU_UUID;
+		return DANBOORU_UID;
 	/* eshuushuu domain */
 	if (strstr(link, ESHUUSHUU_DOMAIN))
-		return ESHUUSHUU_UUID;
+		return ESHUUSHUU_UID;
 	/* gelbooru domain */
 	if (strstr(link, GELBOORU_DOMAIN))
-		return GELBOORU_UUID;
+		return GELBOORU_UID;
 	/* konachan domain */
 	if (strstr(link, KONACHAN_DOMAIN))
-		return KONACHAN_UUID;
+		return KONACHAN_UID;
 	/* mangadrawing domain */
 	if (strstr(link, MANGADRAWING_DOMAIN))
-		return MANGADRAWING_UUID;
+		return MANGADRAWING_UID;
 	/* sankakucomplex domain */
 	if (strstr(link, SANKAKUCOMPLEX_DOMAIN))
-		return SANKAKUCOMPLEX_UUID;
+		return SANKAKUCOMPLEX_UID;
 	/* if the link given is a yandere domain */
 	if (strstr(link, YANDERE_DOMAIN))
-		return YANDERE_UUID;
+		return YANDERE_UID;
 	if (strstr(link, ZEROCHAN_DOMAIN))
-		return ZEROCHAN_UUID;
+		return ZEROCHAN_UID;
 	return 0;
 }
 
