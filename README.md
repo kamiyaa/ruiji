@@ -9,7 +9,7 @@ and prompt the user which one to download.
 
 ## Dependencies
  - GNU Make
- - c library supporting: gnu99
+ - c library supporting c99
  - libcurl (preferably version >=7.51)
    - Must be built against either >=GnuTLS-3.3.24 or >=OpenSSL-1.1.0c
      - could work with other libraries (such as nss), but have not been tested
