@@ -11,58 +11,66 @@ struct similar_image_llnode *create_image_list(char *html_content,
 
 	const char iqdb_result_uid[] =
 		"match</th></tr><tr><td class='image'><a href=\"";
-	/* Get length of the string we are looking for and search for it */
+	/* get length of the string we are looking for and search for it */
 	const unsigned int iqdb_result_len = strlen(iqdb_result_uid);
-
+	/* get size of node for memory allocations later */
 	const int node_size = sizeof(struct similar_image_llnode);
 
-
-	struct similar_image_llnode *image_list = NULL;
-
-	/* Check if matching string is found */
+	/* check if matching string is found */
 	char *url_begin = strstr(html_content, iqdb_result_uid);
 	if (url_begin == NULL) {
 		fprintf(stderr, "Error: Failed to populate similar image database: No results found!\n");
-		return image_list;
+		return NULL;
 	}
 
+	/* initialize an empty linked list  */
+	struct similar_image_llnode *image_list = NULL;
+	/* initialize a double pointer for going through image_list */
 	struct similar_image_llnode **list_ptr = &(image_list);
 
 	/* Go through the data and get every valid link to a similar image */
 	while (url_begin) {
-		/* Get where the url of weblink begins */
+		/* move url_begin to where the url starts */
 		url_begin = &(url_begin[iqdb_result_len]);
 
 		char *walker = url_begin;
 
-		/* Go through the string, looking for '"'. Once found,
-		 * slice the string */
+		/* get how far url_begin is from the first " */
 		int url_len = get_distance(url_begin, '"');
 
 		unsigned short similarity = 0;
 		unsigned int x = 0, y = 0;
 
 		if (url_len > 0) {
+			/* parse dimensions of image */
 			walker = parse_xy_img_dimensions(walker, &x, &y);
+			/* parse similarity percentage of image */
 			walker = parse_percent_similar(walker, &similarity);
 
+			/* slice string where first " is */
 			url_begin[url_len] = '\0';
 		}
 
-		/* If the image passes given threshold, add it to
-		 * the collection of similar images */
+		/* If the image passes given threshold, add it to list of
+		 * similar images */
 		if (similarity >= similar_threshold) {
 			/* Create a new similar_image struct to
 			 * hold all the image's information */
 			struct similar_image *image =
 				create_sim_image(url_begin, similarity, x, y);
+
 			/* allocate memory for node */
 			*list_ptr = malloc(node_size);
 
 			(*list_ptr)->image = image;
 			(*list_ptr)->next = NULL;
-			list_ptr = &((*list_ptr)->next);
 
+			/* set list_ptr to point to the next node */
+			list_ptr = &((*list_ptr)->next);
+		}
+
+		if (url_len > 0) {
+			/* unslice string */
 			url_begin[url_len] = '"';
 		}
 

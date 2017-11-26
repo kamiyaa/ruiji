@@ -25,10 +25,14 @@ struct ruiji_cmd_args {
 	char *file;
 };
 
+void set_default_opt(struct ruiji_cmd_args *arg_opt);
+error_t parse_opt(int key, char *arg, struct argp_state *state);
+int validate_upload_file(char *file_name);
+short initialize(struct similar_image_llnode *image_list);
+
 
 /* create new arguments struct for ruiji and set them to default values */
 static struct ruiji_cmd_args cmd_args;
-
 
 /* struct for command line argument options */
 static struct argp_option options[] = {
@@ -47,6 +51,10 @@ static struct argp_option options[] = {
 	{ 0 }
 };
 
+static struct argp ruiji_args = {
+	options, parse_opt
+};
+
 
 /* set default command line options */
 void set_default_opt(struct ruiji_cmd_args *arg_opt)
@@ -58,7 +66,6 @@ void set_default_opt(struct ruiji_cmd_args *arg_opt)
 	arg_opt->showversion = 0;
 	arg_opt->threshold = 0;
 }
-
 
 /* Parse and process command line arguments */
 error_t parse_opt(int key, char *arg, struct argp_state *state)
@@ -96,11 +103,6 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
 	return 0;
 }
 
-
-static struct argp ruiji_args = {
-	options, parse_opt
-};
-
 int validate_upload_file(char *file_name)
 {
 	int valid = 0;
@@ -129,7 +131,8 @@ int validate_upload_file(char *file_name)
 	return valid;
 }
 
-short initialize(struct similar_image_llnode *image_list) {
+short initialize(struct similar_image_llnode *image_list)
+{
 	short exit_code = 0;
 
 	/* initialize image selection to 0 */
@@ -259,6 +262,8 @@ int main(int argc, char *argv[])
 	 * to the uploaded image */
 	struct similar_image_llnode *image_list =
 		create_image_list(iqdb_html, cmd_args.threshold);
+	/* free up allocated memory */
+	free(iqdb_html);
 
 	printf("\n");
 
@@ -271,10 +276,8 @@ int main(int argc, char *argv[])
 	}
 
 	/* free up allocated memory */
-	free(iqdb_html);
-
-	/* free up allocated memory */
 	free_similar_image_list(image_list);
+
 	/* clean up curl */
 	ruiji_curl_cleanup();
 
