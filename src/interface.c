@@ -139,8 +139,7 @@ void print_help(void)
 	puts("  -t --threshold <0-100> Only process and show images above given");
 	puts("             \t\t similarity percentage");
 	puts("  -T --tags \t\t Shows the tags associated with the image downloaded");
-	puts("  -v --verbose \t\t Show verbose output");
-	puts("  -V --version \t\t Show version number and quit");
+	puts("  -v --version \t\t Show version number and quit");
 	puts("  -y --noprompt \t Skips user interactions and downloads");
 	puts("                \t the most similar image");
 	puts("\nreport bugs to https://github.com/Kamiyaa/ruiji");

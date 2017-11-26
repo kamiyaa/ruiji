@@ -38,8 +38,7 @@ Usage: ruiji [options] [file]
   -t --threshold <0-100> Only process and show images above given
 			 similarity percentage
   -T --tags		 Shows the tags associated with the image downloaded
-  -v --verbose		 Show verbose output
-  -V --version		 Show version number and quit
+  -v --version		 Show version number and quit
   -y --noprompt		 Skips user interactions and downloads
 			 the most similar image
 ```
