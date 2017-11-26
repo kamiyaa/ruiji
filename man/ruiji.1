@@ -7,7 +7,7 @@ ruiji \- reverse image searching program using iqdb.org
 ruiji [options] [image file]
 
 .SH "DESCRIPTION"
-Command that uploads a supported image format to http://iqdb.org, parses the subsequent html for similar image results and prompt the user which one to download.
+Command line program that uploads a supported image format to http://iqdb.org, parses the subsequent html for similar image results and prompt the user which one to download.
 
 .SH "OPTIONS"
 .sp
@@ -27,9 +27,9 @@ Suppress verbose output (currently, doesn't work)\&.
 Only show images above certain similarity percentage (default: 0)\&.
 .RE
 .PP
-\fB\-v, --verbose\fR
+\fB\-v, --version\fR
 .RS 4
-Show verbose output\&.
+Show version number and quit\&.
 .RE
 .PP
 \fB\-y, --noprompt\fR
@@ -42,8 +42,5 @@ Skips user interactions and downloads the most similar image\&.
 Show tags of downloaded image\&.
 .RE
 .PP
-\fB\-V, --version\fR
-.RS 4
-Show version number and quit\&.
-.RE
-.PP
+
+.SH "SEE ALSO"
