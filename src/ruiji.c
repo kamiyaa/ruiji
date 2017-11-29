@@ -133,8 +133,6 @@ int validate_upload_file(char *file_name)
 
 short initialize(struct similar_image_llnode *image_list)
 {
-	short exit_code = 0;
-
 	/* initialize image selection to 0 */
 	short user_input = 0;
 	unsigned int image_list_size = 1;
@@ -150,7 +148,7 @@ short initialize(struct similar_image_llnode *image_list)
 
 	if (user_input < 0 || user_input >= image_list_size) {
 		fprintf(stderr, "Error: Invalid option selected\n");
-		exit_code = 1;
+		return 1;
 	}
 	else {
 		struct similar_image_llnode *list_ptr = image_list;
@@ -162,6 +160,7 @@ short initialize(struct similar_image_llnode *image_list)
 
 		/* get internal uid of domain */
 		int domain_uid = get_domain_uid(dl_image->post_link);
+		/* get api link for post_link */
 		char *api_link = generate_api_link(domain_uid,
 			dl_image->post_link);
 
@@ -170,7 +169,7 @@ short initialize(struct similar_image_llnode *image_list)
 		free(api_link);
 
 		/* used to know where to slice string for getting
-		 * file name. Default is NULL character */
+		 * file name. Default is \0 */
 		char stop_seq = '\0';
 		/* parse for the source url of the image */
 		char *dl_url = get_image_source_url(domain_uid,
@@ -212,15 +211,15 @@ short initialize(struct similar_image_llnode *image_list)
 			free(dl_url);
 
 		}
+		if (api_content)
+			free(api_content);
 		/* Report back to the user how the download went */
 		if (dl_state) {
 			fprintf(stderr, "Error: Download failed\n");
-			exit_code = 1;
+			return 1;
 		}
-		if (api_content)
-			free(api_content);
 	}
-	return exit_code;
+	return 0;
 }
 
 int main(int argc, char *argv[])

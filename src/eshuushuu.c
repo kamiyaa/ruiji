@@ -11,8 +11,8 @@
 char *eshuushuu_get_image_url(char *html_content)
 {
 	/* constants used to find values */
-	const char eshuushuu_url[] = "http://e-shuushuu.net";
-	const char source_uuid[] = "<a class=\"thumb_image\" href=\"";
+	const char *eshuushuu_url = "http://e-shuushuu.net";
+	const char *source_uuid = "<a class=\"thumb_image\" href=\"";
 	const char source_end = '"';
 
 	const unsigned int len_source_uuid = strlen(source_uuid);
@@ -53,10 +53,10 @@ char *eshuushuu_get_image_url(char *html_content)
 struct image_tag_db *eshuushuu_get_image_tags(char *html_content)
 {
 
-	char artist_tag_uuid[] = "Artist:";
-	char character_tag_uuid[] = "Characters:";
-	char copyright_tag_uuid[] = "Source:";
-	char general_tag_uuid[] = "Tags:";
+	char *artist_tag_uuid = "Artist:";
+	char *character_tag_uuid = "Characters:";
+	char *copyright_tag_uuid = "Source:";
+	char *general_tag_uuid = "Tags:";
 
 	/* offset html_content first for easier parsing */
 	html_content = strstr(html_content, "<dt>Dimensions:</dt>");
@@ -98,13 +98,14 @@ struct image_tag_db *eshuushuu_get_image_tags(char *html_content)
 struct llnode *eshuushuu_parse_tags_html(char *tag_pattern, char *html_content,
 	unsigned int *size)
 {
-	const char tags_uuid[] = "<span class='tag'>\"<a href=\"";
+	const char *tags_uuid = "<span class='tag'>\"<a href=\"";
+	const char *tags_end = "</dd>";
 	const int tag_uuid_len = strlen(tags_uuid);
-	const char tags_end[] = "</dd>";
 
 	char *html_ptr = strstr(html_content, tag_pattern);
 	char *end_ptr = strstr(html_ptr, tags_end);
 
+	/* if we found an ending point to the string, terminate it there */
 	if (end_ptr) {
 		end_ptr[0] = '\0';
 

@@ -11,9 +11,9 @@
 char *yandere_get_image_url(char *html_content)
 {
 	/* constants used to find values */
-	const char png_source_uuid[] = "<li><a class=\"original-file-unchanged\"";
-	const char jpg_source_uuid[] = "<li><a class=\"original-file-changed\"";
-	const char url_uuid[] = "href=\"";
+	const char *png_source_uuid = "<li><a class=\"original-file-unchanged\"";
+	const char *jpg_source_uuid = "<li><a class=\"original-file-changed\"";
+	const char *url_uuid = "href=\"";
 
 	const unsigned int len_png = strlen(png_source_uuid);
 	const unsigned int len_jpg = strlen(jpg_source_uuid);
@@ -66,7 +66,7 @@ char *yandere_get_image_url(char *html_content)
 struct image_tag_db *yandere_get_image_tags(char *html_content)
 {
 	/* constants for finding values */
-	const char tags_uuid[] = "\"tags\":{";
+	const char *tags_uuid = "\"tags\":{";
 	const char tags_end = '}';
 	const char tag_category_uuid = ':';
 	const char tag_name_uuid = ',';

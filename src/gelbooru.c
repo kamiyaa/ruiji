@@ -10,7 +10,7 @@
  */
 char *gelbooru_get_image_url(char *html_content)
 {
-	const char source_uuid[] = ">Resize image</a></li><li><a href=\"";
+	const char *source_uuid = ">Resize image</a></li><li><a href=\"";
 	const unsigned int source_uuid_len = strlen(source_uuid);
 
 	/* initialize the image source url to be returned later */
@@ -44,11 +44,11 @@ char *gelbooru_get_image_url(char *html_content)
 
 struct image_tag_db *gelbooru_get_image_tags(char *html_content)
 {
-	const char tags_uuid[] = "<h3>Tags</h3>";
-	const char tags_end[] = "<br />";
-	const char tag_category_uuid[] = "class=\"tag-type-";
+	const char *tags_uuid = "<h3>Tags</h3>";
+	const char *tags_end = "<br />";
+	const char *tag_category_uuid = "class=\"tag-type-";
 	const char tag_category_end = '"';
-	const char tag_name_uuid[] = "page=post&amp;s=list&amp;tags=";
+	const char *tag_name_uuid = "page=post&amp;s=list&amp;tags=";
 	const char tag_name_end = tag_category_end;
 
 	/* offsets from actual value */

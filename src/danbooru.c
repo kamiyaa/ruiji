@@ -8,7 +8,7 @@
 char *danbooru_generate_api_url(char *url)
 {
 	/* constants used to find values */
-	const char json_fformat[] = ".json";
+	const char *json_fformat = ".json";
 	const unsigned int json_len = strlen(json_fformat);
 	unsigned int url_len = strlen(url);
 
@@ -24,10 +24,10 @@ char *danbooru_get_image_url_json(char *json_content)
 {
 
 	/* constants used to find values */
-	const char danbooru_url[] = "https://danbooru.donmai.us";
+	const char *danbooru_url = "https://danbooru.donmai.us";
 	const unsigned int danbooru_url_len = strlen(danbooru_url);
 
-	const char source_uuid[] = "\"file_url\":\"";
+	const char *source_uuid = "\"file_url\":\"";
 	const unsigned int source_uuid_len = strlen(source_uuid);
 
 	const char source_end = '"';
@@ -63,10 +63,10 @@ char *danbooru_get_image_url_json(char *json_content)
 
 struct image_tag_db *danbooru_get_image_tags_json(char *json_content)
 {
-	char artist_tag_uuid[] = "\"tag_string_artist\":\"";
-	char character_tag_uuid[] = "\"tag_string_character\":\"";
-	char copyright_tag_uuid[] = "\"tag_string_copyright\":\"";
-	char general_tag_uuid[] = "\"tag_string_general\":\"";
+	char *artist_tag_uuid = "\"tag_string_artist\":\"";
+	char *character_tag_uuid = "\"tag_string_character\":\"";
+	char *copyright_tag_uuid = "\"tag_string_copyright\":\"";
+	char *general_tag_uuid = "\"tag_string_general\":\"";
 
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();

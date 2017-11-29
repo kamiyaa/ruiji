@@ -12,10 +12,10 @@
 char *konachan_get_image_url(char *html_content)
 {
 	/* constants used to find values */
-	const char png_source_uuid[] = "<li><a class=\"original-file-unchanged\" href=\"";
-	const char jpg_source_uuid[] = "<li><a class=\"original-file-changed\" href=\"";
+	const char *png_source_uuid = "<li><a class=\"original-file-unchanged\" href=\"";
+	const char *jpg_source_uuid = "<li><a class=\"original-file-changed\" href=\"";
 	const char source_end = '"';
-	const char http[] = "http:";
+	const char *http = "http:";
 
 	const unsigned int len_png = strlen(png_source_uuid);
 	const unsigned int len_jpg = strlen(jpg_source_uuid);

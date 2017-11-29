@@ -11,8 +11,8 @@
 char *sankakucomplex_get_image_url(char *html_content)
 {
 	/* constants for finding values */
-	const char https[] = "https:";
-	const char source_uuid[] = "<li>Original: <a href=\"";
+	const char *https = "https:";
+	const char *source_uuid = "<li>Original: <a href=\"";
 	const char source_end = '"';
 
 	const unsigned int len_https = strlen(https);
@@ -53,11 +53,11 @@ char *sankakucomplex_get_image_url(char *html_content)
 struct image_tag_db *sankakucomplex_get_image_tags(char *html_content)
 {
 	/* constants for finding values */
-	const char tags_uuid[] = "<h5>Tags</h5>";
-	const char tags_end[] = "</ul>";
-	const char tag_category_uuid[] = "<li class=tag-type-";
+	const char *tags_uuid = "<h5>Tags</h5>";
+	const char *tags_end = "</ul>";
+	const char *tag_category_uuid = "<li class=tag-type-";
 	const char tag_category_end = '>';
-	const char tag_name_uuid[] = "href=\"/?tags=";
+	const char *tag_name_uuid = "href=\"/?tags=";
 	const char tag_name_end = '"';
 
 	/* offsets from actual value */

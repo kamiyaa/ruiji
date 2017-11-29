@@ -10,7 +10,7 @@
  */
 char *zerochan_get_image_url(char *html_content)
 {
-	const char source_uuid[] = "fullsizeUrl = '";
+	const char *source_uuid = "fullsizeUrl = '";
 	const char source_end = '\'';
 
 	const unsigned int len_source_uuid = strlen(source_uuid);
