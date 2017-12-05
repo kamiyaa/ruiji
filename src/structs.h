@@ -15,8 +15,9 @@ struct html_data {
 
 /* struct for holding all image tags */
 struct image_tag_db {
-	/* artist, character, circle, copyright, fault, general tags respectively */
+	/* artist, character, circle, copyright, meta, general tags respectively */
 	struct llnode *tags[6];
+	/* how many of those tags are there */
 	unsigned int tag_size[6];
 };
 

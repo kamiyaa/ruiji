@@ -67,6 +67,8 @@ struct image_tag_db *danbooru_get_image_tags_json(char *json_content)
 	char *character_tag_uuid = "\"tag_string_character\":\"";
 	char *copyright_tag_uuid = "\"tag_string_copyright\":\"";
 	char *general_tag_uuid = "\"tag_string_general\":\"";
+	char *meta_tag_uuid = "\"tag_string_meta\":\"";
+
 
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
@@ -90,6 +92,13 @@ struct image_tag_db *danbooru_get_image_tags_json(char *json_content)
 		copyright_tag_uuid,
 		json_content,
 		&(tag_db->tag_size[3])
+		);
+
+	/* populate meta tags */
+	tag_db->tags[4] = danbooru_parse_tags_json(
+		meta_tag_uuid,
+		json_content,
+		&(tag_db->tag_size[4])
 		);
 
 	/* populate general tags */

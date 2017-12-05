@@ -53,7 +53,7 @@ void print_image_tags(struct image_tag_db *tag_db)
 		"character",
 		"circle",
 		"copyright",
-		"fault",
+		"meta",
 		"general"
 	};
 	const char *color_scheme[] = {
