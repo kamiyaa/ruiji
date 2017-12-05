@@ -61,7 +61,7 @@ void print_image_tags(struct image_tag_db *tag_db)
 		character_tag_color,
 		circle_tag_color,
 		copyright_tag_color,
-		fault_tag_color,
+		meta_tag_color,
 		general_tag_color
 	};
 
