@@ -51,6 +51,4 @@ Currently supports:
  - https://konachan.com/
  - https://chan.sankakucomplex.com/
  - https://yande.re/
- - http://www.zerochan.net/ **
-
-_\*\* does not support tag parsing._
+ - http://www.zerochan.net/
