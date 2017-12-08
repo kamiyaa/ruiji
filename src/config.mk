@@ -1,7 +1,7 @@
 # compiler and linker
-# change to clang for clang compiler
 CC = cc
 
+# standard library to use
 STD = -std=c99
 
 # cflags
