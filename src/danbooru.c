@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "danbooru.h"
@@ -12,7 +12,7 @@ char *danbooru_generate_api_url(char *url)
 	const unsigned int json_len = strlen(json_fformat);
 	unsigned int url_len = strlen(url);
 
-	char *api_url = malloc(CHAR_SIZE * (url_len + json_len + 1));
+	char *api_url = malloc(sizeof(char) * (url_len + json_len + 1));
 
 	strncpy(api_url, url, url_len);
 	strncpy(&(api_url[url_len]), json_fformat, json_len + 1);
@@ -47,7 +47,7 @@ char *danbooru_get_image_url_json(char *json_content)
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(CHAR_SIZE *
+		img_src_url = malloc(sizeof(char) *
 					(url_len + danbooru_url_len + 1));
 		strncpy(img_src_url, danbooru_url, danbooru_url_len);
 		strncpy(&(img_src_url[danbooru_url_len]),
@@ -143,14 +143,14 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *json_content,
 
 	while (tag_name_len > 0) {
 		/* allocate enough memory for the tag name + null terminator */
-		char *tag_name = malloc(CHAR_SIZE * (tag_name_len + 1));
+		char *tag_name = malloc(sizeof(char) * (tag_name_len + 1));
 		/* copy tag name to tag_name */
 		strncpy(tag_name, json_ptr, tag_name_len);
 		tag_name[tag_name_len] = '\0';
 
 
 		/* allocate memory for a llnode */
-		*tags_ptr = malloc(LLNODE_SIZE);
+		*tags_ptr = malloc(sizeof(struct llnode));
 		/* set next to NULL and data to tag_name */
 		(*tags_ptr)->next = NULL;
 		(*tags_ptr)->data = tag_name;

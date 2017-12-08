@@ -34,7 +34,7 @@ char *eshuushuu_get_image_url(char *html_content)
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(CHAR_SIZE *
+		img_src_url = malloc(sizeof(char) *
 					(len_eshuushuu_url + url_len + 1));
 
 		strncpy(img_src_url, eshuushuu_url, len_eshuushuu_url);
@@ -128,13 +128,13 @@ struct llnode *eshuushuu_parse_tags_html(char *tag_pattern, char *html_content,
 
 		/* allocate enough memory for the tag name +
 		 * null terminator */
-		char *tag_name = malloc(CHAR_SIZE * (tag_name_len + 1));
+		char *tag_name = malloc(sizeof(char) * (tag_name_len + 1));
 		/* copy tag name to tag_name */
 		strncpy(tag_name, html_ptr, tag_name_len);
 		tag_name[tag_name_len] = '\0';
 
 		/* allocate memory for a llnode */
-		*tags_ptr = malloc(LLNODE_SIZE);
+		*tags_ptr = malloc(sizeof(struct llnode));
 		/* set next to NULL and data to tag_name */
 		(*tags_ptr)->next = NULL;
 		(*tags_ptr)->data = tag_name;

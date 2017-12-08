@@ -29,7 +29,7 @@ char *gelbooru_get_image_url(char *html_content)
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(CHAR_SIZE * (url_len + 1));
+		img_src_url = malloc(sizeof(char) * (url_len + 1));
 		strncpy(img_src_url, source_index, url_len);
 		img_src_url[url_len] = '\0';
 	}
@@ -99,13 +99,13 @@ struct image_tag_db *gelbooru_get_image_tags(char *html_content)
 		int tag_name_len = get_distance(tag_contents, tag_name_end);
 
 		/* allocate enough memory for the tag name + null terminator */
-		char *tag_name = malloc(CHAR_SIZE * (tag_name_len + 1));
+		char *tag_name = malloc(sizeof(char) * (tag_name_len + 1));
 		strncpy(tag_name, tag_contents, tag_name_len);
 		tag_name[tag_name_len] = '\0';
 
 
 		/* allocate memory for node */
-		*(tag_ptrs[tag_index]) = malloc(LLNODE_SIZE);
+		*(tag_ptrs[tag_index]) = malloc(sizeof(struct llnode));
 
 		(*(tag_ptrs[tag_index]))->next = NULL;
 		(*(tag_ptrs[tag_index]))->data = tag_name;

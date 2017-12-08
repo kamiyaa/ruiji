@@ -103,12 +103,12 @@ struct similar_image *create_sim_image(char *web_url,
 
 		len_url += prefix_len;
 
-		image->post_link = malloc(CHAR_SIZE * len_url);
+		image->post_link = malloc(sizeof(char) * len_url);
 		strcpy(image->post_link, prefix_add);
 		strcat(image->post_link, web_url);
 	}
 	else {
-		image->post_link = malloc(CHAR_SIZE * len_url);
+		image->post_link = malloc(sizeof(char) * len_url);
 		strcpy(image->post_link, web_url);
 	}
 	return image;
@@ -137,7 +137,7 @@ char *generate_api_link(int domain_uid, char *post_link)
 	/* zerochan domain */
 	case ZEROCHAN_UID:
 	default:
-		api_url = malloc(sizeof(CHAR_SIZE) * (strlen(post_link) + 1));
+		api_url = malloc(sizeof(sizeof(char)) * (strlen(post_link) + 1));
 		strcpy(api_url, post_link);
 		break;
 	}
@@ -230,6 +230,8 @@ struct image_tag_db *get_image_tags(int domain_uid, char *html_content)
 		break;
 	case MANGADRAWING_UID:
 	case ZEROCHAN_UID:
+		tags_db = zerochan_get_image_tags_html(html_content);
+		break;
 	default:
 		tags_db = init_image_tag_db();
 		break;
@@ -284,7 +286,7 @@ char *get_server_file_name(char *web_url, char stop)
 		filename_len = get_distance(name_start, stop);
 
 	/* Allocate enough memory for the file name */
-	char *file_name = malloc(CHAR_SIZE * (filename_len + 1));
+	char *file_name = malloc(sizeof(char) * (filename_len + 1));
 
 	/* copy the file name to file_name and null terminate the string */
 	strncpy(file_name, name_start, filename_len);

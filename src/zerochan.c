@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "zerochan.h"
@@ -30,7 +30,7 @@ char *zerochan_get_image_url(char *html_content)
 
 		/* allocate enough memory to hold the image source url,
 		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(CHAR_SIZE * (url_len + 1));
+		img_src_url = malloc(sizeof(char) * (url_len + 1));
 		strncpy(img_src_url, source_index, url_len);
 		img_src_url[url_len] = '\0';
 	}
@@ -41,4 +41,71 @@ char *zerochan_get_image_url(char *html_content)
 
 	/* return the image source url */
 	return img_src_url;
+}
+
+struct image_tag_db *zerochan_get_image_tags_html(char *html_content)
+{
+	const char *tags_uuid = "alt=\"Tags: ";
+	const char tag_name_uuid = ',';
+	const char tags_end = '"';
+	const unsigned int initial_offset = strlen(tags_uuid);
+
+	int tag_name_len = 0;
+
+	/* set tag_ptr to the beginning in which the tags begin */
+	char *tag_contents = strstr(html_content, tags_uuid);
+	if (tag_contents) {
+		/* move pointer to start of tag */
+		tag_contents = &(tag_contents[initial_offset]);
+
+		/* get the end of tags section and slice string at the end */
+		int tag_contents_end = get_distance(tag_contents, tags_end);
+
+		/* slice string */
+		tag_contents[tag_contents_end] = '\0';
+
+		tag_name_len = get_distance(tag_contents, tag_name_uuid);
+	}
+
+	/* initialize a tags database to store tags */
+	struct image_tag_db *tag_db = init_image_tag_db();
+	struct llnode **tag_ptrs[6] = {
+		&(tag_db->tags[0]),
+		&(tag_db->tags[1]),
+		&(tag_db->tags[2]),
+		&(tag_db->tags[3]),
+		&(tag_db->tags[4]),
+		&(tag_db->tags[5])
+	};
+
+	int tag_type = 5;
+
+	while (tag_name_len > 0) {
+
+		/* allocate enough memory for the tag name + null terminator */
+		char *tag_name = malloc(sizeof(char) * (tag_name_len + 1));
+		strncpy(tag_name, tag_contents, tag_name_len);
+		tag_name[tag_name_len] = '\0';
+
+		/* allocate memory for node */
+		*(tag_ptrs[tag_type]) = malloc(sizeof(struct llnode));
+		/* set next to NULL and data to tag_name */
+		(*(tag_ptrs[tag_type]))->next = NULL;
+		(*(tag_ptrs[tag_type]))->data = tag_name;
+
+		/* set tag_ptrs to next node */
+		tag_ptrs[tag_type] = &((*(tag_ptrs[tag_type]))->next);
+
+		/* increment the amount of tags in this category we currently
+		 * found */
+		(tag_db->tag_size[tag_type])++;
+
+		/* move on to next tag */
+		tag_contents = &(tag_contents[tag_name_len + 1]);
+
+		/* search for next tag */
+		tag_name_len = get_distance(tag_contents, tag_name_uuid);
+	}
+
+	return tag_db;
 }

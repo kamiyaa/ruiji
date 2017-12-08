@@ -1,9 +1,6 @@
 #include "interface.h"
 #include "udload.h"
 
-static const int CHAR_SIZE = sizeof(char);
-static const int LLNODE_SIZE = sizeof(struct llnode);
-
 
 /* Given the html contents of http://iqdb.org after an image has been uploaded,
  * parse all the results and store them in a linked list.
