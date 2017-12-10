@@ -56,12 +56,16 @@ struct image_tag_db *gelbooru_get_image_tags(char *html_content)
 	const unsigned int category_offset = strlen(tag_category_uuid);
 	const unsigned int name_offset = strlen(tag_name_uuid);
 
+	/* pointer pointing to the end of tag string */
+	char *end_ptr = NULL;
+
 	/* set tag_ptr to the beginning in which the tags begin */
 	char *tag_contents = strstr(html_content, tags_uuid);
 	if (tag_contents) {
 		tag_contents = &(tag_contents[initial_offset]);
-		char *tag_contents_end = strstr(tag_contents, tags_end);
-		tag_contents_end[0] = '\0';
+		end_ptr = strstr(tag_contents, tags_end);
+		if (end_ptr)
+			*end_ptr = '\0';
 	}
 
 	/* initialize a tags database to store tags */
@@ -121,6 +125,9 @@ struct image_tag_db *gelbooru_get_image_tags(char *html_content)
 		tag_contents = &(tag_contents[tag_name_len]);
 		tag_contents = strstr(tag_contents, tag_category_uuid);
 	}
+	/* unslice the string */
+	if (end_ptr)
+		*end_ptr = tags_end[0];
 
 	return tag_db;
 }
