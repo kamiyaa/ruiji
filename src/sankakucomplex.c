@@ -8,7 +8,7 @@
 /* Given a https://chan.sankakucomplex.com url,
  * parse the html to get the source image url
  */
-char *sankakucomplex_get_image_url(char *html_content)
+char *sankakucomplex_get_image_url(char *web_content)
 {
 	/* constants for finding values */
 	const char *https = "https:";
@@ -22,7 +22,7 @@ char *sankakucomplex_get_image_url(char *html_content)
 	char *img_src_url = NULL;
 
 	/* Find the source image link */
-	char *source_index = strstr(html_content, source_uuid);
+	char *source_index = strstr(web_content, source_uuid);
 
 	/* If source image link is found,
 	 * add http extension to it and return it */
@@ -50,7 +50,7 @@ char *sankakucomplex_get_image_url(char *html_content)
 	return img_src_url;
 }
 
-struct image_tag_db *sankakucomplex_get_image_tags(char *html_content)
+struct image_tag_db *sankakucomplex_get_image_tags(char *web_content)
 {
 	/* constants for finding values */
 	const char *tags_uuid = "<h5>Tags</h5>";
@@ -69,7 +69,7 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *html_content)
 	char *end_ptr = NULL;
 
 	/* set tag_contents to the beginning in which the tags begin */
-	char *tag_contents = strstr(html_content, tags_uuid);
+	char *tag_contents = strstr(web_content, tags_uuid);
 	/* set pointer to beginning of first tag */
 	if (tag_contents) {
 		/* slice string at where all tags section ends */

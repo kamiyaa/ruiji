@@ -8,7 +8,7 @@
 /* Given a http://gelbooru.com/ url,
  * parse the html to get the source image url
  */
-char *gelbooru_get_image_url(char *html_content)
+char *gelbooru_get_image_url(char *web_content)
 {
 	const char *source_uuid = ">Resize image</a></li><li><a href=\"";
 	const unsigned int source_uuid_len = strlen(source_uuid);
@@ -17,7 +17,7 @@ char *gelbooru_get_image_url(char *html_content)
 	char *img_src_url = NULL;
 
 	/* Find the source image link */
-	char *source_index = strstr(html_content, source_uuid);
+	char *source_index = strstr(web_content, source_uuid);
 
 	/* If found, add the danbooru url to it and return it */
 	if (source_index) {
@@ -42,7 +42,7 @@ char *gelbooru_get_image_url(char *html_content)
 	return img_src_url;
 }
 
-struct image_tag_db *gelbooru_get_image_tags(char *html_content)
+struct image_tag_db *gelbooru_get_image_tags(char *web_content)
 {
 	const char *tags_uuid = "<h3>Tags</h3>";
 	const char *tags_end = "<br />";
@@ -60,7 +60,7 @@ struct image_tag_db *gelbooru_get_image_tags(char *html_content)
 	char *end_ptr = NULL;
 
 	/* set tag_ptr to the beginning in which the tags begin */
-	char *tag_contents = strstr(html_content, tags_uuid);
+	char *tag_contents = strstr(web_content, tags_uuid);
 	if (tag_contents) {
 		tag_contents = &(tag_contents[initial_offset]);
 		end_ptr = strstr(tag_contents, tags_end);

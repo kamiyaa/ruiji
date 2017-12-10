@@ -8,7 +8,7 @@
 /* Given a https://yande.re/ url,
  * parse the html to get the source image url
  */
-char *yandere_get_image_url(char *html_content)
+char *yandere_get_image_url(char *web_content)
 {
 	/* constants used to find values */
 	const char *png_source_uuid = "<li><a class=\"original-file-unchanged\"";
@@ -26,8 +26,8 @@ char *yandere_get_image_url(char *html_content)
 	char *source_index = NULL;
 
 	/* get png html pattern index and jpg html pattern index */
-	char *png_index = strstr(html_content, png_source_uuid);
-	char *jpg_index = strstr(html_content, jpg_source_uuid);
+	char *png_index = strstr(web_content, png_source_uuid);
+	char *jpg_index = strstr(web_content, jpg_source_uuid);
 
 
 	/* find source image link */
@@ -63,7 +63,7 @@ char *yandere_get_image_url(char *html_content)
 	return img_src_url;
 }
 
-struct image_tag_db *yandere_get_image_tags(char *html_content)
+struct image_tag_db *yandere_get_image_tags(char *web_content)
 {
 	/* constants for finding values */
 	const char *tags_uuid = "\"tags\":{";
@@ -82,7 +82,7 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 	char *end_ptr = NULL;
 
 	/* set tag_ptr to the beginning in which the tags begin */
-	char *tag_contents = strstr(html_content, tags_uuid);
+	char *tag_contents = strstr(web_content, tags_uuid);
 	if (tag_contents) {
 		/* move pointer to start of tag */
 		tag_contents = &(tag_contents[initial_offset]);

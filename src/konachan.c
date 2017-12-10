@@ -9,7 +9,7 @@
 /* Given a https://konachan.com/ url,
  * parse the html to get the source image url
  */
-char *konachan_get_image_url(char *html_content)
+char *konachan_get_image_url(char *web_content)
 {
 	/* constants used to find values */
 	const char *png_source_uuid = "<li><a class=\"original-file-unchanged\" href=\"";
@@ -28,8 +28,8 @@ char *konachan_get_image_url(char *html_content)
 	char *source_index = NULL;
 
 	/* get png html pattern index and jpg html pattern index */
-	char *png_index = strstr(html_content, png_source_uuid);
-	char *jpg_index = strstr(html_content, jpg_source_uuid);
+	char *png_index = strstr(web_content, png_source_uuid);
+	char *jpg_index = strstr(web_content, jpg_source_uuid);
 
 	/* find source image link */
 	if (png_index)
@@ -60,8 +60,8 @@ char *konachan_get_image_url(char *html_content)
 	return img_src_url;
 }
 
-struct image_tag_db *konachan_get_image_tags(char *html_content)
+struct image_tag_db *konachan_get_image_tags(char *web_content)
 {
-	struct image_tag_db *tag_db = yandere_get_image_tags(html_content);
+	struct image_tag_db *tag_db = yandere_get_image_tags(web_content);
 	return tag_db;
 }

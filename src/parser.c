@@ -5,7 +5,7 @@
 #include "parser.h"
 #include "domains.h"
 
-struct similar_image_llnode *create_image_list(char *html_content,
+struct similar_image_llnode *create_image_list(char *web_content,
 	unsigned short similar_threshold)
 {
 
@@ -17,7 +17,7 @@ struct similar_image_llnode *create_image_list(char *html_content,
 	const int node_size = sizeof(struct similar_image_llnode);
 
 	/* check if matching string is found */
-	char *url_begin = strstr(html_content, iqdb_result_uid);
+	char *url_begin = strstr(web_content, iqdb_result_uid);
 	if (url_begin == NULL) {
 		fprintf(stderr, "Error: Failed to populate similar image database: No results found!\n");
 		return NULL;
@@ -157,43 +157,43 @@ int get_distance(char *string, char find)
 }
 
 /* Given a website url, a unique html pattern to look for and */
-char *get_image_source_url(int domain_uid, char *html_content, char *stop_seq)
+char *get_image_source_url(int domain_uid, char *web_content, char *stop_seq)
 {
 	char *dl_url;
 	switch (domain_uid) {
 	/* danbooru domain */
 	case DANBOORU_UID:
-		dl_url = danbooru_get_image_url_json(html_content);
+		dl_url = danbooru_get_image_url_json(web_content);
 		break;
 	/* eshuushuu domain */
 	case ESHUUSHUU_UID:
-		dl_url = eshuushuu_get_image_url(html_content);
+		dl_url = eshuushuu_get_image_url(web_content);
 		break;
 	/* gelbooru domain */
 	case GELBOORU_UID:
-		dl_url = gelbooru_get_image_url(html_content);
+		dl_url = gelbooru_get_image_url(web_content);
 		break;
 	/* konachan domain */
 	case KONACHAN_UID:
-		dl_url = konachan_get_image_url(html_content);
+		dl_url = konachan_get_image_url(web_content);
 		break;
 	/* mangadrawing domain */
 	case MANGADRAWING_UID:
-		dl_url = mangadrawing_get_image_url(html_content);
+		dl_url = mangadrawing_get_image_url(web_content);
 		break;
 	/* sankakucomplex domain */
 	case SANKAKUCOMPLEX_UID:
-		dl_url = sankakucomplex_get_image_url(html_content);
+		dl_url = sankakucomplex_get_image_url(web_content);
 		/* change the sequence to stop parsing at
 		 * to '?' for sankakucomplex */
 		*stop_seq = '?';
 		break;
 	/* yandere domain */
 	case YANDERE_UID:
-		dl_url = yandere_get_image_url(html_content);
+		dl_url = yandere_get_image_url(web_content);
 		break;
 	case ZEROCHAN_UID:
-		dl_url = zerochan_get_image_url(html_content);
+		dl_url = zerochan_get_image_url(web_content);
 		break;
 	default:
 		dl_url = NULL;
@@ -202,35 +202,35 @@ char *get_image_source_url(int domain_uid, char *html_content, char *stop_seq)
 	return dl_url;
 }
 
-struct image_tag_db *get_image_tags(int domain_uid, char *html_content)
+struct image_tag_db *get_image_tags(int domain_uid, char *web_content)
 {
 	struct image_tag_db *tags_db;
 
 	switch (domain_uid) {
 	/* danbooru domain */
 	case DANBOORU_UID:
-		tags_db = danbooru_get_image_tags_json(html_content);
+		tags_db = danbooru_get_image_tags_json(web_content);
 		break;
 	/* all others */
 	case ESHUUSHUU_UID:
-		tags_db = eshuushuu_get_image_tags(html_content);
+		tags_db = eshuushuu_get_image_tags(web_content);
 		break;
 	/* gelbooru domain */
 	case GELBOORU_UID:
-		tags_db = gelbooru_get_image_tags(html_content);
+		tags_db = gelbooru_get_image_tags(web_content);
 		break;
 	/* sankakucomplex domain */
 	case SANKAKUCOMPLEX_UID:
-		tags_db = sankakucomplex_get_image_tags(html_content);
+		tags_db = sankakucomplex_get_image_tags(web_content);
 		break;
 	/* if the link given is a yandere domain or konachan domain */
 	case KONACHAN_UID:
 	case YANDERE_UID:
-		tags_db = yandere_get_image_tags(html_content);
+		tags_db = yandere_get_image_tags(web_content);
 		break;
 	case MANGADRAWING_UID:
 	case ZEROCHAN_UID:
-		tags_db = zerochan_get_image_tags_html(html_content);
+		tags_db = zerochan_get_image_tags_html(web_content);
 		break;
 	default:
 		tags_db = init_image_tag_db();
@@ -307,16 +307,16 @@ struct image_tag_db *init_image_tag_db(void)
 	return tag_db;
 }
 
-char *parse_percent_similar(char* contents, unsigned short *similarity)
+char *parse_percent_similar(char* web_content, unsigned short *similarity)
 {
 	/* initialize pointer to hold where walker leaves off */
 	char *next_weblink = NULL;
 
 	const char *patterns[] = { "<td>" };
-	const int num_patterns = sizeof(patterns) / sizeof(char *);
+	const unsigned int num_patterns = sizeof(patterns) / sizeof(char *);
 
 	/* Set an arbitrary pointer to point to the first element of contents */
-	char *walker = contents;
+	char *walker = web_content;
 
 	int pattern_index = 0;
 	/* move walker to the beginning of image x,y dimensions */
@@ -335,7 +335,7 @@ char *parse_percent_similar(char* contents, unsigned short *similarity)
 	return next_weblink;
 }
 
-char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
+char *parse_xy_img_dimensions(char* web_content, unsigned int *x, unsigned int *y)
 {
 	/* initialize pointer to hold where walker leaves off */
 	char *next_weblink = NULL;
@@ -347,7 +347,7 @@ char *parse_xy_img_dimensions(char* contents, unsigned int *x, unsigned int *y)
 	const int num_patterns = sizeof(patterns) / sizeof(char *);
 
 	/* Set an arbitrary pointer to point to the first element of contents */
-	char *walker = contents;
+	char *walker = web_content;
 
 	int pattern_index = 0;
 	/* move walker to the beginning of image x,y dimensions */

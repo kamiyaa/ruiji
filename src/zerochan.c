@@ -8,7 +8,7 @@
 /* Given a http://www.zerochan.net/ url,
  * parse the html to get the source image url
  */
-char *zerochan_get_image_url(char *html_content)
+char *zerochan_get_image_url(char *web_content)
 {
 	const char *source_uuid = "fullsizeUrl = '";
 	const char source_end = '\'';
@@ -19,7 +19,7 @@ char *zerochan_get_image_url(char *html_content)
 	char *img_src_url = NULL;
 
 	/* Find the source image link */
-	char *source_index = strstr(html_content, source_uuid);
+	char *source_index = strstr(web_content, source_uuid);
 
 	/* If found, return it */
 	if (source_index) {
@@ -43,7 +43,7 @@ char *zerochan_get_image_url(char *html_content)
 	return img_src_url;
 }
 
-struct image_tag_db *zerochan_get_image_tags_html(char *html_content)
+struct image_tag_db *zerochan_get_image_tags_html(char *web_content)
 {
 	const char *tags_uuid = "alt=\"Tags: ";
 	const char tag_name_uuid = ',';
@@ -57,7 +57,7 @@ struct image_tag_db *zerochan_get_image_tags_html(char *html_content)
 	char *end_ptr = NULL;
 
 	/* set tag_ptr to the beginning in which the tags begin */
-	char *tag_contents = strstr(html_content, tags_uuid);
+	char *tag_contents = strstr(web_content, tags_uuid);
 	if (tag_contents) {
 		/* move pointer to start of tag */
 		tag_contents = &(tag_contents[initial_offset]);

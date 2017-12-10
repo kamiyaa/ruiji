@@ -20,7 +20,7 @@ char *danbooru_generate_api_url(char *url)
 	return api_url;
 }
 
-char *danbooru_get_image_url_json(char *json_content)
+char *danbooru_get_image_url_json(char *web_content)
 {
 
 	/* constants used to find values */
@@ -35,7 +35,7 @@ char *danbooru_get_image_url_json(char *json_content)
 	/* initialize the image source url to be returned later */
 	char *img_src_url = NULL;
 
-	char *source_index = strstr(json_content, source_uuid);
+	char *source_index = strstr(web_content, source_uuid);
 	/* If source image link is found,
 	 * add the danbooru url to it and return it */
 	if (source_index) {
@@ -61,7 +61,7 @@ char *danbooru_get_image_url_json(char *json_content)
 	return img_src_url;
 }
 
-struct image_tag_db *danbooru_get_image_tags_json(char *json_content)
+struct image_tag_db *danbooru_get_image_tags_json(char *web_content)
 {
 	char *artist_tag_uuid = "\"tag_string_artist\":\"";
 	char *character_tag_uuid = "\"tag_string_character\":\"";
@@ -69,49 +69,48 @@ struct image_tag_db *danbooru_get_image_tags_json(char *json_content)
 	char *general_tag_uuid = "\"tag_string_general\":\"";
 	char *meta_tag_uuid = "\"tag_string_meta\":\"";
 
-
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
 
 	/* populate artist tags */
 	tag_db->tags[0] = danbooru_parse_tags_json(
 		artist_tag_uuid,
-		json_content,
+		web_content,
 		&(tag_db->tag_size[0])
 		);
 
 	/* populate character tags */
 	tag_db->tags[1] = danbooru_parse_tags_json(
 		character_tag_uuid,
-		json_content,
+		web_content,
 		&(tag_db->tag_size[1])
 		);
 
 	/* populate copyright tags */
 	tag_db->tags[3] = danbooru_parse_tags_json(
 		copyright_tag_uuid,
-		json_content,
+		web_content,
 		&(tag_db->tag_size[3])
 		);
 
 	/* populate meta tags */
 	tag_db->tags[4] = danbooru_parse_tags_json(
 		meta_tag_uuid,
-		json_content,
+		web_content,
 		&(tag_db->tag_size[4])
 		);
 
 	/* populate general tags */
 	tag_db->tags[5] = danbooru_parse_tags_json(
 		general_tag_uuid,
-		json_content,
+		web_content,
 		&(tag_db->tag_size[5])
 		);
 
 	return tag_db;
 }
 
-struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *json_content,
+struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *web_content,
 	unsigned int *size)
 {
 	const char tags_end = ',';
@@ -121,8 +120,8 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *json_content,
 
 	int tag_len = strlen(tag_pattern);
 
-	/* look for the pattern in json_content */
-	char *json_ptr = strstr(json_content, tag_pattern);
+	/* look for the pattern in web_content */
+	char *json_ptr = strstr(web_content, tag_pattern);
 	if (json_ptr) {
 		/* if we found the pattern, set json_ptr to the end
 		 * of the pattern */

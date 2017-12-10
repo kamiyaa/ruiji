@@ -8,7 +8,7 @@
 /* Given a http://e-shuushuu.net url,
  * parse the html to get the source image url
  */
-char *eshuushuu_get_image_url(char *html_content)
+char *eshuushuu_get_image_url(char *web_content)
 {
 	/* constants used to find values */
 	const char *eshuushuu_url = "http://e-shuushuu.net";
@@ -22,7 +22,7 @@ char *eshuushuu_get_image_url(char *html_content)
 	char *img_src_url = NULL;
 
 	/* Find the source image link */
-	char *source_index = strstr(html_content, source_uuid);
+	char *source_index = strstr(web_content, source_uuid);
 
 	/* If found, add the website url to it and return it */
 	if (source_index) {
@@ -50,7 +50,7 @@ char *eshuushuu_get_image_url(char *html_content)
 	return img_src_url;
 }
 
-struct image_tag_db *eshuushuu_get_image_tags(char *html_content)
+struct image_tag_db *eshuushuu_get_image_tags(char *web_content)
 {
 
 	char *artist_tag_uuid = "Artist:";
@@ -58,8 +58,8 @@ struct image_tag_db *eshuushuu_get_image_tags(char *html_content)
 	char *copyright_tag_uuid = "Source:";
 	char *general_tag_uuid = "Tags:";
 
-	/* offset html_content first for easier parsing */
-	html_content = strstr(html_content, "<dt>Dimensions:</dt>");
+	/* offset web_content first for easier parsing */
+	web_content = strstr(web_content, "<dt>Dimensions:</dt>");
 
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
@@ -67,42 +67,42 @@ struct image_tag_db *eshuushuu_get_image_tags(char *html_content)
 	/* populate artist tags */
 	tag_db->tags[0] = eshuushuu_parse_tags_html(
 				artist_tag_uuid,
-				html_content,
+				web_content,
 				&(tag_db->tag_size[0])
 				);
 
 	/* populate character tags */
 	tag_db->tags[1] = eshuushuu_parse_tags_html(
 				character_tag_uuid,
-				html_content,
+				web_content,
 				&(tag_db->tag_size[1])
 				);
 
 	/* populate copyright tags */
 	tag_db->tags[3] = eshuushuu_parse_tags_html(
 				copyright_tag_uuid,
-				html_content,
+				web_content,
 				&(tag_db->tag_size[3])
 				);
 
 	/* populate general tags */
 	tag_db->tags[5] = eshuushuu_parse_tags_html(
 				general_tag_uuid,
-				html_content,
+				web_content,
 				&(tag_db->tag_size[5])
 				);
 
 	return tag_db;
 }
 
-struct llnode *eshuushuu_parse_tags_html(char *tag_pattern, char *html_content,
+struct llnode *eshuushuu_parse_tags_html(char *tag_pattern, char *web_content,
 	unsigned int *size)
 {
 	const char *tags_uuid = "<span class='tag'>\"<a href=\"";
 	const char *tags_end = "</dd>";
 	const int tag_uuid_len = strlen(tags_uuid);
 
-	char *html_ptr = strstr(html_content, tag_pattern);
+	char *html_ptr = strstr(web_content, tag_pattern);
 	char *end_ptr = strstr(html_ptr, tags_end);
 
 	/* if we found an ending point to the string, terminate it there */

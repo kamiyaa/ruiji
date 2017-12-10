@@ -8,7 +8,7 @@
 /* Given a https://mangadrawing.net/ url,
  * parse the html to get the source image url
  */
-char *mangadrawing_get_image_url(char *html_content)
+char *mangadrawing_get_image_url(char *web_content)
 {
 	const char *source_uuid = "NAME=\"download\" ACTION=\"";
 	const char source_end = '"';
@@ -19,7 +19,7 @@ char *mangadrawing_get_image_url(char *html_content)
 	char *img_src_url = NULL;
 
 	/* get png html pattern index and jpg html pattern index */
-	char *source_index = strstr(html_content, source_uuid);
+	char *source_index = strstr(web_content, source_uuid);
 
 	/* check if png html pattern has been found */
 	if (source_index) {
@@ -35,9 +35,9 @@ char *mangadrawing_get_image_url(char *html_content)
 		strncat(img_src_url, source_index, url_len);
 
 		/* Refetch the html source code of the source website*/
-		char *html_content_redirected = get_html(img_src_url);
+		char *web_content_redirected = get_html(img_src_url);
 		char *intermediate_source_id = "<img src=\"";
-		source_index = strstr(html_content_redirected, intermediate_source_id);
+		source_index = strstr(web_content_redirected, intermediate_source_id);
 		source_index = &source_index[strlen(intermediate_source_id)];
 		free(img_src_url);
 
@@ -55,7 +55,7 @@ char *mangadrawing_get_image_url(char *html_content)
 
 	/* deallocate the memory used to download
 	 * and store the webpage's content */
-	free(html_content);
+	free(web_content);
 	/* return the image source url */
 	return img_src_url;
 }
