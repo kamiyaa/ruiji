@@ -114,7 +114,9 @@ struct image_tag_db *danbooru_get_image_tags_json(char *json_content)
 struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *json_content,
 	unsigned int *size)
 {
-	int tag_name_len = -1;
+	const char tags_end = ',';
+
+	int tag_name_len = 0;
 	char *end_ptr = NULL;
 
 	int tag_len = strlen(tag_pattern);
@@ -122,15 +124,16 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *json_content,
 	/* look for the pattern in json_content */
 	char *json_ptr = strstr(json_content, tag_pattern);
 	if (json_ptr) {
-		/* if we found the pattern,
-		 * set json_ptr to the end of the pattern */
+		/* if we found the pattern, set json_ptr to the end
+		 * of the pattern */
 		json_ptr = &(json_ptr[tag_len]);
 
 		/* get the end of this json property, set
 		 * end_ptr to it and set it to a null terminator */
-		int tag_end = get_distance(json_ptr, ',');
+		int tag_end = get_distance(json_ptr, tags_end);
 		end_ptr = &(json_ptr[tag_end]);
-		end_ptr[0] = '\0';
+		if (end_ptr)
+			*end_ptr = '\0';
 
 		/* set the character before it to be a space */
 		json_ptr[tag_end - 1] = ' ';
@@ -166,8 +169,8 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *json_content,
 		(*size)++;
 	}
 	/* put comma back, unterminating the string */
-	if (end_ptr) {
-		*end_ptr = ',';
-	}
+	if (end_ptr)
+		*end_ptr = tags_end;
+
 	return tags;
 }

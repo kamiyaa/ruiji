@@ -148,9 +148,8 @@ struct llnode *eshuushuu_parse_tags_html(char *tag_pattern, char *html_content,
 	}
 
 	/* put value back, unterminating the string */
-	if (end_ptr) {
-		end_ptr[0] = tags_end[0];
-	}
+	if (end_ptr)
+		*end_ptr = tags_end[0];
 
 	return tags;
 }

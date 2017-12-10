@@ -78,6 +78,9 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 	/* get the next colon */
 	int next_tag_distance = 0;
 
+	/* pointer pointing to the end of tag string */
+	char *end_ptr = NULL;
+
 	/* set tag_ptr to the beginning in which the tags begin */
 	char *tag_contents = strstr(html_content, tags_uuid);
 	if (tag_contents) {
@@ -86,12 +89,12 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 
 		/* get the end of tags section and slice string at the end */
 		int tag_contents_end = get_distance(tag_contents, tags_end);
-
 		/* replace end of tags with tag_name_uuid for easier parsing */
 		tag_contents[tag_contents_end] = tag_name_uuid;
-
 		/* slice string after it */
-		tag_contents[tag_contents_end + 1] = '\0';
+		end_ptr = &(tag_contents[tag_contents_end + 1]);
+		end_ptr[0] = '\0';
+
 		next_tag_distance = get_distance(tag_contents, tag_name_uuid);
 	}
 
@@ -151,6 +154,9 @@ struct image_tag_db *yandere_get_image_tags(char *html_content)
 		/* search for next tag */
 		next_tag_distance = get_distance(tag_contents, tag_name_uuid);
 	}
+	/* unslice the string */
+	if (end_ptr)
+		*end_ptr = tags_end;
 
 	return tag_db;
 }

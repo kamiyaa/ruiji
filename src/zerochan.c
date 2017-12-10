@@ -50,7 +50,11 @@ struct image_tag_db *zerochan_get_image_tags_html(char *html_content)
 	const char tags_end = '"';
 	const unsigned int initial_offset = strlen(tags_uuid);
 
+	/* length of tag name */
 	int tag_name_len = 0;
+
+	/* pointer pointing to the end of tag string */
+	char *end_ptr = NULL;
 
 	/* set tag_ptr to the beginning in which the tags begin */
 	char *tag_contents = strstr(html_content, tags_uuid);
@@ -61,8 +65,10 @@ struct image_tag_db *zerochan_get_image_tags_html(char *html_content)
 		/* get the end of tags section and slice string at the end */
 		int tag_contents_end = get_distance(tag_contents, tags_end);
 
+
 		/* slice string */
-		tag_contents[tag_contents_end] = '\0';
+		end_ptr = &(tag_contents[tag_contents_end]);
+		end_ptr[0] = '\0';
 
 		tag_name_len = get_distance(tag_contents, tag_name_uuid);
 	}
@@ -78,6 +84,9 @@ struct image_tag_db *zerochan_get_image_tags_html(char *html_content)
 		&(tag_db->tags[5])
 	};
 
+	/* Zerochan has no association with tag types,
+	 * therefore, all tags will be of general type
+	 */
 	int tag_type = 5;
 
 	while (tag_name_len > 0) {
@@ -106,6 +115,9 @@ struct image_tag_db *zerochan_get_image_tags_html(char *html_content)
 		/* search for next tag */
 		tag_name_len = get_distance(tag_contents, tag_name_uuid);
 	}
+	/* unslice the string */
+	if (end_ptr)
+		*end_ptr = tags_end;
 
 	return tag_db;
 }
