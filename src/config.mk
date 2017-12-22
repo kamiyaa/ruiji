@@ -17,7 +17,7 @@ COLORFLAG = -DCOLOR
 USE_FLAGS = ${COLORFLAG}
 
 # helper files for specific websites
-WEBSRC = danbooru.c eshuushuu.c gelbooru.c konachan.c mangadrawing.c sankakucomplex.c yandere.c zerochan.c
+WEBSRC = animegallery.c danbooru.c eshuushuu.c gelbooru.c konachan.c mangadrawing.c sankakucomplex.c yandere.c zerochan.c
 # helper files to for main program
 HELPERS = ${WEBSRC} interface.c parser.c udload.c
 

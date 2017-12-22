@@ -122,6 +122,8 @@ char *generate_api_link(int domain_uid, char *post_link)
 	case DANBOORU_UID:
 		api_url = danbooru_generate_api_url(post_link);
 		break;
+	/* animegallery domain */
+	case ANIMEGALLERY_UID:
 	/* eshuushuu domain */
 	case ESHUUSHUU_UID:
 	/* gelbooru domain */
@@ -195,6 +197,9 @@ char *get_image_source_url(int domain_uid, char *web_content, char *stop_seq)
 	case ZEROCHAN_UID:
 		dl_url = zerochan_get_image_url(web_content);
 		break;
+	case ANIMEGALLERY_UID:
+		dl_url = animegallery_get_image_url(web_content);
+		break;
 	default:
 		dl_url = NULL;
 		break;
@@ -228,10 +233,11 @@ struct image_tag_db *get_image_tags(int domain_uid, char *web_content)
 	case YANDERE_UID:
 		tags_db = yandere_get_image_tags(web_content);
 		break;
-	case MANGADRAWING_UID:
 	case ZEROCHAN_UID:
 		tags_db = zerochan_get_image_tags_html(web_content);
 		break;
+	case ANIMEGALLERY_UID:
+	case MANGADRAWING_UID:
 	default:
 		tags_db = init_image_tag_db();
 		break;
@@ -242,29 +248,34 @@ struct image_tag_db *get_image_tags(int domain_uid, char *web_content)
 
 unsigned int get_domain_uid(char *link)
 {
-	/* danbooru domain */
+
 	if (strstr(link, DANBOORU_DOMAIN))
 		return DANBOORU_UID;
-	/* eshuushuu domain */
+
 	if (strstr(link, ESHUUSHUU_DOMAIN))
 		return ESHUUSHUU_UID;
-	/* gelbooru domain */
+
 	if (strstr(link, GELBOORU_DOMAIN))
 		return GELBOORU_UID;
-	/* konachan domain */
+
 	if (strstr(link, KONACHAN_DOMAIN))
 		return KONACHAN_UID;
-	/* mangadrawing domain */
+
 	if (strstr(link, MANGADRAWING_DOMAIN))
 		return MANGADRAWING_UID;
-	/* sankakucomplex domain */
+
 	if (strstr(link, SANKAKUCOMPLEX_DOMAIN))
 		return SANKAKUCOMPLEX_UID;
-	/* if the link given is a yandere domain */
+
 	if (strstr(link, YANDERE_DOMAIN))
 		return YANDERE_UID;
+
 	if (strstr(link, ZEROCHAN_DOMAIN))
 		return ZEROCHAN_UID;
+
+	if (strstr(link, ANIMEGALLERY_DOMAIN))
+		return ANIMEGALLERY_UID;
+
 	return 0;
 }
 

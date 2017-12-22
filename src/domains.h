@@ -1,5 +1,6 @@
 #ifndef DOMAINS_H
 
+#include "animegallery.h"
 #include "danbooru.h"
 #include "eshuushuu.h"
 #include "gelbooru.h"
@@ -9,6 +10,7 @@
 #include "yandere.h"
 #include "zerochan.h"
 
+#define ANIMEGALLERY_DOMAIN	"www.theanimegallery.com"
 #define DANBOORU_DOMAIN		"danbooru.donmai.us"
 #define ESHUUSHUU_DOMAIN	"e-shuushuu.net"
 #define GELBOORU_DOMAIN		"gelbooru.com"
@@ -26,5 +28,6 @@
 #define ESHUUSHUU_UID		6
 #define MANGADRAWING_UID	7
 #define ZEROCHAN_UID		8
+#define ANIMEGALLERY_UID	9
 
 #endif
