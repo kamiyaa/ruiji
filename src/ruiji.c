@@ -6,7 +6,7 @@
 
 #include "parser.h"
 
-#define VERSION "0.5.1"
+#define VERSION "0.6"
 
 #define IQDB_URL "https://iqdb.org"
 #define IQDB_UPLOAD_FIELD "file"
@@ -174,6 +174,8 @@ short initialize(struct similar_image_llnode *image_list)
 		/* parse for the source url of the image */
 		char *dl_url = get_image_source_url(domain_uid,
 				api_content, &stop_seq);
+
+		printf("%s\n", dl_url);
 
 		/* used to check if download was successful */
 		short dl_state = -1;
