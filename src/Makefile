@@ -5,8 +5,8 @@ include config.mk
 all: ruiji
 
 config.h: config.def.h
-	@echo "cp config.def.h -> config.h"
-	cp config.def.h config.h
+	@echo "cp -u config.def.h -> config.h"
+	cp -u config.def.h config.h
 
 ruiji: config.h ${HELPERS} ruiji.c config.mk
 	@echo "CC      =" ${CC}

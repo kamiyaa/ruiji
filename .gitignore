@@ -3,7 +3,8 @@
 *.jpg
 *.mp4
 src/*.png
-/src/ruiji
-/src/config.h
-/src/test*
-/debug
+src/ruiji
+src/build
+src/config.h
+src/test*
+debug

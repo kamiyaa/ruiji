@@ -5,7 +5,7 @@ CC = cc
 STD = -std=c99
 
 # cflags
-CFLAGS = ${STD} -ggdb3 -Os -Wall -Werror -Wno-unused-variable -march=native -fno-stack-protector
+CFLAGS = ${STD} -ggdb3 -Os -Wall -Wno-unused-variable -march=native -fno-stack-protector
 
 # libraries required
 LIBS = -lcurl

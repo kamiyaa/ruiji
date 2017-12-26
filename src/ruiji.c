@@ -143,7 +143,7 @@ short initialize(struct similar_image_llnode *image_list)
 		/* ask user which website they would like to download from */
 		printf("Which one would you like to download? (-1 to exit): ");
 		/* get short int input */
-		short retval = scanf("%hd", &user_input);
+		scanf("%hd", &user_input);
 	}
 
 	if (user_input < 0 || user_input >= image_list_size) {

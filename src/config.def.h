@@ -1,3 +1,5 @@
+#ifdef COLOR
+
 #define COLOR_RED	"\x1B[31m"
 #define COLOR_GREEN	"\x1B[32m"
 #define COLOR_YELLOW	"\x1B[33m"
@@ -19,3 +21,5 @@ static const char *circle_tag_color	= COLOR_CYAN;
 static const char *copyright_tag_color	= COLOR_MAGENTA;
 static const char *meta_tag_color	= COLOR_RED;
 static const char *general_tag_color	= COLOR_WHITE;
+
+#endif
