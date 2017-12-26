@@ -20,13 +20,13 @@ First, download the source using either HTTP or SSH:
 $ git clone https://github.com/Kamiyaa/ruiji.git
 $ git clone git@github.com:Kamiyaa/ruiji.git
 ```
-Then install:
+Then install using **make**:
 ```
 $ cd ruiji/src
 $ make
 # make install
 ```
-Alternatively, you can install using meson:
+Alternatively, you can install using **meson**:
 ```
 $ meson build
 $ ninja -C build/
