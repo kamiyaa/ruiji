@@ -2,9 +2,9 @@
 *~
 *.jpg
 *.mp4
+build
+debug
 src/*.png
 src/ruiji
-src/build
 src/config.h
 src/test*
-debug

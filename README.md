@@ -26,6 +26,12 @@ $ cd ruiji/src
 $ make
 # make install
 ```
+Alternatively, you can install using meson:
+```
+$ meson build
+$ ninja -C build/
+# ninja -C build/ install
+```
 
 ## Usage
 ```
