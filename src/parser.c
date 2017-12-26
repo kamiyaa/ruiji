@@ -324,12 +324,12 @@ char *parse_percent_similar(char* web_content, unsigned short *similarity)
 	char *next_weblink = NULL;
 
 	const char *patterns[] = { "<td>" };
-	const int num_patterns = sizeof(patterns) / sizeof(char *);
+	const unsigned int num_patterns = sizeof(patterns) / sizeof(char *);
 
 	/* Set an arbitrary pointer to point to the first element of contents */
 	char *walker = web_content;
 
-	int pattern_index = 0;
+	unsigned int pattern_index = 0;
 	/* move walker to the beginning of image x,y dimensions */
 	while (walker && pattern_index < num_patterns) {
 		walker = strstr(walker, patterns[pattern_index]);
