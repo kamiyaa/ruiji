@@ -324,7 +324,7 @@ char *parse_percent_similar(char* web_content, unsigned short *similarity)
 	char *next_weblink = NULL;
 
 	const char *patterns[] = { "<td>" };
-	const unsigned int num_patterns = sizeof(patterns) / sizeof(char *);
+	const int num_patterns = sizeof(patterns) / sizeof(char *);
 
 	/* Set an arbitrary pointer to point to the first element of contents */
 	char *walker = web_content;

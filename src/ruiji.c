@@ -37,22 +37,23 @@ static struct ruiji_cmd_args cmd_args;
 /* struct for command line argument options */
 static struct argp_option options[] = {
 	{ "help",	'h',	0, 0,
-		"Show help message" },
+		"Show help message", 0 },
 	{ "noprompt",	'y',	0, 0,
-		"Skips user interactions and downloads the most similar image" },
+		"Skips user interactions and downloads the most similar image", 0 },
 	{ "quiet",	'q',	0, 0,
-		"Suppress verbose output" },
+		"Suppress verbose output", 0 },
 	{ "threshold",	't',	"number", 0,
-		"Only show images above certain similarity percentage" },
+		"Only show images above certain similarity percentage", 0 },
 	{ "tags",	'T',	0, 0,
-		"Outputs tags of downloaded image" },
+		"Outputs tags of downloaded image", 0 },
 	{ "version",	'v',	0, 0,
-		"Show version number" },
+		"Show version number", 0 },
 	{ 0 }
 };
 
 static struct argp ruiji_args = {
-	options, parse_opt
+	options, parse_opt,
+	NULL, NULL, NULL, NULL, NULL
 };
 
 
@@ -135,7 +136,7 @@ short initialize(struct similar_image_llnode *image_list)
 {
 	/* initialize image selection to 0 */
 	short user_input = 0;
-	unsigned int image_list_size = 1;
+	int image_list_size = 1;
 	if (cmd_args.prompt) {
 		/* print out all results and its properties */
 		image_list_size = print_sim_results(image_list);
