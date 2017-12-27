@@ -51,6 +51,7 @@ Usage: ruiji [options] [file]
 
 ## Features
 Currently supports:
+ - http://www.theanimegallery.com/ 
  - http://danbooru.donmai.us/
  - http://e-shuushuu.net/
  - https://gelbooru.com/
