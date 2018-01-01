@@ -4,7 +4,7 @@ run_command('cp',
 	)
 
 # curl dependency
-curl_dep = dependency('libcurl', version: '>=7.51.0')
+dep_curl = dependency('libcurl', version: '>=7.51.0')
 
 # local dependencies
 domains = ['animegallery.c', 'danbooru.c' , 'eshuushuu.c', 'gelbooru.c',
@@ -16,6 +16,6 @@ helpers = ['interface.c', 'parser.c', 'udload.c']
 # ruiji executable
 executable('ruiji',
 	'ruiji.c', domains, helpers,
-	dependencies : curl_dep,
+	dependencies : dep_curl,
 	install: true
 	)
