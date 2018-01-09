@@ -6,7 +6,7 @@
 
 #include "parser.h"
 
-#define VERSION "0.6"
+#define VERSION "0.7.0"
 
 #define IQDB_URL "https://iqdb.org"
 #define IQDB_UPLOAD_FIELD "file"
