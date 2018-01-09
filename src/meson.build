@@ -7,9 +7,9 @@ run_command('cp',
 dep_curl = dependency('libcurl', version: '>=7.51.0')
 
 # local dependencies
-domains = ['animegallery.c', 'danbooru.c' , 'eshuushuu.c', 'gelbooru.c',
-	'konachan.c', 'mangadrawing.c', 'sankakucomplex.c', 'yandere.c' ,
-	'zerochan.c']
+domains = ['animegallery.c', 'animepictures.c', 'danbooru.c' , 'eshuushuu.c',
+	'gelbooru.c', 'konachan.c', 'mangadrawing.c', 'sankakucomplex.c',
+	'yandere.c' , 'zerochan.c']
 
 helpers = ['interface.c', 'parser.c', 'udload.c']
 
