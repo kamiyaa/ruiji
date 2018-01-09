@@ -160,7 +160,7 @@ short initialize(struct similar_image_llnode *image_list)
 		struct similar_image *dl_image = list_ptr->image;
 
 		/* get internal uid of domain */
-		int domain_uid = get_domain_uid(dl_image->post_link);
+		enum domain_t domain_uid = get_domain_uid(dl_image->post_link);
 		/* get api link for post_link */
 		char *api_link = generate_api_link(domain_uid,
 			dl_image->post_link);

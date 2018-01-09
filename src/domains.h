@@ -1,6 +1,7 @@
 #ifndef DOMAINS_H
 
 #include "animegallery.h"
+#include "animepictures.h"
 #include "danbooru.h"
 #include "eshuushuu.h"
 #include "gelbooru.h"
@@ -11,6 +12,7 @@
 #include "zerochan.h"
 
 #define ANIMEGALLERY_DOMAIN	"www.theanimegallery.com"
+#define ANIMEPICTURES_DOMAIN	"anime-pictures.net"
 #define DANBOORU_DOMAIN		"danbooru.donmai.us"
 #define ESHUUSHUU_DOMAIN	"e-shuushuu.net"
 #define GELBOORU_DOMAIN		"gelbooru.com"
@@ -20,14 +22,18 @@
 #define YANDERE_DOMAIN		"yande.re"
 #define ZEROCHAN_DOMAIN		"www.zerochan.net"
 
-#define DANBOORU_UID		1
-#define YANDERE_UID		2
-#define SANKAKUCOMPLEX_UID	3
-#define KONACHAN_UID		4
-#define GELBOORU_UID		5
-#define ESHUUSHUU_UID		6
-#define MANGADRAWING_UID	7
-#define ZEROCHAN_UID		8
-#define ANIMEGALLERY_UID	9
+/* enum used to identify domains */
+enum domain_t {
+	danbooru,
+	yandere,
+	sankakucomplex,
+	konachan,
+	gelbooru,
+	eshuushuu,
+	zerochan,
+	animepictures,
+	animegallery,
+	mangadrawing
+};
 
 #endif

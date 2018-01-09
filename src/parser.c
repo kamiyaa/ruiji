@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "parser.h"
-#include "domains.h"
 
 struct similar_image_llnode *create_image_list(char *web_content,
 	unsigned short similar_threshold)
@@ -114,30 +113,23 @@ struct similar_image *create_sim_image(char *web_url,
 	return image;
 }
 
-char *generate_api_link(int domain_uid, char *post_link)
+char *generate_api_link(enum domain_t id, char *post_link)
 {
 	char *api_url;
-	switch (domain_uid) {
+	switch (id) {
 	/* danbooru domain */
-	case DANBOORU_UID:
+	case danbooru:
 		api_url = danbooru_generate_api_url(post_link);
 		break;
-	/* animegallery domain */
-	case ANIMEGALLERY_UID:
-	/* eshuushuu domain */
-	case ESHUUSHUU_UID:
-	/* gelbooru domain */
-	case GELBOORU_UID:
-	/* konachan domain */
-	case KONACHAN_UID:
-	/* mangadrawing domain */
-	case MANGADRAWING_UID:
-	/* sankakucomplex domain */
-	case SANKAKUCOMPLEX_UID:
-	/* yandere domain */
-	case YANDERE_UID:
-	/* zerochan domain */
-	case ZEROCHAN_UID:
+	case animegallery:
+	case animepictures:
+	case eshuushuu:
+	case gelbooru:
+	case konachan:
+	case mangadrawing:
+	case sankakucomplex:
+	case yandere:
+	case zerochan:
 	default:
 		api_url = malloc(sizeof(sizeof(char)) * (strlen(post_link) + 1));
 		strcpy(api_url, post_link);
@@ -159,46 +151,42 @@ int get_distance(char *string, char find)
 }
 
 /* Given a website url, a unique html pattern to look for and */
-char *get_image_source_url(int domain_uid, char *web_content, char *stop_seq)
+char *get_image_source_url(enum domain_t id, char *web_content, char *stop_seq)
 {
 	char *dl_url;
-	switch (domain_uid) {
-	/* danbooru domain */
-	case DANBOORU_UID:
+	switch (id) {
+	case danbooru:
 		dl_url = danbooru_get_image_url_json(web_content);
 		break;
-	/* eshuushuu domain */
-	case ESHUUSHUU_UID:
-		dl_url = eshuushuu_get_image_url(web_content);
+	case yandere:
+		dl_url = yandere_get_image_url(web_content);
 		break;
-	/* gelbooru domain */
-	case GELBOORU_UID:
+	case gelbooru:
 		dl_url = gelbooru_get_image_url(web_content);
 		break;
-	/* konachan domain */
-	case KONACHAN_UID:
+	case konachan:
 		dl_url = konachan_get_image_url(web_content);
 		break;
-	/* mangadrawing domain */
-	case MANGADRAWING_UID:
-		dl_url = mangadrawing_get_image_url(web_content);
-		break;
-	/* sankakucomplex domain */
-	case SANKAKUCOMPLEX_UID:
+	case sankakucomplex:
 		dl_url = sankakucomplex_get_image_url(web_content);
 		/* change the sequence to stop parsing at
 		 * to '?' for sankakucomplex */
 		*stop_seq = '?';
 		break;
-	/* yandere domain */
-	case YANDERE_UID:
-		dl_url = yandere_get_image_url(web_content);
+	case eshuushuu:
+		dl_url = eshuushuu_get_image_url(web_content);
 		break;
-	case ZEROCHAN_UID:
+	case zerochan:
 		dl_url = zerochan_get_image_url(web_content);
 		break;
-	case ANIMEGALLERY_UID:
+	case animegallery:
 		dl_url = animegallery_get_image_url(web_content);
+		break;
+	case animepictures:
+		dl_url = animepictures_get_image_url(web_content);
+		break;
+	case mangadrawing:
+		dl_url = mangadrawing_get_image_url(web_content);
 		break;
 	default:
 		dl_url = NULL;
@@ -207,37 +195,34 @@ char *get_image_source_url(int domain_uid, char *web_content, char *stop_seq)
 	return dl_url;
 }
 
-struct image_tag_db *get_image_tags(int domain_uid, char *web_content)
+struct image_tag_db *get_image_tags(enum domain_t id, char *web_content)
 {
 	struct image_tag_db *tags_db;
 
-	switch (domain_uid) {
-	/* danbooru domain */
-	case DANBOORU_UID:
+	switch (id) {
+	case danbooru:
 		tags_db = danbooru_get_image_tags_json(web_content);
 		break;
-	/* all others */
-	case ESHUUSHUU_UID:
-		tags_db = eshuushuu_get_image_tags(web_content);
-		break;
-	/* gelbooru domain */
-	case GELBOORU_UID:
-		tags_db = gelbooru_get_image_tags(web_content);
-		break;
-	/* sankakucomplex domain */
-	case SANKAKUCOMPLEX_UID:
-		tags_db = sankakucomplex_get_image_tags(web_content);
-		break;
-	/* if the link given is a yandere domain or konachan domain */
-	case KONACHAN_UID:
-	case YANDERE_UID:
+	/* konachan and yandere layouts are exactly the same */
+	case konachan:
+	case yandere:
 		tags_db = yandere_get_image_tags(web_content);
 		break;
-	case ZEROCHAN_UID:
+	case gelbooru:
+		tags_db = gelbooru_get_image_tags(web_content);
+		break;
+	case sankakucomplex:
+		tags_db = sankakucomplex_get_image_tags(web_content);
+		break;
+	case eshuushuu:
+		tags_db = eshuushuu_get_image_tags(web_content);
+		break;
+	case zerochan:
 		tags_db = zerochan_get_image_tags_html(web_content);
 		break;
-	case ANIMEGALLERY_UID:
-	case MANGADRAWING_UID:
+	case animegallery:
+	case animepictures:
+	case mangadrawing:
 	default:
 		tags_db = init_image_tag_db();
 		break;
@@ -246,37 +231,32 @@ struct image_tag_db *get_image_tags(int domain_uid, char *web_content)
 	return tags_db;
 }
 
-unsigned int get_domain_uid(char *link)
+enum domain_t get_domain_uid(char *link)
 {
+	enum domain_t id = 0;
 
 	if (strstr(link, DANBOORU_DOMAIN))
-		return DANBOORU_UID;
+		id = danbooru;
+	else if (strstr(link, YANDERE_DOMAIN))
+		id = yandere;
+	else if (strstr(link, GELBOORU_DOMAIN))
+		id = gelbooru;
+	else if (strstr(link, KONACHAN_DOMAIN))
+		id = konachan;
+	else if (strstr(link, SANKAKUCOMPLEX_DOMAIN))
+		id = sankakucomplex;
+	else if (strstr(link, ESHUUSHUU_DOMAIN))
+		id = eshuushuu;
+	else if (strstr(link, ZEROCHAN_DOMAIN))
+		id = zerochan;
+	else if (strstr(link, ANIMEGALLERY_DOMAIN))
+		id = animegallery;
+	else if (strstr(link, ANIMEPICTURES_DOMAIN))
+		id = animepictures;
+	else if (strstr(link, MANGADRAWING_DOMAIN))
+		id = mangadrawing;
 
-	if (strstr(link, ESHUUSHUU_DOMAIN))
-		return ESHUUSHUU_UID;
-
-	if (strstr(link, GELBOORU_DOMAIN))
-		return GELBOORU_UID;
-
-	if (strstr(link, KONACHAN_DOMAIN))
-		return KONACHAN_UID;
-
-	if (strstr(link, MANGADRAWING_DOMAIN))
-		return MANGADRAWING_UID;
-
-	if (strstr(link, SANKAKUCOMPLEX_DOMAIN))
-		return SANKAKUCOMPLEX_UID;
-
-	if (strstr(link, YANDERE_DOMAIN))
-		return YANDERE_UID;
-
-	if (strstr(link, ZEROCHAN_DOMAIN))
-		return ZEROCHAN_UID;
-
-	if (strstr(link, ANIMEGALLERY_DOMAIN))
-		return ANIMEGALLERY_UID;
-
-	return 0;
+	return id;
 }
 
 char *get_server_file_name(char *web_url, char stop)

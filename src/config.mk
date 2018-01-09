@@ -5,7 +5,7 @@ CC = cc
 STD = -std=c99
 
 # cflags
-CFLAGS = ${STD} -ggdb3 -Os -Wall -Wno-unused-variable -march=native -fno-stack-protector
+CFLAGS = ${STD} -ggdb3 -Os -Wall -march=native
 
 # libraries required
 LIBS = -lcurl
@@ -17,7 +17,7 @@ COLORFLAG = -DCOLOR
 USE_FLAGS = ${COLORFLAG}
 
 # helper files for specific websites
-WEBSRC = animegallery.c danbooru.c eshuushuu.c gelbooru.c konachan.c mangadrawing.c sankakucomplex.c yandere.c zerochan.c
+WEBSRC = animegallery.c animepictures.c danbooru.c eshuushuu.c gelbooru.c konachan.c mangadrawing.c sankakucomplex.c yandere.c zerochan.c
 # helper files to for main program
 HELPERS = ${WEBSRC} interface.c parser.c udload.c
 

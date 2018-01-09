@@ -52,7 +52,7 @@ char *eshuushuu_get_image_url(char *web_content)
 
 struct image_tag_db *eshuushuu_get_image_tags(char *web_content)
 {
-
+	/* patterns for different tag types */
 	char *artist_tag_uuid = "Artist:";
 	char *character_tag_uuid = "Characters:";
 	char *copyright_tag_uuid = "Source:";
