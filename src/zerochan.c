@@ -117,7 +117,7 @@ struct image_tag_db *zerochan_get_image_tags_html(char *web_content)
 	}
 	/* unslice the string */
 	if (end_ptr)
-		*end_ptr = tags_end;
+		end_ptr[0] = tags_end;
 
 	return tag_db;
 }

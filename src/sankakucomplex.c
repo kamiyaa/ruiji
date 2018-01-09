@@ -13,7 +13,7 @@ char *sankakucomplex_get_image_url(char *web_content)
 	/* constants for finding values */
 	const char *https = "https:";
 	const char *source_uuid = "<li>Original: <a href=\"";
-	const char source_end = '"';
+	const char source_end = '?';
 
 	const unsigned int len_https = strlen(https);
 	const unsigned int len_source = strlen(source_uuid);
@@ -75,7 +75,7 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *web_content)
 		/* slice string at where all tags section ends */
 		end_ptr = strstr(tag_contents, tags_end);
 		if (end_ptr)
-			*end_ptr = '\0';
+			end_ptr[0] = '\0';
 		tag_contents = &(tag_contents[initial_offset]);
 		tag_contents = strstr(tag_contents, tag_category_uuid);
 	}
@@ -137,7 +137,7 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *web_content)
 	}
 	/* unslice the string */
 	if (end_ptr)
-		*end_ptr = tags_end[0];
+		end_ptr[0] = tags_end[0];
 
 	return tag_db;
 }

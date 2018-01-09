@@ -151,7 +151,7 @@ int get_distance(char *string, char find)
 }
 
 /* Given a website url, a unique html pattern to look for and */
-char *get_image_source_url(enum domain_t id, char *web_content, char *stop_seq)
+char *get_image_source_url(enum domain_t id, char *web_content)
 {
 	char *dl_url;
 	switch (id) {
@@ -169,9 +169,6 @@ char *get_image_source_url(enum domain_t id, char *web_content, char *stop_seq)
 		break;
 	case sankakucomplex:
 		dl_url = sankakucomplex_get_image_url(web_content);
-		/* change the sequence to stop parsing at
-		 * to '?' for sankakucomplex */
-		*stop_seq = '?';
 		break;
 	case eshuushuu:
 		dl_url = eshuushuu_get_image_url(web_content);
@@ -259,7 +256,7 @@ enum domain_t get_domain_uid(char *link)
 	return id;
 }
 
-char *get_server_file_name(char *web_url, char stop)
+char *get_server_file_name(char *web_url)
 {
 	/* Go through and get the last section of a url */
 	int index = strlen(web_url) - 1;
@@ -271,10 +268,6 @@ char *get_server_file_name(char *web_url, char stop)
 	char *name_start = &(web_url[index+1]);
 
 	int filename_len = strlen(name_start);
-	/* If a stop sequence is given, terminate the
-	 * string copy at stop sequence */
-	if (stop)
-		filename_len = get_distance(name_start, stop);
 
 	/* Allocate enough memory for the file name */
 	char *file_name = malloc(sizeof(char) * (filename_len + 1));

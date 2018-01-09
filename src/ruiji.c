@@ -169,14 +169,9 @@ short initialize(struct similar_image_llnode *image_list)
 		char *api_content = get_html(api_link);
 		free(api_link);
 
-		/* used to know where to slice string for getting
-		 * file name. Default is \0 */
-		char stop_seq = '\0';
 		/* parse for the source url of the image */
 		char *dl_url = get_image_source_url(domain_uid,
-				api_content, &stop_seq);
-
-		printf("%s\n", dl_url);
+				api_content);
 
 		/* used to check if download was successful */
 		short dl_state = -1;
@@ -190,7 +185,7 @@ short initialize(struct similar_image_llnode *image_list)
 
 			/* get the name of the file from its server */
 			char *file_save_name =
-				get_server_file_name(dl_url, stop_seq);
+				get_server_file_name(dl_url);
 
 			/* notify the user */
 			if (cmd_args.verbose)

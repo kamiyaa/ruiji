@@ -29,10 +29,8 @@ int get_distance(char *string, char find);
 
 
 /* Given a link, get the source image url from its html
- * if a stop sequence is needed for extracting the file
- * name later, assign it to stop_seq
  */
-char *get_image_source_url(enum domain_t id, char *html_content, char *stop_seq);
+char *get_image_source_url(enum domain_t id, char *html_content);
 
 
 /* given a known domain type and its downloaded content,
@@ -48,7 +46,7 @@ enum domain_t get_domain_uid(char *link);
 /* Given the full link of a website,
  * parse the link to get the file name
  */
-char *get_server_file_name(char *web_url, char stop);
+char *get_server_file_name(char *web_url);
 
 
 /* initialize an empty database of tags */

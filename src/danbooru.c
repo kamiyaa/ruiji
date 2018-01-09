@@ -132,7 +132,7 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *web_content,
 		int tag_end = get_distance(json_ptr, tags_end);
 		end_ptr = &(json_ptr[tag_end]);
 		if (end_ptr)
-			*end_ptr = '\0';
+			end_ptr[0] = '\0';
 
 		/* set the character before it to be a space */
 		json_ptr[tag_end - 1] = ' ';
@@ -169,7 +169,7 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *web_content,
 	}
 	/* put comma back, unterminating the string */
 	if (end_ptr)
-		*end_ptr = tags_end;
+		end_ptr[0] = tags_end;
 
 	return tags;
 }

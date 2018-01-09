@@ -65,7 +65,7 @@ struct image_tag_db *gelbooru_get_image_tags(char *web_content)
 		tag_contents = &(tag_contents[initial_offset]);
 		end_ptr = strstr(tag_contents, tags_end);
 		if (end_ptr)
-			*end_ptr = '\0';
+			end_ptr[0] = '\0';
 	}
 
 	/* initialize a tags database to store tags */
@@ -127,7 +127,7 @@ struct image_tag_db *gelbooru_get_image_tags(char *web_content)
 	}
 	/* unslice the string */
 	if (end_ptr)
-		*end_ptr = tags_end[0];
+		end_ptr[0] = tags_end[0];
 
 	return tag_db;
 }

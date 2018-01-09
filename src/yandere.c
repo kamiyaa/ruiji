@@ -156,7 +156,7 @@ struct image_tag_db *yandere_get_image_tags(char *web_content)
 	}
 	/* unslice the string */
 	if (end_ptr)
-		*end_ptr = tags_end;
+		end_ptr[0] = tags_end;
 
 	return tag_db;
 }
