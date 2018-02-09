@@ -112,8 +112,8 @@ int validate_upload_file(char *file_name)
 	FILE *img_fd;
 	/* rb for reading binary file */
 	img_fd = fopen(file_name, "rb");
-	if (!img_fd) {
-		printf("Error: No such file: %s\n", file_name);
+	if (img_fd == NULL) {
+		perror(file_name);
 		valid = 1;
 	}
 	else {
@@ -220,11 +220,8 @@ short initialize(struct similar_image_llnode *image_list)
 	return 0;
 }
 
-int main(int argc, char *argv[])
+int main(int argc, char **argv)
 {
-	/* return value */
-	short exit_code = 0;
-
 	set_default_opt(&cmd_args);
 
 	/* parse given command line arguments */
@@ -233,14 +230,15 @@ int main(int argc, char *argv[])
 	/* If one wants to see, version number, just print and exit */
 	if (cmd_args.showversion) {
 		printf("ruiji-%s\n", VERSION);
-		return exit_code;
+		return 0;
 	}
 	if (cmd_args.showhelp) {
 		print_help();
-		return exit_code;
+		return 0;
 	}
 
-	exit_code = validate_upload_file(cmd_args.file);
+	/* return value */
+	short exit_code = validate_upload_file(cmd_args.file);
 	if (exit_code)
 		return exit_code;
 
@@ -249,7 +247,7 @@ int main(int argc, char *argv[])
 		image_upload_toast(cmd_args.file, IQDB_URL);
 	char *iqdb_html = upload_image(IQDB_URL, cmd_args.file, IQDB_UPLOAD_FIELD);
 
-	if (!iqdb_html) {
+	if (iqdb_html == NULL) {
 		fprintf(stderr, "Error: Failed to upload file\n");
 		ruiji_curl_cleanup();
 		return 1;
