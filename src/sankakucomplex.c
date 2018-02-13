@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "sankakucomplex.h"
-#include "parser.h"
+#include "helpers.h"
 
 /* Given a https://chan.sankakucomplex.com url,
  * parse the html to get the source image url
@@ -80,8 +80,8 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *web_content)
 		tag_contents = strstr(tag_contents, tag_category_uuid);
 	}
 
-	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
+	/* initialize a tags database to store tags */
 	struct llnode **tag_ptrs[6] = {
 		&(tag_db->tags[0]),
 		&(tag_db->tags[1]),

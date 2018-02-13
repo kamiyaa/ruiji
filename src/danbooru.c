@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "danbooru.h"
-#include "parser.h"
+#include "helpers.h"
 
 char *danbooru_generate_api_url(char *url)
 {

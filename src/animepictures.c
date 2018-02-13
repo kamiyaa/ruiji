@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "animepictures.h"
-#include "parser.h"
+#include "helpers.h"
 
 char *animepictures_get_image_url(char *web_content)
 {

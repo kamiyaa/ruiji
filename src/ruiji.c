@@ -4,7 +4,9 @@
 #include <unistd.h>
 #include <argp.h>
 
+#include "interface.h"
 #include "parser.h"
+#include "udload.h"
 
 #define VERSION "0.7.0"
 
@@ -196,12 +198,11 @@ short initialize(struct similar_image_llnode *image_list)
 
 			/* print tags if told to */
 			if (cmd_args.showtags) {
-				struct image_tag_db *tags_db =
+				struct image_tag_db *tag_db =
 					get_image_tags(domain_uid, api_content);
 				printf("Tags:\n");
-				print_image_tags(tags_db);
-				/* free allocated memory */
-				free_image_tags(tags_db);
+				print_image_tags(tag_db);
+				free_image_tags(tag_db);
 			}
 
 			/* free allocated memory */

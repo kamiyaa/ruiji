@@ -1,3 +1,5 @@
+#include "structs.h"
+
 /* Given a http://gelbooru.com/ url,
  * parse the html to get the source image url
  */

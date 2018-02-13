@@ -2,9 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "konachan.h"
-#include "parser.h"
 #include "yandere.h"
+#include "helpers.h"
 
 /* Given a https://konachan.com/ url,
  * parse the html to get the source image url

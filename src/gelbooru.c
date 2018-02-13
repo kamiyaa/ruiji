@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "gelbooru.h"
-#include "parser.h"
+#include "helpers.h"
 
 /* Given a http://gelbooru.com/ url,
  * parse the html to get the source image url

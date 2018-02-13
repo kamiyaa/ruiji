@@ -1,3 +1,5 @@
+#include "structs.h"
+
 /* given a danbooru url, parse it to generate a url
  * to a json version of the webpage
  */
