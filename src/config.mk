@@ -19,7 +19,7 @@ USE_FLAGS = ${COLORFLAG}
 # helper files for specific websites
 WEBSRC = animegallery.c animepictures.c danbooru.c eshuushuu.c gelbooru.c konachan.c mangadrawing.c sankakucomplex.c yandere.c zerochan.c
 # helper files to for main program
-HELPERS = ${WEBSRC} interface.c parser.c udload.c
+HELPERS = ${WEBSRC} helpers.c interface.c parser.c structs.c udload.c
 
 # object files
 HELPERS_OBJ = ${HELPERS:.c=.o}

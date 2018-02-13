@@ -7,7 +7,7 @@
 #include "structs.h"
 #include "udload.h"
 
-#define USER_AGENT "chrome/61"
+#define USER_AGENT "chrome/65"
 
 /* Given a url and the name to save as, download the file from the website
  * and return a integer indicating if successful or not.
