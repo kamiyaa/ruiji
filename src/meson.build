@@ -11,7 +11,7 @@ domains = ['animegallery.c', 'animepictures.c', 'danbooru.c' , 'eshuushuu.c',
 	'gelbooru.c', 'konachan.c', 'mangadrawing.c', 'sankakucomplex.c',
 	'yandere.c' , 'zerochan.c']
 
-helpers = ['interface.c', 'parser.c', 'udload.c']
+helpers = ['helpers.c', 'interface.c', 'parser.c', 'structs.c', 'udload.c']
 
 # ruiji executable
 executable('ruiji',
