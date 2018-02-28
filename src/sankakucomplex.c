@@ -73,9 +73,9 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *web_content)
 	/* set pointer to beginning of first tag */
 	if (tag_contents) {
 		/* slice string at where all tags section ends */
-		end_ptr = strstr(tag_contents, tags_end);
-		if (end_ptr)
-			end_ptr[0] = '\0';
+		if ((end_ptr = strstr(tag_contents, tags_end)))
+			*end_ptr = '\0';
+
 		tag_contents = &(tag_contents[initial_offset]);
 		tag_contents = strstr(tag_contents, tag_category_uuid);
 	}
@@ -137,7 +137,7 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *web_content)
 	}
 	/* unslice the string */
 	if (end_ptr)
-		end_ptr[0] = tags_end[0];
+		*end_ptr = tags_end[0];
 
 	return tag_db;
 }

@@ -4,6 +4,7 @@
 
 #include "mangadrawing.h"
 #include "parser.h"
+#include "udload.h"
 
 /* Given a https://mangadrawing.net/ url,
  * parse the html to get the source image url

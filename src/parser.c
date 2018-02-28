@@ -70,10 +70,9 @@ struct similar_image_llnode *create_image_list(char *web_content,
 			list_ptr = &((*list_ptr)->next);
 		}
 
-		if (url_len > 0) {
-			/* unslice string */
+		/* unslice string */
+		if (url_len > 0)
 			url_begin[url_len] = '"';
-		}
 
 		/* set the starting point of the string
 		 * to the next valid weblink */

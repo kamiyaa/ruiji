@@ -25,18 +25,15 @@ char *yandere_get_image_url(char *web_content)
 	/* initialize generic source image index */
 	char *source_index = NULL;
 
-	/* get png html pattern index and jpg html pattern index */
-	char *png_index = strstr(web_content, png_source_uuid);
-	char *jpg_index = strstr(web_content, jpg_source_uuid);
 
-
-	/* find source image link */
-	if (png_index) {
-		source_index = &(png_index[len_png]);
+	/* get png html pattern index and jpg html pattern index
+	 * and find source image link */
+	if ((source_index = strstr(web_content, png_source_uuid))) {
+		source_index = &(source_index[len_png]);
 		source_index = strstr(source_index, url_uuid);
 	}
-	else if (jpg_index) {
-		source_index = &(jpg_index[len_jpg]);
+	else if ((source_index = strstr(web_content, jpg_source_uuid))) {
+		source_index = &(source_index[len_jpg]);
 		source_index = strstr(source_index, url_uuid);
 	}
 

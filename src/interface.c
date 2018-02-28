@@ -132,17 +132,17 @@ void print_image_tags(struct image_tag_db *tag_db)
 
 void print_help(void)
 {
-	puts("Reverse image searching program using iqdb.org\n");
-	puts("Usage: ruiji [options] [file]\n");
-	puts("  -h --help \t\t Show this help message and quit");
-	puts("  -q --quiet \t\t Suppress verbose output");
-	puts("  -t --threshold <0-100> Only process and show images above given");
-	puts("             \t\t similarity percentage");
-	puts("  -T --tags \t\t Shows the tags associated with the image downloaded");
-	puts("  -v --version \t\t Show version number and quit");
-	puts("  -y --noprompt \t Skips user interactions and downloads");
-	puts("                \t the most similar image");
-	puts("\nreport bugs to https://github.com/Kamiyaa/ruiji");
+	fputs("Reverse image searching program using iqdb.org\n", stderr);
+	fputs("Usage: ruiji [options] file\n", stderr);
+	fputs("  -h --help \t\t Show this help message and quit", stderr);
+	fputs("  -q --quiet \t\t Suppress verbose output", stderr);
+	fputs("  -t --threshold <0-100> Only process and show images above given", stderr);
+	fputs("             \t\t similarity percentage", stderr);
+	fputs("  -T --tags \t\t Shows the tags associated with the image downloaded", stderr);
+	fputs("  -v --version \t\t Show version number and quit", stderr);
+	fputs("  -y --noprompt \t Skips user interactions and downloads", stderr);
+	fputs("                \t the most similar image", stderr);
+	fputs("\nreport bugs to https://github.com/Kamiyaa/ruiji", stderr);
 }
 
 

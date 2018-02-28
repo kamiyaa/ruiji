@@ -169,7 +169,7 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *web_content,
 	}
 	/* put comma back, unterminating the string */
 	if (end_ptr)
-		end_ptr[0] = tags_end;
+		*end_ptr = tags_end;
 
 	return tags;
 }
