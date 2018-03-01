@@ -106,31 +106,28 @@ error_t parse_opt(int key, char *arg, struct argp_state *state)
 	return 0;
 }
 
-int validate_upload_file(char *file_name)
+int ruiji_validate_file(char *file_name)
 {
-	int valid = 0;
-
 	/* check if selected image file exists */
 	FILE *img_fd;
 	/* rb for reading binary file */
 	img_fd = fopen(file_name, "rb");
 	if (img_fd == NULL) {
 		perror(file_name);
+		return 1;
+	}
+
+	int valid = 0;
+	/* get the size of the image file */
+	fseek(img_fd, 0L, SEEK_END);
+	int image_size = ftell(img_fd);
+	/* Check if it exceeds the max file size limit */
+	if (image_size > MAX_FILE_SIZE) {
+		fprintf(stderr, "Error: Maximum file size exceeded (%dKB)\n",
+			MAX_FILE_SIZE / 1000);
 		valid = 1;
 	}
-	else {
-		/* get the size of the image file */
-		fseek(img_fd, 0L, SEEK_END);
-		int image_size = ftell(img_fd);
-		/* Check if it exceeds the max file size limit */
-		if (image_size > MAX_FILE_SIZE) {
-			printf("Error: Maximum file size exceeded (%dKB)\n",
-				MAX_FILE_SIZE / 1000);
-			valid = 1;
-		}
-		/* Close the file handle */
-		fclose(img_fd);
-	}
+	fclose(img_fd);
 	return valid;
 }
 
@@ -193,8 +190,8 @@ int ruiji_get_image(struct similar_image_llnode *image_list, int index)
 		free(dl_url);
 
 	}
-	if (api_content)
-		free(api_content);
+	free(api_content);
+
 	/* Report back to the user how the download went */
 	return dl_status;
 }
@@ -218,7 +215,7 @@ int main(int argc, char **argv)
 	}
 
 	/* return value */
-	exit_status = validate_upload_file(cmd_args.file);
+	exit_status = ruiji_validate_file(cmd_args.file);
 	if (exit_status)
 		return exit_status;
 

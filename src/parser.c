@@ -9,13 +9,10 @@
 struct similar_image_llnode *create_image_list(char *web_content,
 	unsigned short similar_threshold)
 {
-
 	const char iqdb_result_uid[] =
 		"match</th></tr><tr><td class='image'><a href=\"";
 	/* get length of the string we are looking for and search for it */
 	const unsigned int iqdb_result_len = strlen(iqdb_result_uid);
-	/* get size of node for memory allocations later */
-	const int node_size = sizeof(struct similar_image_llnode);
 
 	/* check if matching string is found */
 	char *url_begin = strstr(web_content, iqdb_result_uid);
@@ -61,7 +58,10 @@ struct similar_image_llnode *create_image_list(char *web_content,
 				create_sim_image(url_begin, similarity, x, y);
 
 			/* allocate memory for node */
-			*list_ptr = malloc(node_size);
+			*list_ptr = malloc(sizeof(struct similar_image_llnode));
+			/* out of memory */
+			if (*list_ptr == NULL)
+				break;
 
 			(*list_ptr)->image = image;
 			(*list_ptr)->next = NULL;
