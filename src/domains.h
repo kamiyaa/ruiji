@@ -1,4 +1,5 @@
 #ifndef DOMAINS_H
+#define DOMAINS_H
 
 #include "animegallery.h"
 #include "animepictures.h"
