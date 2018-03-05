@@ -66,14 +66,14 @@ void print_image_tags(struct image_tag_db *tag_db)
 	};
 
 	struct llnode *ptr;
-	for (int i = 0; i < 6; i++) {
+	for (unsigned int i = 0; i < 6; i++) {
 		ptr = tag_db->tags[i];
 		printf("%s%s (%d)\t: ", COLOR_DEFAULT, tag_names[i], tag_db->tag_size[i]);
 		while (ptr) {
 			printf("%s%s %s", color_scheme[i], ptr->data, COLOR_DEFAULT);
 			ptr = ptr->next;
 		}
-		printf("\n");
+		putchar('\n');
 	}
 }
 
@@ -117,14 +117,14 @@ void print_image_tags(struct image_tag_db *tag_db)
 	};
 
 	struct llnode *ptr;
-	for (int i = 0; i < 6; i++) {
+	for (unsigned int i = 0; i < 6; i++) {
 		ptr = tag_db->tags[i];
 		printf("%s (%d): ", tag_names[i], tag_db->tag_size[i]);
 		while (ptr) {
 			printf("%s ", ptr->data);
 			ptr = ptr->next;
 		}
-		printf("\n");
+		putchar('\n');
 	}
 }
 

@@ -133,11 +133,13 @@ int ruiji_validate_file(char *file_name)
 
 void ruiji_get_tags(enum domain_t domain_uid, char *api_content)
 {
-	struct image_tag_db *tag_db =
-		get_image_tags(domain_uid, api_content);
 	printf("Tags:\n");
-	print_image_tags(tag_db);
-	free_image_tags(tag_db);
+
+	struct image_tag_db *tag_db;
+	if ((tag_db = get_image_tags(domain_uid, api_content))) {
+		print_image_tags(tag_db);
+		free_image_tags(tag_db);
+	}
 }
 
 int ruiji_get_image(struct similar_image_llnode *image_list, int index)
@@ -148,52 +150,64 @@ int ruiji_get_image(struct similar_image_llnode *image_list, int index)
 
 	struct similar_image *dl_image = list_ptr->image;
 
-	/* get internal uid of domain */
 	enum domain_t domain_uid = get_domain_uid(dl_image->post_link);
-	/* get api link for post_link */
+
 	char *api_link = generate_api_link(domain_uid, dl_image->post_link);
+	if (api_link == NULL) {
+		fprintf(stderr, "Error: Failed to generate api\n");
+		return 1;
+	}
 
 	/* get the html contents of the website */
-	char *api_content = (api_link == NULL) ?
-				NULL : get_html(api_link);
+	char *api_content = get_html(api_link);
 	free(api_link);
 
-	/* parse for the source url of the image */
-	char *dl_url = (api_content == NULL) ?
-			NULL : get_image_source_url(domain_uid, api_content);
+	if (api_content == NULL) {
+		fprintf(stderr, "Error: Failed to generate api\n");
+		return 1;
+	}
 
-	/* used to check if download was successful */
-	int dl_status = 1;
+	/* parse for the source url of the image */
+	char *dl_url = get_image_source_url(domain_uid, api_content);
 
 	/* Check if we've successfully parsed the source image
 	 * url */
-	if (dl_url) {
-		/* get the name of the file from its server */
-		char *file_save_name = get_server_file_name(dl_url);
-
-		/* Notify the user we are downloading the image */
-		if (cmd_args.verbose)
-			image_download_toast(dl_image->post_link);
-		/* notify the user */
-		if (cmd_args.verbose)
-			image_save_toast(file_save_name);
-
-		/* save the image as it's name on the server */
-		dl_status = download_image(dl_url, file_save_name);
-
-		/* print tags if told to */
-		if (cmd_args.showtags)
-			ruiji_get_tags(domain_uid, api_content);
-
-		/* free allocated memory */
-		free(file_save_name);
-		free(dl_url);
-
+	if (dl_url == NULL) {
+		fprintf(stderr, "Error: Failed to find image link\n");
+		return 1;
 	}
+
+	if (cmd_args.verbose)
+		image_download_toast(dl_image->post_link);
+
+	char *file_save_name = get_server_file_name(dl_url);
+
+	if (cmd_args.verbose)
+		image_save_toast(file_save_name);
+
+	/* save the image as it's name on the server */
+	int dl_status;
+	if ((dl_status = download_image(dl_url, file_save_name)) != 0) {
+		fprintf(stderr, "Error: Download failed\n");
+		return dl_status;
+	}
+
+	/* print tags */
+	if (cmd_args.showtags)
+		ruiji_get_tags(domain_uid, api_content);
+
+	free(file_save_name);
+	free(dl_url);
 	free(api_content);
 
 	/* Report back to the user how the download went */
 	return dl_status;
+}
+
+void ruiji_exit(int exit_status)
+{
+	ruiji_curl_cleanup();
+	exit(exit_status);
 }
 
 int main(int argc, char **argv)
@@ -227,8 +241,7 @@ int main(int argc, char **argv)
 
 	if (iqdb_html == NULL) {
 		fprintf(stderr, "Error: Failed to upload file\n");
-		ruiji_curl_cleanup();
-		return 1;
+		ruiji_exit(1);
 	}
 
 	/* Initialize a struct to hold all the images similar
@@ -238,35 +251,30 @@ int main(int argc, char **argv)
 	/* free up allocated memory */
 	free(iqdb_html);
 
-	if (image_list) {
-		/* initialize image selection to 0 */
-		int index = 0;
-		int image_list_size = 1;
-		if (cmd_args.prompt) {
-			/* print out all results and its properties */
-			image_list_size = print_sim_results(image_list);
-
-			do {
-				/* ask user which website they would like to download from */
-				printf("Which one to download? (-1 to exit): ");
-			} while (scanf("%d", &index) != 1);
-		}
-
-		if (index < 0 || index >= image_list_size) {
-			fprintf(stderr, "Error: Invalid option selected\n");
-			exit_status = 1;
-		}
-		else if ((exit_status = ruiji_get_image(image_list, index)) != 0) {
-			fprintf(stderr, "Error: Download failed\n");
-		}
-
-		/* free up allocated memory */
-		free_similar_image_list(image_list);
-	}
-	else {
+	if (image_list == NULL) {
 		fprintf(stderr, "No results found! :(\n");
-		exit_status = 1;
+		ruiji_exit(1);
 	}
+
+	/* initialize image selection to 0 */
+	int index = 0;
+	int image_list_size = 1;
+	if (cmd_args.prompt) {
+		/* print out all results and its properties */
+		image_list_size = print_sim_results(image_list);
+		do {
+			printf("Which one to download? (-1 to exit): ");
+		} while (scanf("%d", &index) != 1);
+	}
+
+	if (index < 0 || index >= image_list_size) {
+		fprintf(stderr, "Error: Invalid option selected\n");
+		ruiji_exit(1);
+	}
+	exit_status = ruiji_get_image(image_list, index);
+
+	/* free up allocated memory */
+	free_similar_image_list(image_list);
 
 	/* clean up curl */
 	ruiji_curl_cleanup();
