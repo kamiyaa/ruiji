@@ -13,7 +13,7 @@ char *danbooru_generate_api_url(char *url)
 	unsigned int url_len = strlen(url);
 
 	char *api_url = malloc(sizeof(char) * (url_len + json_len + 1));
-	if (img_src_url == NULL) {
+	if (api_url == NULL) {
 		fprintf(stderr,
 			"danbooru_generate_api_url(): Error: Out of memory\n");
 		return NULL;
@@ -127,8 +127,6 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *web_content,
 {
 	const char tags_end = ',';
 
-	char *end_ptr = NULL;
-
 	int tag_len = strlen(tag_pattern);
 
 	/* look for the pattern in web_content */
@@ -143,8 +141,9 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *web_content,
 	/* get the end of this json property, set
 	 * end_ptr to it and set it to a null terminator */
 	int tag_end = get_distance(json_ptr, tags_end);
-	end_ptr = &(json_ptr[tag_end]);
-	if (end_ptr)
+
+	char *end_ptr;
+	if ((end_ptr = &(json_ptr[tag_end])))
 		*end_ptr = '\0';
 
 	/* set the character before it to be a space */
