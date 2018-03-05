@@ -25,26 +25,32 @@ char *eshuushuu_get_image_url(char *web_content)
 	char *source_index = strstr(web_content, source_uuid);
 
 	/* If found, add the website url to it and return it */
-	if (source_index) {
-		/* move source_index pointer to the beginning of
-		 * the source image url */
-		source_index = &(source_index[len_source_uuid]);
-		/* get the length of the source image url */
-		int url_len = get_distance(source_index, source_end);
-
-		/* allocate enough memory to hold the image source url,
-		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(sizeof(char) *
-					(len_eshuushuu_url + url_len + 1));
-
-		strncpy(img_src_url, eshuushuu_url, len_eshuushuu_url);
-		strncpy(&(img_src_url[len_eshuushuu_url]), source_index, url_len);
-		img_src_url[url_len + len_eshuushuu_url] = '\0';
-	}
-	else {
+	if (source_index == NULL) {
 		fprintf(stderr,
 			"eshuushuu_get_image_url(): Error: Failed to parse website\n");
+		return NULL;
 	}
+
+	/* move source_index pointer to the beginning of
+	 * the source image url */
+	source_index = &(source_index[len_source_uuid]);
+	/* get the length of the source image url */
+	int url_len = get_distance(source_index, source_end);
+
+	/* allocate enough memory to hold the image source url,
+	 * then copy the url over to img_src_url and return it */
+	img_src_url = malloc(sizeof(char) *
+				(len_eshuushuu_url + url_len + 1));
+
+	if (img_src_url == NULL) {
+		fprintf(stderr,
+			"eshuushuu_get_image_url(): Error: Out of memory\n");
+		return NULL;
+	}
+
+	strncpy(img_src_url, eshuushuu_url, len_eshuushuu_url);
+	strncpy(&(img_src_url[len_eshuushuu_url]), source_index, url_len);
+	img_src_url[url_len + len_eshuushuu_url] = '\0';
 
 	/* return the image source url */
 	return img_src_url;
@@ -106,17 +112,15 @@ struct llnode *eshuushuu_parse_tags_html(char *tag_pattern, char *web_content,
 	char *end_ptr = strstr(html_ptr, tags_end);
 
 	/* if we found an ending point to the string, terminate it there */
-	if (end_ptr) {
-		end_ptr[0] = '\0';
+	if (end_ptr == NULL)
+		return NULL;
 
-		/* move html_ptr to next tag starting position */
-		html_ptr = strstr(html_ptr, tags_uuid);
-	}
+	*end_ptr = '\0';
 
 	struct llnode *tags = NULL;
 	struct llnode **tags_ptr = &(tags);
 
-	while (html_ptr) {
+	while ((html_ptr = strstr(html_ptr, tags_uuid))) {
 		/* move html_ptr to end of tags_uuid pattern */
 		html_ptr = &(html_ptr[tag_uuid_len]);
 		/* get where next '>' is and move html_ptr 1 char past it */
@@ -129,6 +133,9 @@ struct llnode *eshuushuu_parse_tags_html(char *tag_pattern, char *web_content,
 		/* allocate enough memory for the tag name +
 		 * null terminator */
 		char *tag_name = malloc(sizeof(char) * (tag_name_len + 1));
+		if (tag_name == NULL)
+			break;
+
 		/* copy tag name to tag_name */
 		strncpy(tag_name, html_ptr, tag_name_len);
 		tag_name[tag_name_len] = '\0';
@@ -140,16 +147,12 @@ struct llnode *eshuushuu_parse_tags_html(char *tag_pattern, char *web_content,
 		(*tags_ptr)->data = tag_name;
 		/* move tags_ptr to next */
 		tags_ptr = &((*tags_ptr)->next);
-
-		/* move html_ptr to next tag starting position */
-		html_ptr = strstr(html_ptr, tags_uuid);
-
 		(*size)++;
 	}
 
 	/* put value back, unterminating the string */
 	if (end_ptr)
-		end_ptr[0] = tags_end[0];
+		*end_ptr = tags_end[0];
 
 	return tags;
 }

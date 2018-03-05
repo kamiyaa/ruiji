@@ -26,25 +26,30 @@ char *sankakucomplex_get_image_url(char *web_content)
 
 	/* If source image link is found,
 	 * add http extension to it and return it */
-	if (source_index) {
-		/* move source_index pointer to the beginning of
-		 * the source image url */
-		source_index = &source_index[len_source];
-		int len_url = get_distance(source_index, source_end);
-
-		/* allocate enough memory to hold the image source url,
-		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(sizeof(char) *
-					(len_https + len_url + 1));
-
-		strncpy(img_src_url, https, len_https);
-		strncpy(&(img_src_url[len_https]), source_index, len_url);
-		img_src_url[len_https + len_url] = '\0';
-	}
-	else {
+	if (source_index == NULL) {
 		fprintf(stderr,
 			"sankaku_complex_get_image_url(): Error: Failed to parse website\n");
+		return NULL;
 	}
+
+	/* move source_index pointer to the beginning of
+	 * the source image url */
+	source_index = &source_index[len_source];
+	int len_url = get_distance(source_index, source_end);
+
+	/* allocate enough memory to hold the image source url,
+	 * then copy the url over to img_src_url and return it */
+	img_src_url = malloc(sizeof(char) *
+				(len_https + len_url + 1));
+	if (img_src_url == NULL) {
+		fprintf(stderr,
+			"sankaku_complex_get_image_url(): Error: Out of memory\n");
+		return NULL;
+	}
+
+	strncpy(img_src_url, https, len_https);
+	strncpy(&(img_src_url[len_https]), source_index, len_url);
+	img_src_url[len_https + len_url] = '\0';
 
 	/* return the image source url */
 	return img_src_url;
@@ -65,21 +70,6 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *web_content)
 	const unsigned int category_offset = strlen(tag_category_uuid);
 	const unsigned int name_offset = strlen(tag_name_uuid);
 
-	/* pointer pointing to the end of tag string */
-	char *end_ptr = NULL;
-
-	/* set tag_contents to the beginning in which the tags begin */
-	char *tag_contents = strstr(web_content, tags_uuid);
-	/* set pointer to beginning of first tag */
-	if (tag_contents) {
-		/* slice string at where all tags section ends */
-		if ((end_ptr = strstr(tag_contents, tags_end)))
-			*end_ptr = '\0';
-
-		tag_contents = &(tag_contents[initial_offset]);
-		tag_contents = strstr(tag_contents, tag_category_uuid);
-	}
-
 	struct image_tag_db *tag_db = init_image_tag_db();
 	/* initialize a tags database to store tags */
 	struct llnode **tag_ptrs[6] = {
@@ -91,7 +81,23 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *web_content)
 		&(tag_db->tags[5])
 	};
 
-	while (tag_contents) {
+	/* set tag_contents to the beginning in which the tags begin */
+	char *tag_contents = strstr(web_content, tags_uuid);
+	/* set pointer to beginning of first tag */
+	if (tag_contents == NULL)
+		return tag_db;
+
+	/* pointer pointing to the end of tag string */
+	char *end_ptr;
+
+	/* slice string at where all tags section ends */
+	if ((end_ptr = strstr(tag_contents, tags_end)))
+		*end_ptr = '\0';
+
+	tag_contents = &(tag_contents[initial_offset]);
+
+	while ((tag_contents = strstr(tag_contents, tag_category_uuid))) {
+
 		tag_contents = &(tag_contents[category_offset]);
 
 		/* get how far we are from the end of current tag */
@@ -112,6 +118,9 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *web_content)
 
 		/* allocate enough memory for the tag name + null terminator */
 		char *tag_name = malloc(sizeof(char) * (tag_name_len + 1));
+		if (tag_name == NULL)
+			break;
+
 		strncpy(tag_name, tag_contents, tag_name_len);
 		tag_name[tag_name_len] = '\0';
 
@@ -124,16 +133,12 @@ struct image_tag_db *sankakucomplex_get_image_tags(char *web_content)
 
 		/* set tag_ptrs to its next value */
 		tag_ptrs[tag_index] = &((*(tag_ptrs[tag_index]))->next);
-
-
 		/* increment the amount of tags in this category we currently
 		 * found */
 		(tag_db->tag_size[tag_index])++;
 
 		/* move on to next tag */
 		tag_contents = &(tag_contents[tag_name_len]);
-		/* search for next tag */
-		tag_contents = strstr(tag_contents, tag_category_uuid);
 	}
 	/* unslice the string */
 	if (end_ptr)

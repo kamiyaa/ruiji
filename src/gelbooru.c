@@ -20,23 +20,29 @@ char *gelbooru_get_image_url(char *web_content)
 	char *source_index = strstr(web_content, source_uuid);
 
 	/* If found, add the danbooru url to it and return it */
-	if (source_index) {
-		/* move source_index pointer to the beginning of
-		 * the source image url */
-		source_index = &source_index[source_uuid_len];
-		/* get the length of the source image url */
-		int url_len = get_distance(source_index, '"');
-
-		/* allocate enough memory to hold the image source url,
-		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(sizeof(char) * (url_len + 1));
-		strncpy(img_src_url, source_index, url_len);
-		img_src_url[url_len] = '\0';
-	}
-	else {
+	if (source_index == NULL) {
 		fprintf(stderr,
 			"gelbooru_get_image_url(): Error: Failed to parse website\n");
+		return NULL;
 	}
+
+	/* move source_index pointer to the beginning of
+	 * the source image url */
+	source_index = &source_index[source_uuid_len];
+	/* get the length of the source image url */
+	int url_len = get_distance(source_index, '"');
+
+	/* allocate enough memory to hold the image source url,
+	 * then copy the url over to img_src_url and return it */
+	img_src_url = malloc(sizeof(char) * (url_len + 1));
+	if (img_src_url == NULL) {
+		fprintf(stderr,
+			"gelbooru_get_image_url(): Error: Out of memory\n");
+		return NULL;
+	}
+
+	strncpy(img_src_url, source_index, url_len);
+	img_src_url[url_len] = '\0';
 
 	/* return the image source url */
 	return img_src_url;
@@ -56,18 +62,6 @@ struct image_tag_db *gelbooru_get_image_tags(char *web_content)
 	const unsigned int category_offset = strlen(tag_category_uuid);
 	const unsigned int name_offset = strlen(tag_name_uuid);
 
-	/* pointer pointing to the end of tag string */
-	char *end_ptr = NULL;
-
-	/* set tag_ptr to the beginning in which the tags begin */
-	char *tag_contents = strstr(web_content, tags_uuid);
-	if (tag_contents) {
-		tag_contents = &(tag_contents[initial_offset]);
-		end_ptr = strstr(tag_contents, tags_end);
-		if (end_ptr)
-			end_ptr[0] = '\0';
-	}
-
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
 	struct llnode **tag_ptrs[6] = {
@@ -79,9 +73,20 @@ struct image_tag_db *gelbooru_get_image_tags(char *web_content)
 		&(tag_db->tags[5])
 	};
 
+	/* pointer pointing to the end of tag string */
+	char *end_ptr = NULL;
+
+	/* set tag_ptr to the beginning in which the tags begin */
+	char *tag_contents = strstr(web_content, tags_uuid);
+	if (tag_contents == NULL)
+		return tag_db;
+
+	tag_contents = &(tag_contents[initial_offset]);
+	if ((end_ptr = strstr(tag_contents, tags_end)))
+		*end_ptr = '\0';
+
 	/* set pointer to beginning of first tag */
-	tag_contents = strstr(tag_contents, tag_category_uuid);
-	while (tag_contents) {
+	while ((tag_contents = strstr(tag_contents, tag_category_uuid))) {
 		/* move to beginning of tag type */
 		tag_contents = &(tag_contents[category_offset]);
 
@@ -123,11 +128,10 @@ struct image_tag_db *gelbooru_get_image_tags(char *web_content)
 		(tag_db->tag_size[tag_index])++;
 
 		tag_contents = &(tag_contents[tag_name_len]);
-		tag_contents = strstr(tag_contents, tag_category_uuid);
 	}
 	/* unslice the string */
 	if (end_ptr)
-		end_ptr[0] = tags_end[0];
+		*end_ptr = tags_end[0];
 
 	return tag_db;
 }

@@ -25,26 +25,33 @@ char *animepictures_get_image_url(char *web_content)
 
 	/* If source image link is found,
 	 * add the danbooru url to it and return it */
-	if (source_index) {
-		/* move source_index pointer to the beginning of
-		 * the source image url */
-		source_index = &(source_index[source_uuid_len]);
-		/* get the length of the source image url */
-		int url_len = get_distance(source_index, source_end);
-
-		/* allocate enough memory to hold the image source url,
-		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(sizeof(char) *
-					(url_len + animepictures_url_len + 1));
-		strncpy(img_src_url, animepictures_url, animepictures_url_len);
-		strncpy(&(img_src_url[animepictures_url_len]),
-			source_index, url_len);
-		img_src_url[url_len + animepictures_url_len] = '\0';
-	}
-	else {
+	if (source_index == NULL) {
 		fprintf(stderr,
 			"animepictures_get_image_url(): Error: Failed to parse website\n");
+		return NULL;
 	}
+
+	/* move source_index pointer to the beginning of
+	 * the source image url */
+	source_index = &(source_index[source_uuid_len]);
+	/* get the length of the source image url */
+	int url_len = get_distance(source_index, source_end);
+
+	/* allocate enough memory to hold the image source url,
+	 * then copy the url over to img_src_url and return it */
+	img_src_url = malloc(sizeof(char) *
+				(url_len + animepictures_url_len + 1));
+	if (img_src_url == NULL) {
+		fprintf(stderr,
+			"animepictures_get_image_url(): Error: Out of memory\n");
+		return NULL;
+	}
+
+	strncpy(img_src_url, animepictures_url, animepictures_url_len);
+	strncpy(&(img_src_url[animepictures_url_len]),
+		source_index, url_len);
+	img_src_url[url_len + animepictures_url_len] = '\0';
+
 	return img_src_url;
 }
 

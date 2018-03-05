@@ -25,7 +25,6 @@ char *yandere_get_image_url(char *web_content)
 	/* initialize generic source image index */
 	char *source_index = NULL;
 
-
 	/* get png html pattern index and jpg html pattern index
 	 * and find source image link */
 	if ((source_index = strstr(web_content, png_source_uuid))) {
@@ -38,23 +37,26 @@ char *yandere_get_image_url(char *web_content)
 	}
 
 	/* check if any html pattern was detected */
-	if (source_index) {
-		source_index = &(source_index[len_url_uuid]);
-		/* get the length of the source image url */
-		int url_len = get_distance(source_index, '"');
-
-		/* allocate enough memory to hold the image source url,
-		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(sizeof(char) * (url_len + 1));
-		img_src_url[0] = '\0';
-		strncat(img_src_url, source_index, url_len);
-	}
-	/* otherwise, this html content did not contain any html pattern we
-	 * recognize, so error */
-	else {
+	if (source_index == NULL) {
 		fprintf(stderr,
 			"yandere_get_image_url(): Error: Failed to parse website\n");
+		return NULL;
 	}
+	source_index = &(source_index[len_url_uuid]);
+	/* get the length of the source image url */
+	int url_len = get_distance(source_index, '"');
+
+	/* allocate enough memory to hold the image source url,
+	 * then copy the url over to img_src_url and return it */
+	img_src_url = malloc(sizeof(char) * (url_len + 1));
+	if (img_src_url == NULL) {
+		fprintf(stderr,
+			"yandere_get_image_url(): Error: Out of memory\n");
+		return NULL;
+	}
+
+	strncpy(img_src_url, source_index, url_len);
+	img_src_url[url_len] = '\0';
 
 	/* return the image source url */
 	return img_src_url;
@@ -72,29 +74,6 @@ struct image_tag_db *yandere_get_image_tags(char *web_content)
 	/* offsets from actual value */
 	const unsigned int initial_offset = strlen(tags_uuid);
 
-	/* get the next colon */
-	int next_tag_distance = 0;
-
-	/* pointer pointing to the end of tag string */
-	char *end_ptr = NULL;
-
-	/* set tag_ptr to the beginning in which the tags begin */
-	char *tag_contents = strstr(web_content, tags_uuid);
-	if (tag_contents) {
-		/* move pointer to start of tag */
-		tag_contents = &(tag_contents[initial_offset]);
-
-		/* get the end of tags section and slice string at the end */
-		int tag_contents_end = get_distance(tag_contents, tags_end);
-		/* replace end of tags with tag_name_uuid for easier parsing */
-		tag_contents[tag_contents_end] = tag_name_uuid;
-		/* slice string after it */
-		end_ptr = &(tag_contents[tag_contents_end + 1]);
-		end_ptr[0] = '\0';
-
-		next_tag_distance = get_distance(tag_contents, tag_name_uuid);
-	}
-
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
 	struct llnode **tag_ptrs[6] = {
@@ -106,7 +85,27 @@ struct image_tag_db *yandere_get_image_tags(char *web_content)
 		&(tag_db->tags[5])
 	};
 
-	while (next_tag_distance > 0) {
+	/* set tag_ptr to the beginning in which the tags begin */
+	char *tag_contents = strstr(web_content, tags_uuid);
+	if (tag_contents == NULL)
+		return tag_db;
+
+
+	/* move pointer to start of tag */
+	tag_contents = &(tag_contents[initial_offset]);
+
+	/* get the end of tags section and slice string at the end */
+	int tag_contents_end = get_distance(tag_contents, tags_end);
+	/* replace end of tags with tag_name_uuid for easier parsing */
+	tag_contents[tag_contents_end] = tag_name_uuid;
+	/* slice string after it */
+	char *end_ptr = &(tag_contents[tag_contents_end + 1]);
+	*end_ptr = '\0';
+
+
+	/* get the next colon */
+	int next_tag_distance;
+	while ((next_tag_distance = get_distance(tag_contents, tag_name_uuid)) > 0) {
 		/* get the end of the category name */
 		unsigned int category_end_distance =
 			get_distance(tag_contents, tag_name_uuid);
@@ -128,12 +127,18 @@ struct image_tag_db *yandere_get_image_tags(char *web_content)
 
 		/* allocate enough memory for the tag name + null terminator */
 		char *tag_name = malloc(sizeof(char) * (tag_name_len + 1));
+		if (tag_name == NULL)
+			break;
+
 		strncpy(tag_name, tag_contents, tag_name_len);
 		tag_name[tag_name_len] = '\0';
 
 
 		/* allocate memory for node */
 		*(tag_ptrs[tag_type]) = malloc(sizeof(struct llnode));
+		if (tag_ptrs[tag_type] == NULL)
+			break;
+
 		/* set next to NULL and data to tag_name */
 		(*(tag_ptrs[tag_type]))->next = NULL;
 		(*(tag_ptrs[tag_type]))->data = tag_name;
@@ -148,12 +153,9 @@ struct image_tag_db *yandere_get_image_tags(char *web_content)
 
 		/* move on to next tag */
 		tag_contents = &(tag_contents[category_end_distance]);
-		/* search for next tag */
-		next_tag_distance = get_distance(tag_contents, tag_name_uuid);
 	}
 	/* unslice the string */
-	if (end_ptr)
-		end_ptr[0] = tags_end;
+	*end_ptr = tags_end;
 
 	return tag_db;
 }

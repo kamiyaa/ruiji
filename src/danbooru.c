@@ -13,6 +13,11 @@ char *danbooru_generate_api_url(char *url)
 	unsigned int url_len = strlen(url);
 
 	char *api_url = malloc(sizeof(char) * (url_len + json_len + 1));
+	if (img_src_url == NULL) {
+		fprintf(stderr,
+			"danbooru_generate_api_url(): Error: Out of memory\n");
+		return NULL;
+	}
 
 	strncpy(api_url, url, url_len);
 	strncpy(&(api_url[url_len]), json_fformat, json_len + 1);
@@ -38,26 +43,33 @@ char *danbooru_get_image_url_json(char *web_content)
 	char *source_index = strstr(web_content, source_uuid);
 	/* If source image link is found,
 	 * add the danbooru url to it and return it */
-	if (source_index) {
-		/* move source_index pointer to the beginning of
-		 * the source image url */
-		source_index = &(source_index[source_uuid_len]);
-		/* get the length of the source image url */
-		int url_len = get_distance(source_index, source_end);
-
-		/* allocate enough memory to hold the image source url,
-		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(sizeof(char) *
-					(url_len + danbooru_url_len + 1));
-		strncpy(img_src_url, danbooru_url, danbooru_url_len);
-		strncpy(&(img_src_url[danbooru_url_len]),
-			source_index, url_len);
-		img_src_url[url_len + danbooru_url_len] = '\0';
-	}
-	else {
+	if (source_index == NULL) {
 		fprintf(stderr,
 			"danbooru_get_image_url_json(): Error: Failed to parse website\n");
+		return NULL;
 	}
+
+	/* move source_index pointer to the beginning of
+	 * the source image url */
+	source_index = &(source_index[source_uuid_len]);
+	/* get the length of the source image url */
+	int url_len = get_distance(source_index, source_end);
+
+	/* allocate enough memory to hold the image source url,
+	 * then copy the url over to img_src_url and return it */
+	img_src_url = malloc(sizeof(char) *
+				(url_len + danbooru_url_len + 1));
+	if (img_src_url == NULL) {
+		fprintf(stderr,
+			"danbooru_get_image_url_json(): Error: Out of memory\n");
+		return NULL;
+	}
+
+	strncpy(img_src_url, danbooru_url, danbooru_url_len);
+	strncpy(&(img_src_url[danbooru_url_len]),
+		source_index, url_len);
+	img_src_url[url_len + danbooru_url_len] = '\0';
+
 	return img_src_url;
 }
 
@@ -115,37 +127,40 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *web_content,
 {
 	const char tags_end = ',';
 
-	int tag_name_len = 0;
 	char *end_ptr = NULL;
 
 	int tag_len = strlen(tag_pattern);
 
 	/* look for the pattern in web_content */
 	char *json_ptr = strstr(web_content, tag_pattern);
-	if (json_ptr) {
-		/* if we found the pattern, set json_ptr to the end
-		 * of the pattern */
-		json_ptr = &(json_ptr[tag_len]);
+	if (json_ptr == NULL)
+		return NULL;
 
-		/* get the end of this json property, set
-		 * end_ptr to it and set it to a null terminator */
-		int tag_end = get_distance(json_ptr, tags_end);
-		end_ptr = &(json_ptr[tag_end]);
-		if (end_ptr)
-			end_ptr[0] = '\0';
+	/* if we found the pattern, set json_ptr to the end
+	 * of the pattern */
+	json_ptr = &(json_ptr[tag_len]);
 
-		/* set the character before it to be a space */
-		json_ptr[tag_end - 1] = ' ';
-		/* get the next space offset and set tag_name_len to it */
-		tag_name_len = get_distance(json_ptr, ' ');
-	}
+	/* get the end of this json property, set
+	 * end_ptr to it and set it to a null terminator */
+	int tag_end = get_distance(json_ptr, tags_end);
+	end_ptr = &(json_ptr[tag_end]);
+	if (end_ptr)
+		*end_ptr = '\0';
+
+	/* set the character before it to be a space */
+	json_ptr[tag_end - 1] = ' ';
 
 	struct llnode *tags = NULL;
 	struct llnode **tags_ptr = &(tags);
 
-	while (tag_name_len > 0) {
+	int tag_name_len;
+	/* get the next space offset and set tag_name_len to it */
+	while ((tag_name_len = get_distance(json_ptr, ' ')) > 0) {
 		/* allocate enough memory for the tag name + null terminator */
 		char *tag_name = malloc(sizeof(char) * (tag_name_len + 1));
+		if (tag_name == NULL)
+			break;
+
 		/* copy tag name to tag_name */
 		strncpy(tag_name, json_ptr, tag_name_len);
 		tag_name[tag_name_len] = '\0';
@@ -153,19 +168,18 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *web_content,
 
 		/* allocate memory for a llnode */
 		*tags_ptr = malloc(sizeof(struct llnode));
+		if (tags_ptr == NULL)
+			break;
+
 		/* set next to NULL and data to tag_name */
 		(*tags_ptr)->next = NULL;
 		(*tags_ptr)->data = tag_name;
 		/* move tags_ptr to next */
 		tags_ptr = &((*tags_ptr)->next);
-
+		(*size)++;
 
 		/* move json_ptr to next tag starting position */
 		json_ptr = &(json_ptr[tag_name_len + 1]);
-		/* get the next ' ' offset */
-		tag_name_len = get_distance(json_ptr, ' ');
-
-		(*size)++;
 	}
 	/* put comma back, unterminating the string */
 	if (end_ptr)

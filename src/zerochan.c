@@ -22,22 +22,27 @@ char *zerochan_get_image_url(char *web_content)
 	char *source_index = strstr(web_content, source_uuid);
 
 	/* If found, return it */
-	if (source_index) {
-		/* move source_index pointer to the beginning of
-		 * the source image url */
-		source_index = &(source_index[len_source_uuid]);
-		int url_len = get_distance(source_index, source_end);
-
-		/* allocate enough memory to hold the image source url,
-		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(sizeof(char) * (url_len + 1));
-		strncpy(img_src_url, source_index, url_len);
-		img_src_url[url_len] = '\0';
-	}
-	else {
+	if (source_index == NULL) {
 		fprintf(stderr,
 			"zerochan_get_image_url(): Error: Failed to parse website\n");
+		return NULL;
 	}
+	/* move source_index pointer to the beginning of
+	 * the source image url */
+	source_index = &(source_index[len_source_uuid]);
+	int url_len = get_distance(source_index, source_end);
+
+	/* allocate enough memory to hold the image source url,
+	 * then copy the url over to img_src_url and return it */
+	img_src_url = malloc(sizeof(char) * (url_len + 1));
+	if (img_src_url == NULL) {
+		fprintf(stderr,
+			"zerochan_get_image_url(): Error: Out of memory\n");
+		return NULL;
+	}
+
+	strncpy(img_src_url, source_index, url_len);
+	img_src_url[url_len] = '\0';
 
 	/* return the image source url */
 	return img_src_url;
@@ -50,29 +55,6 @@ struct image_tag_db *zerochan_get_image_tags_html(char *web_content)
 	const char tags_end = '"';
 	const unsigned int initial_offset = strlen(tags_uuid);
 
-	/* length of tag name */
-	int tag_name_len = 0;
-
-	/* pointer pointing to the end of tag string */
-	char *end_ptr = NULL;
-
-	/* set tag_ptr to the beginning in which the tags begin */
-	char *tag_contents = strstr(web_content, tags_uuid);
-	if (tag_contents) {
-		/* move pointer to start of tag */
-		tag_contents = &(tag_contents[initial_offset]);
-
-		/* get the end of tags section and slice string at the end */
-		int tag_contents_end = get_distance(tag_contents, tags_end);
-
-
-		/* slice string */
-		end_ptr = &(tag_contents[tag_contents_end]);
-		end_ptr[0] = '\0';
-
-		tag_name_len = get_distance(tag_contents, tag_name_uuid);
-	}
-
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
 	struct llnode **tag_ptrs[6] = {
@@ -84,24 +66,48 @@ struct image_tag_db *zerochan_get_image_tags_html(char *web_content)
 		&(tag_db->tags[5])
 	};
 
+	/* pointer pointing to the end of tag string */
+	char *end_ptr = NULL;
+
+	/* set tag_ptr to the beginning in which the tags begin */
+	char *tag_contents = strstr(web_content, tags_uuid);
+	if (tag_contents == NULL)
+		return tag_db;
+
+	/* move pointer to start of tag */
+	tag_contents = &(tag_contents[initial_offset]);
+	/* get the end of tags section and slice string at the end */
+	int tag_contents_end = get_distance(tag_contents, tags_end);
+
+	/* slice string */
+	end_ptr = &(tag_contents[tag_contents_end]);
+	*end_ptr = '\0';
+
 	/* Zerochan has no association with tag types,
 	 * therefore, all tags will be of general type
 	 */
-	int tag_type = 5;
+	const unsigned int tag_type = 5;
 
-	while (tag_name_len > 0) {
+	/* length of tag name */
+	int tag_name_len;
+	while ((tag_name_len = get_distance(tag_contents, tag_name_uuid)) > 0) {
 
 		/* allocate enough memory for the tag name + null terminator */
 		char *tag_name = malloc(sizeof(char) * (tag_name_len + 1));
+		if (tag_name == NULL)
+			break;
+
 		strncpy(tag_name, tag_contents, tag_name_len);
 		tag_name[tag_name_len] = '\0';
 
 		/* allocate memory for node */
 		*(tag_ptrs[tag_type]) = malloc(sizeof(struct llnode));
+		if (tag_ptrs[tag_type] == NULL)
+			break;
+
 		/* set next to NULL and data to tag_name */
 		(*(tag_ptrs[tag_type]))->next = NULL;
 		(*(tag_ptrs[tag_type]))->data = tag_name;
-
 		/* set tag_ptrs to next node */
 		tag_ptrs[tag_type] = &((*(tag_ptrs[tag_type]))->next);
 
@@ -111,13 +117,10 @@ struct image_tag_db *zerochan_get_image_tags_html(char *web_content)
 
 		/* move on to next tag */
 		tag_contents = &(tag_contents[tag_name_len + 1]);
-
-		/* search for next tag */
-		tag_name_len = get_distance(tag_contents, tag_name_uuid);
 	}
 	/* unslice the string */
 	if (end_ptr)
-		end_ptr[0] = tags_end;
+		*end_ptr = tags_end;
 
 	return tag_db;
 }

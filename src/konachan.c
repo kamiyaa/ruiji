@@ -26,34 +26,36 @@ char *konachan_get_image_url(char *web_content)
 	/* initialize generic source image index */
 	char *source_index = NULL;
 
-	/* get png html pattern index and jpg html pattern index */
-	char *png_index = strstr(web_content, png_source_uuid);
-	char *jpg_index = strstr(web_content, jpg_source_uuid);
-
 	/* find source image link */
-	if (png_index)
-		source_index = &(png_index[len_png]);
-	else if (jpg_index)
-		source_index = &(jpg_index[len_jpg]);
+	if ((source_index = strstr(web_content, png_source_uuid)))
+		source_index = &(source_index[len_png]);
+	else if ((source_index = strstr(web_content, jpg_source_uuid)))
+		source_index = &(source_index[len_jpg]);
 
 	/* check if any html pattern was detected */
-	if (source_index) {
-		/* get the length of the source image url */
-		int url_len = get_distance(source_index, source_end);
-
-		/* allocate enough memory to hold the image source url,
-		 * then copy the url over to img_src_url and return it */
-		img_src_url = malloc(sizeof(char) *
-					(len_http + url_len + 1));
-
-		strncpy(img_src_url, http, len_http);
-		strncpy(&(img_src_url[len_http]), source_index, url_len);
-		img_src_url[len_http + url_len] = '\0';
-	}
-	else {
+	if (source_index == NULL) {
 		fprintf(stderr,
 			"konachan_get_image_url(): Error: Failed to parse website\n");
+		return NULL;
 	}
+
+	/* get the length of the source image url */
+	int url_len = get_distance(source_index, source_end);
+
+	/* allocate enough memory to hold the image source url,
+	 * then copy the url over to img_src_url and return it */
+	img_src_url = malloc(sizeof(char) *
+				(len_http + url_len + 1));
+
+	if (img_src_url == NULL) {
+		fprintf(stderr,
+			"konachan_get_image_url(): Error: Out of memory\n");
+		return NULL;
+	}
+
+	strncpy(img_src_url, http, len_http);
+	strncpy(&(img_src_url[len_http]), source_index, url_len);
+	img_src_url[len_http + url_len] = '\0';
 
 	/* return the image source url */
 	return img_src_url;
