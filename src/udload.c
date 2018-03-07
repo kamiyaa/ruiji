@@ -141,7 +141,7 @@ size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *us
 /* Given the name of an existing file and a website to upload it to,
  * upload the file and return the html content of the website after
  */
-char *upload_image(char *website, char *file_name, char *field_name)
+char *upload_image(char *web_url, char *file_name, char *field_name)
 {
 	struct html_data web_data = { 0 };
 
@@ -154,7 +154,7 @@ char *upload_image(char *website, char *file_name, char *field_name)
 
 	if (curl_handle) {
 		/* set the working website to this domain */
-		curl_easy_setopt(curl_handle, CURLOPT_URL, website);
+		curl_easy_setopt(curl_handle, CURLOPT_URL, web_url);
 
 		/* Fill in the file upload field */
 		curl_formadd(&formpost, &lastptr,
