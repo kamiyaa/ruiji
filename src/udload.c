@@ -21,8 +21,8 @@ short download_image(char *web_url, char *file_name)
 	img_fp = fopen(file_name, "wb");
 
 	/* Check if we have write permissions */
-	if (!img_fp) {
-		fprintf(stderr, "Error: No write permissions");
+	if (img_fp == NULL) {
+		perror(file_name);
 		return 1;
 	}
 
@@ -52,6 +52,7 @@ short download_image(char *web_url, char *file_name)
 			fprintf(stderr,
 				"curl_easy_perform() failed: %s\n",
 				curl_easy_strerror(res));
+			fprintf(stderr,	"url: %s\n", web_url);
 			result = 1;
 		}
 	}
@@ -102,10 +103,12 @@ char *get_html(char *web_url)
 		result = curl_easy_perform(curl_handle);
 
 		/* Check for errors */
-		if (result != CURLE_OK)
+		if (result != CURLE_OK) {
 			fprintf(stderr,
 				"curl_easy_perform() failed: %s\n",
 				curl_easy_strerror(result));
+			fprintf(stderr,	"url: %s\n", web_url);
+		}
 
 		/* cleanup */
 		curl_easy_cleanup(curl_handle);
@@ -174,6 +177,7 @@ char *upload_image(char *website, char *file_name, char *field_name)
 		if (res != CURLE_OK) {
 			fprintf(stderr, "curl_easy_perform() failed: %s\n",
 				curl_easy_strerror(res));
+			fprintf(stderr,	"url: %s\n", web_url);
 		}
 
 		/* then cleanup the formpost chain */
