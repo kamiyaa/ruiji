@@ -27,7 +27,6 @@ char *danbooru_generate_api_url(char *url)
 
 char *danbooru_get_image_url_json(char *web_content)
 {
-
 	/* constants used to find values */
 	const char *danbooru_url = "https://danbooru.donmai.us";
 	const unsigned int danbooru_url_len = strlen(danbooru_url);
@@ -54,6 +53,7 @@ char *danbooru_get_image_url_json(char *web_content)
 	source_index = &(source_index[source_uuid_len]);
 	/* get the length of the source image url */
 	int url_len = get_distance(source_index, source_end);
+	source_index[url_len] = '\0';
 
 	/* allocate enough memory to hold the image source url,
 	 * then copy the url over to img_src_url and return it */
@@ -65,10 +65,16 @@ char *danbooru_get_image_url_json(char *web_content)
 		return NULL;
 	}
 
-	strncpy(img_src_url, danbooru_url, danbooru_url_len);
-	strncpy(&(img_src_url[danbooru_url_len]),
-		source_index, url_len);
-	img_src_url[url_len + danbooru_url_len] = '\0';
+	int length = 0;
+	img_src_url[length] = '\0';
+	if (strstr(source_index, ".donmai.us") == NULL) {
+		strncat(img_src_url, danbooru_url, danbooru_url_len);
+		length += danbooru_url_len;
+	}
+	strncat(img_src_url, source_index, url_len);
+	length += url_len;
+
+	source_index[url_len] = source_end;
 
 	return img_src_url;
 }
