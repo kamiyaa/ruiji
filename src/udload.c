@@ -62,7 +62,7 @@ short download_image(char *web_url, char *file_name)
 }
 
 /* clean up curl */
-void ruiji_curl_cleanup(void)
+void ruiji_curl_cleanup()
 {
 	/* clean up curl */
 	curl_global_cleanup();

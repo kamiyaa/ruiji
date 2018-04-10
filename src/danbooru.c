@@ -133,8 +133,6 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *web_content,
 {
 	const char tags_end = ',';
 
-	int tag_len = strlen(tag_pattern);
-
 	/* look for the pattern in web_content */
 	char *json_ptr = strstr(web_content, tag_pattern);
 	if (json_ptr == NULL)
@@ -142,7 +140,7 @@ struct llnode *danbooru_parse_tags_json(char *tag_pattern, char *web_content,
 
 	/* if we found the pattern, set json_ptr to the end
 	 * of the pattern */
-	json_ptr = &(json_ptr[tag_len]);
+	json_ptr = &(json_ptr[strlen(tag_pattern)]);
 
 	/* get the end of this json property, set
 	 * end_ptr to it and set it to a null terminator */
