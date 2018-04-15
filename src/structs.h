@@ -12,6 +12,7 @@ struct similar_image_llnode;
 struct html_data {
 	char *data;
 	size_t size;
+	size_t realsize;
 };
 
 /* struct for holding all image tags */

@@ -14,14 +14,12 @@
  * 0 = successful
  * !0 = something went wrong
  */
-short download_image(char *web_url, char *file_name)
+int download_image(char *web_url, char *file_name)
 {
-	short result = 0;
+	int result = 0;
 	FILE *img_fp;
-	img_fp = fopen(file_name, "wb");
-
 	/* Check if we have write permissions */
-	if (img_fp == NULL) {
+	if ((img_fp = fopen(file_name, "wb")) == NULL) {
 		perror(file_name);
 		return 1;
 	}
@@ -75,9 +73,10 @@ char *get_html(char *web_url)
 {
 	struct html_data web_data;
 	/* will be grown as needed by the realloc above */
-	web_data.data = NULL;
+	web_data.data = malloc(sizeof(char) * 16);
 	/* no data at this point */
 	web_data.size = 0;
+	web_data.realsize = 16;
 
 	/* Initialize curl */
 	CURL *curl_handle = curl_easy_init();
@@ -117,24 +116,28 @@ char *get_html(char *web_url)
 	return web_data.data;
 }
 
-size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *userp)
+size_t StoreData(char *contents, size_t size, size_t nmemb, void *user_struct)
 {
+	struct html_data *htmlst = (struct html_data *)user_struct;
+
 	size_t realsize = size * nmemb;
 
-	struct html_data *mem = userp;
-
-	mem->data = realloc(mem->data, mem->size + realsize + 1);
-
-	if (mem->data == NULL) {
-		/* out of memory! */
-		fprintf(stderr, "not enough memory (realloc returned NULL)\n");
-		return 0;
+	/* if we run out of space, we will double our space to reduce future
+	 * reallocs
+	 */
+	if (htmlst->realsize - htmlst->size <= realsize) {
+		htmlst->realsize = (htmlst->realsize + realsize) * 2;
+		htmlst->data = realloc(htmlst->data, htmlst->realsize);
+		if (htmlst->data == NULL) {
+			/* out of memory! */
+			fprintf(stderr, "not enough memory (realloc returned NULL)\n");
+			return 0;
+		}
 	}
 
-	memcpy(&(mem->data[mem->size]), contents, realsize);
-	mem->size += realsize;
-	mem->data[mem->size] = '\0';
-
+	memcpy(&(htmlst->data[htmlst->size]), contents, realsize);
+	htmlst->size += realsize;
+	htmlst->data[htmlst->size] = '\0';
 	return realsize;
 }
 
@@ -143,7 +146,12 @@ size_t StoreData(char *contents, size_t size, size_t nmemb, struct html_data *us
  */
 char *upload_image(char *web_url, char *file_name, char *field_name)
 {
-	struct html_data web_data = { 0 };
+	struct html_data web_data;
+	/* will be grown as needed by the realloc above */
+	web_data.data = malloc(sizeof(char) * 16);
+	/* no data at this point */
+	web_data.size = 0;
+	web_data.realsize = 16;
 
 	/* Initialize curl */
 	CURL *curl_handle = curl_easy_init();

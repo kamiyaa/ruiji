@@ -262,9 +262,6 @@ char *get_server_file_name(char *web_url)
 
 char *parse_percent_similar(char* web_content, unsigned short *similarity)
 {
-	/* initialize pointer to hold where walker leaves off */
-	char *next_weblink = NULL;
-
 	const char *patterns[] = { "<td>" };
 	const unsigned int num_patterns = sizeof(patterns) / sizeof(char *);
 
@@ -277,6 +274,9 @@ char *parse_percent_similar(char* web_content, unsigned short *similarity)
 		walker = strstr(walker, patterns[pattern_index]);
 		pattern_index++;
 	}
+
+	/* initialize pointer to hold where walker leaves off */
+	char *next_weblink = NULL;
 	if (walker) {
 		/* Get the similarity percentage of image and set it to similarity */
 		sscanf(walker, "<td>%hu%%", similarity);
@@ -290,8 +290,6 @@ char *parse_percent_similar(char* web_content, unsigned short *similarity)
 
 char *parse_xy_img_dimensions(char* web_content, unsigned int *x, unsigned int *y)
 {
-	/* initialize pointer to hold where walker leaves off */
-	char *next_weblink = NULL;
 
 	const char *patterns[] = {
 		"class=\"service-icon\">",
@@ -308,9 +306,10 @@ char *parse_xy_img_dimensions(char* web_content, unsigned int *x, unsigned int *
 		walker = strstr(walker, patterns[pattern_index]);
 		pattern_index++;
 	}
+	/* initialize pointer to hold where walker leaves off */
+	char *next_weblink = NULL;
 	if (walker) {
-		/* point next_weblink to the rest of the sliced string
-		 */
+		/* point next_weblink to the rest of the sliced string */
 		next_weblink = strstr(walker, "</td>");
 		/* Set x,y to the image dimensions */
 		sscanf(walker, "<td>%u×%u ", x, y);
