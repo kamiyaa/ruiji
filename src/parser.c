@@ -11,25 +11,17 @@ struct similar_image_llnode *create_image_list(char *web_content,
 {
 	const char iqdb_result_uid[] =
 		"match</th></tr><tr><td class='image'><a href=\"";
-	/* get length of the string we are looking for and search for it */
-	const unsigned int iqdb_result_len = strlen(iqdb_result_uid);
-
-	/* check if matching string is found */
-	char *url_begin = strstr(web_content, iqdb_result_uid);
-	if (url_begin == NULL) {
-		fprintf(stderr, "Error: Failed to populate similar image database: No results found!\n");
-		return NULL;
-	}
 
 	/* initialize an empty linked list  */
 	struct similar_image_llnode *image_list = NULL;
 	/* initialize a double pointer for going through image_list */
 	struct similar_image_llnode **list_ptr = &(image_list);
 
+	char *url_begin = web_content;
 	/* Go through the data and get every valid link to a similar image */
-	while (url_begin) {
+	while ((url_begin = strstr(url_begin, iqdb_result_uid))) {
 		/* move url_begin to where the url starts */
-		url_begin = &(url_begin[iqdb_result_len]);
+		url_begin = &(url_begin[sizeof(iqdb_result_uid) - 1]);
 
 		char *walker = url_begin;
 
@@ -60,8 +52,10 @@ struct similar_image_llnode *create_image_list(char *web_content,
 			/* allocate memory for node */
 			*list_ptr = malloc(sizeof(struct similar_image_llnode));
 			/* out of memory */
-			if (*list_ptr == NULL)
+			if (*list_ptr == NULL) {
+				fprintf(stderr, "Error: Out of memory\n");
 				break;
+			}
 
 			(*list_ptr)->image = image;
 			(*list_ptr)->next = NULL;
@@ -73,10 +67,6 @@ struct similar_image_llnode *create_image_list(char *web_content,
 		/* unslice string */
 		if (url_len > 0)
 			url_begin[url_len] = '"';
-
-		/* set the starting point of the string
-		 * to the next valid weblink */
-		url_begin = strstr(url_begin, iqdb_result_uid);
 	}
 	return image_list;
 }
@@ -90,6 +80,11 @@ struct similar_image *create_sim_image(char *web_url,
 	/* Create a new similar image struct to store information */
 	struct similar_image *image = malloc(sizeof(struct similar_image));
 
+	if (image == NULL) {
+		fprintf(stderr, "Error: Out of memory\n");
+		return NULL;
+	}
+
 	/* Set it's values to the given parameters */
 	image->similarity = similarity;
 	image->dimensions[0] = xpx;
@@ -97,11 +92,10 @@ struct similar_image *create_sim_image(char *web_url,
 
 	unsigned int len_url = strlen(web_url) + 1;
 	/* Format url to be complete with protocol, if none is provided */
-	if (!strstr(web_url, "http")) {
-		const char *prefix_add = "https:";
-		const unsigned int prefix_len = strlen(prefix_add);
+	if (strstr(web_url, "http") == NULL) {
+		const char prefix_add[] = "https:";
 
-		len_url += prefix_len;
+		len_url += sizeof(prefix_add) - 1;
 
 		image->post_link = malloc(sizeof(char) * len_url);
 		strcpy(image->post_link, prefix_add);
@@ -118,7 +112,6 @@ char *generate_api_link(enum domain_t id, char *post_link)
 {
 	char *api_url;
 	switch (id) {
-	/* danbooru domain */
 	case danbooru:
 		api_url = danbooru_generate_api_url(post_link);
 		break;
@@ -246,15 +239,16 @@ enum domain_t get_domain_uid(char *link)
 char *get_server_file_name(char *web_url)
 {
 	/* Go through and get the last section of a url */
-	int index = strlen(web_url) - 1;
+	unsigned int index = strlen(web_url) - 1;
+	unsigned int filename_len = 0;
 	/* interate through the string backwards until we find a '/' */
-	while (web_url[index] != '/')
+	while (index > 0 && web_url[index] != '/') {
+		filename_len++;
 		index--;
+	}
 
 	/* get memory address we stopped at */
 	char *name_start = &(web_url[index+1]);
-
-	int filename_len = strlen(name_start);
 
 	/* Allocate enough memory for the file name */
 	char *file_name = malloc(sizeof(char) * (filename_len + 1));
