@@ -53,7 +53,6 @@ char *danbooru_get_image_url_json(char *web_content)
 	source_index = &(source_index[source_uuid_len]);
 	/* get the length of the source image url */
 	int url_len = get_distance(source_index, source_end);
-	source_index[url_len] = '\0';
 
 	/* allocate enough memory to hold the image source url,
 	 * then copy the url over to img_src_url and return it */
@@ -73,8 +72,6 @@ char *danbooru_get_image_url_json(char *web_content)
 	}
 	strncat(img_src_url, source_index, url_len);
 	length += url_len;
-
-	source_index[url_len] = source_end;
 
 	return img_src_url;
 }
