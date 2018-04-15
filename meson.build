@@ -12,3 +12,4 @@ if get_option('enable_color')
 endif
 
 subdir('src')
+subdir('man')
