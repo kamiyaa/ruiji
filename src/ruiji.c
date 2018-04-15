@@ -120,7 +120,7 @@ int ruiji_validate_file(char *file_name)
 	int valid = 0;
 	/* get the size of the image file */
 	fseek(img_fd, 0L, SEEK_END);
-	int image_size = ftell(img_fd);
+	long image_size = ftell(img_fd);
 	/* Check if it exceeds the max file size limit */
 	if (image_size > MAX_FILE_SIZE) {
 		fprintf(stderr, "Error: Maximum file size exceeded (%dKB)\n",
@@ -185,8 +185,8 @@ int ruiji_get_image(struct similar_image_llnode *image_list, int index)
 	if (cmd_args.verbose)
 		image_save_toast(file_save_name);
 
-	/* save the image as it's name on the server */
 	int dl_status;
+	/* save the image as it's name on the server */
 	if ((dl_status = download_image(dl_url, file_save_name)) != 0) {
 		fprintf(stderr, "Error: Download failed\n");
 		return dl_status;
@@ -201,7 +201,7 @@ int ruiji_get_image(struct similar_image_llnode *image_list, int index)
 	free(api_content);
 
 	/* Report back to the user how the download went */
-	return dl_status;
+	return 0;
 }
 
 void ruiji_exit(int exit_status)
@@ -269,6 +269,9 @@ int main(int argc, char **argv)
 
 	if (index < 0 || index >= image_list_size) {
 		fprintf(stderr, "Error: Invalid option selected\n");
+
+		/* free up allocated memory */
+		free_similar_image_list(image_list);
 		ruiji_exit(1);
 	}
 	exit_status = ruiji_get_image(image_list, index);
@@ -276,8 +279,5 @@ int main(int argc, char **argv)
 	/* free up allocated memory */
 	free_similar_image_list(image_list);
 
-	/* clean up curl */
-	ruiji_curl_cleanup();
-
-	return exit_status;
+	ruiji_exit(exit_status);
 }
