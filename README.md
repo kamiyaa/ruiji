@@ -17,8 +17,8 @@ and prompt the user which one to download.
 ## Installation
 First, download the source using either HTTP or SSH: 
 ```
-$ git clone https://github.com/Kamiyaa/ruiji.git
-$ git clone git@github.com:Kamiyaa/ruiji.git
+$ git clone https://gitlab.com/Kamiyaa/ruiji.git
+$ git clone git@gitlab.com:Kamiyaa/ruiji.git
 ```
 Then install using **make**:
 ```
