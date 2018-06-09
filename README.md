@@ -59,3 +59,15 @@ Currently supports:
  - https://chan.sankakucomplex.com/
  - https://yande.re/
  - http://www.zerochan.net/
+
+## Tips
+This is how I usually use it when I have tons of pictures that I also would like to manually check
+```
+#!/bin/sh
+
+for file
+do
+	ruiji -T -t 90 "$file" && gio trash "$file" && echo "removed $file"
+	sleep 5		# enough time to rename/organize the newly downloaded file
+done
+```

@@ -7,7 +7,7 @@ project(
 	default_options: ['c_std=c99', 'warning_level=2'],
 )
 
-if get_option('enable_color')
+if get_option('color')
         add_project_arguments('-DCOLOR', language: 'c')
 endif
 

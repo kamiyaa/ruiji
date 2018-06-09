@@ -137,6 +137,7 @@ size_t StoreData(char *contents, size_t size, size_t nmemb, void *user_struct)
 
 	memcpy(&(htmlst->data[htmlst->size]), contents, realsize);
 	htmlst->size += realsize;
+	/* null terminate string */
 	htmlst->data[htmlst->size] = '\0';
 	return realsize;
 }

@@ -1,5 +1,1 @@
-option('enable_color',
-	type: 'boolean',
-	value: true,
-	description: 'Enable support for colored console output'
-	)
+option('color', type: 'boolean', value: true, description: 'Enable support for colored console output')
