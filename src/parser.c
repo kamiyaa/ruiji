@@ -23,7 +23,7 @@ struct similar_image_llnode *create_image_list(char *web_content,
 		/* move url_begin to where the url starts */
 		url_begin = &(url_begin[sizeof(iqdb_result_uid) - 1]);
 
-		char *walker = url_begin;
+		char *ptr = url_begin;
 
 		/* get how far url_begin is from the first " */
 		int url_len = get_distance(url_begin, '"');
@@ -33,9 +33,9 @@ struct similar_image_llnode *create_image_list(char *web_content,
 
 		if (url_len > 0) {
 			/* parse dimensions of image */
-			walker = parse_xy_img_dimensions(walker, &x, &y);
+			ptr = parse_xy_img_dimensions(ptr, &x, &y);
 			/* parse similarity percentage of image */
-			walker = parse_percent_similar(walker, &similarity);
+			ptr = parse_percent_similar(ptr, &similarity);
 
 			/* slice string where first " is */
 			url_begin[url_len] = '\0';
@@ -90,19 +90,19 @@ struct similar_image *create_sim_image(char *web_url,
 	image->dimensions[0] = xpx;
 	image->dimensions[1] = ypx;
 
-	unsigned int len_url = strlen(web_url) + 1;
+	unsigned int len_url = strlen(web_url);
 	/* Format url to be complete with protocol, if none is provided */
-	if (strstr(web_url, "http") == NULL) {
+	if (len_url >= 4 && strncmp(web_url, "http", 4) != 0) {
 		const char prefix_add[] = "https:";
 
-		len_url += sizeof(prefix_add) - 1;
+		len_url += sizeof(prefix_add);
 
-		image->post_link = malloc(sizeof(char) * len_url);
+		image->post_link = malloc(sizeof(char) * (len_url + 1));
 		strcpy(image->post_link, prefix_add);
 		strcat(image->post_link, web_url);
 	}
 	else {
-		image->post_link = malloc(sizeof(char) * len_url);
+		image->post_link = malloc(sizeof(char) * (len_url + 1));
 		strcpy(image->post_link, web_url);
 	}
 	return image;
@@ -253,7 +253,10 @@ char *get_server_file_name(char *web_url)
 	/* Allocate enough memory for the file name */
 	char *file_name = malloc(sizeof(char) * (filename_len + 1));
 
-	/* copy the file name to file_name and null terminate the string */
+	if (file_name == NULL) {
+		fprintf(stderr, "Error: Out of memory\n");
+		return NULL;
+	}
 	strncpy(file_name, name_start, filename_len);
 	file_name[filename_len] = '\0';
 
@@ -266,22 +269,22 @@ char *parse_percent_similar(char* web_content, unsigned short *similarity)
 	const unsigned int num_patterns = sizeof(patterns) / sizeof(char *);
 
 	/* Set an arbitrary pointer to point to the first element of contents */
-	char *walker = web_content;
+	char *ptr = web_content;
 
 	unsigned int pattern_index = 0;
-	/* move walker to the beginning of image x,y dimensions */
-	while (walker && pattern_index < num_patterns) {
-		walker = strstr(walker, patterns[pattern_index]);
+	/* move ptr to the beginning of image x,y dimensions */
+	while (ptr && pattern_index < num_patterns) {
+		ptr = strstr(ptr, patterns[pattern_index]);
 		pattern_index++;
 	}
 
-	/* initialize pointer to hold where walker leaves off */
+	/* initialize pointer to hold where ptr leaves off */
 	char *next_weblink = NULL;
-	if (walker) {
+	if (ptr) {
 		/* Get the similarity percentage of image and set it to similarity */
-		sscanf(walker, "<td>%hu%%", similarity);
+		sscanf(ptr, "<td>%hu%%", similarity);
 
-		next_weblink = strstr(walker, "</div>");
+		next_weblink = strstr(ptr, "</div>");
 	}
 
 	/* Return a pointer to the rest of the sliced string */
@@ -298,21 +301,21 @@ char *parse_xy_img_dimensions(char* web_content, unsigned int *x, unsigned int *
 	const int num_patterns = sizeof(patterns) / sizeof(char *);
 
 	/* Set an arbitrary pointer to point to the first element of contents */
-	char *walker = web_content;
+	char *ptr = web_content;
 
 	int pattern_index = 0;
-	/* move walker to the beginning of image x,y dimensions */
-	while (walker && pattern_index < num_patterns) {
-		walker = strstr(walker, patterns[pattern_index]);
+	/* move ptr to the beginning of image x,y dimensions */
+	while (ptr && pattern_index < num_patterns) {
+		ptr = strstr(ptr, patterns[pattern_index]);
 		pattern_index++;
 	}
-	/* initialize pointer to hold where walker leaves off */
+	/* initialize pointer to hold where ptr leaves off */
 	char *next_weblink = NULL;
-	if (walker) {
+	if (ptr) {
 		/* point next_weblink to the rest of the sliced string */
-		next_weblink = strstr(walker, "</td>");
+		next_weblink = strstr(ptr, "</td>");
 		/* Set x,y to the image dimensions */
-		sscanf(walker, "<td>%u×%u ", x, y);
+		sscanf(ptr, "<td>%u×%u ", x, y);
 	}
 
 	/* Return a pointer to the rest of the sliced string */
