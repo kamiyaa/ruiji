@@ -104,7 +104,7 @@ void print_image_tags(struct image_tag_db *tag_db)
 		ptr = tag_db->tags[i];
 		printf("%s%s (%d)\t: ", COLOR_DEFAULT, tag_names[i], tag_db->tag_size[i]);
 		while (ptr) {
-			printf("%s%s %s", color_scheme[i], ptr->data, COLOR_DEFAULT);
+			printf("%s%s%s, ", color_scheme[i], ptr->data, COLOR_DEFAULT);
 			ptr = ptr->next;
 		}
 		putchar('\n');
@@ -117,7 +117,7 @@ void print_image_tags(struct image_tag_db *tag_db)
 		ptr = tag_db->tags[i];
 		printf("%s (%d)\t: ", tag_names[i], tag_db->tag_size[i]);
 		while (ptr) {
-			printf("%s ", ptr->data);
+			printf("%s, ", ptr->data);
 			ptr = ptr->next;
 		}
 		putchar('\n');

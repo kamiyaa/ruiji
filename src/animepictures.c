@@ -57,9 +57,14 @@ char *animepictures_get_image_url(char *web_content)
 
 struct image_tag_db *animepictures_get_image_tags(char *web_content)
 {
+    /* constants for finding values */
+	const char *tags_uuid = "<ul class=\"tags\">";
+	const char *tags_end = "</ul>";
+
 	char *artist_tag_uuid = "author</span>";
 	char *character_tag_uuid = "character</span>";
-	char *copyright_tag_uuid = "copyright</span>";
+	char *copyright_tag_uuid = "<span>copyright (product)</span>";
+	char *game_copyright_tag_uuid = "<span>game copyright</span>";
 	char *general_tag_uuid = "reference</span>";
 	char *meta_tag_uuid = "object</span>";
 
