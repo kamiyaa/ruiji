@@ -1,8 +1,10 @@
+VERSION = 0.7.0
+
 # compiler and linker
 CC = cc
 
 # standard library to use
-STD = -std=c99
+STD = 
 
 # cflags
 CFLAGS = ${STD} -ggdb3 -Os -Wall -march=native

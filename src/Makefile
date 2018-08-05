@@ -9,6 +9,7 @@ echos:
 	@echo "CFLAGS  =" ${CFLAGS}
 	@echo "LIBS    =" ${LIBS}
 	@echo "USE     =" ${USE_FLAGS}
+	@echo "VERSION =" ${VERSION}
 
 structs.o: structs.c
 	${CC} ${CFLAGS} -c structs.c
@@ -48,7 +49,7 @@ config.h: config.def.h
 	cp -u config.def.h config.h
 
 ruiji: config.h ${HELPERS_OBJ} ruiji.c config.mk
-	${CC} ${CFLAGS} ${USE_FLAGS} -c ruiji.c
+	${CC} -DVERSION=\"${VERSION}\" ${CFLAGS} ${USE_FLAGS} -c ruiji.c
 	${CC} ${CFLAGS} ${USE_FLAGS} ${HELPERS_OBJ} ruiji.o -o ruiji ${LIBS}
 
 test: $(HELPERS) tester.c config.mk

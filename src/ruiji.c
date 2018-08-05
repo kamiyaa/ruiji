@@ -1,135 +1,34 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <unistd.h>
-#include <argp.h>
 
 #include "interface.h"
 #include "parser.h"
 #include "udload.h"
-
-#define VERSION "0.7.0"
 
 #define IQDB_URL "https://iqdb.org"
 #define IQDB_UPLOAD_FIELD "file"
 #define MAX_FILE_SIZE 8192000
 
 /* struct for holding command line arguments */
-struct ruiji_cmd_args {
-	char *args[2];
-	short silent;
-	short verbose;
-	short prompt;
-	short showhelp;
-	short showtags;
-	short showversion;
+struct ruiji_args {
+	bool verbose;
+	bool prompt;
+	bool tags;
 	unsigned short threshold;
-	char *file;
 };
-
-void set_default_opt(struct ruiji_cmd_args *arg_opt);
-error_t parse_opt(int key, char *arg, struct argp_state *state);
-int validate_upload_file(char *file_name);
-short initialize(struct similar_image_llnode *image_list);
-
-
-/* create new arguments struct for ruiji and set them to default values */
-static struct ruiji_cmd_args cmd_args;
-
-/* struct for command line argument options */
-static struct argp_option options[] = {
-	{ "help",	'h',	0, 0,
-		"Show help message", 0 },
-	{ "noprompt",	'y',	0, 0,
-		"Skips user interactions and downloads the most similar image", 0 },
-	{ "quiet",	'q',	0, 0,
-		"Suppress verbose output", 0 },
-	{ "threshold",	't',	"number", 0,
-		"Only show images above certain similarity percentage", 0 },
-	{ "tags",	'T',	0, 0,
-		"Outputs tags of downloaded image", 0 },
-	{ "version",	'v',	0, 0,
-		"Show version number", 0 },
-	{ 0 }
-};
-
-static struct argp ruiji_args = {
-	options, parse_opt,
-	NULL, NULL, NULL, NULL, NULL
-};
-
 
 /* set default command line options */
-void set_default_opt(struct ruiji_cmd_args *arg_opt)
+void set_default_opt(struct ruiji_args *args)
 {
-	arg_opt->verbose = 1;
-	arg_opt->prompt = 1;
-	arg_opt->showhelp = 0;
-	arg_opt->showtags = 0;
-	arg_opt->showversion = 0;
-	arg_opt->threshold = 0;
+	args->verbose = true;
+	args->prompt = true;
+	args->tags = false;
+	args->threshold = 0;
 }
 
-/* Parse and process command line arguments */
-error_t parse_opt(int key, char *arg, struct argp_state *state)
-{
-	struct ruiji_cmd_args *arguments = state->input;
-
-	switch (key) {
-	case 'h':
-		arguments->showhelp = 1;
-		break;
-	case 'q':
-		arguments->verbose = 0;
-		break;
-	case 't':
-		arguments->threshold = atoi(arg);
-		break;
-	case 'v':
-		arguments->showversion = 1;
-		break;
-	case 'y':
-		arguments->prompt = 0;
-		break;
-	case 'T':
-		arguments->showtags = 1;
-		break;
-	case ARGP_KEY_NO_ARGS:
-		arguments->file = arg;
-		break;
-	case ARGP_KEY_ARG:
-		arguments->file = arg;
-		break;
-	default:
-		return ARGP_ERR_UNKNOWN;
-	}
-	return 0;
-}
-
-int ruiji_validate_file(char *file_name)
-{
-	/* check if selected image file exists */
-	FILE *img_fd;
-	/* rb for reading binary file */
-	img_fd = fopen(file_name, "rb");
-	if (img_fd == NULL) {
-		perror(file_name);
-		return 1;
-	}
-
-	int valid = 0;
-	/* get the size of the image file */
-	fseek(img_fd, 0L, SEEK_END);
-	long image_size = ftell(img_fd);
-	/* Check if it exceeds the max file size limit */
-	if (image_size > MAX_FILE_SIZE) {
-		fprintf(stderr, "Error: Maximum file size exceeded (%dKB)\n",
-			MAX_FILE_SIZE / 1000);
-		valid = 1;
-	}
-	fclose(img_fd);
-	return valid;
-}
 
 void ruiji_get_tags(enum domain_t domain_uid, char *api_content)
 {
@@ -142,7 +41,7 @@ void ruiji_get_tags(enum domain_t domain_uid, char *api_content)
 	}
 }
 
-int ruiji_get_image(struct similar_image_llnode *image_list, int index)
+int ruiji_get_image(struct ruiji_args *args, struct similar_image_llnode *image_list, int index)
 {
 	struct similar_image_llnode *list_ptr = image_list;
 	for (int i = 0; i < index; i++)
@@ -177,12 +76,12 @@ int ruiji_get_image(struct similar_image_llnode *image_list, int index)
 		return 1;
 	}
 
-	if (cmd_args.verbose)
+	if (args->verbose)
 		image_download_toast(dl_image->post_link);
 
 	char *file_save_name = get_server_file_name(dl_url);
 
-	if (cmd_args.verbose)
+	if (args->verbose)
 		image_save_toast(file_save_name);
 
 	int dl_status;
@@ -193,7 +92,7 @@ int ruiji_get_image(struct similar_image_llnode *image_list, int index)
 	}
 
 	/* print tags */
-	if (cmd_args.showtags)
+	if (args->tags)
 		ruiji_get_tags(domain_uid, api_content);
 
 	free(file_save_name);
@@ -204,67 +103,35 @@ int ruiji_get_image(struct similar_image_llnode *image_list, int index)
 	return 0;
 }
 
-void ruiji_exit(int exit_status)
+void ruiji(struct ruiji_args *args, char *file_name)
 {
-	ruiji_curl_cleanup();
-	exit(exit_status);
-}
-
-int main(int argc, char **argv)
-{
-	int exit_status;
-	if (argc == 1) {
-		print_help();
-		return 0;
-	}
-
-	set_default_opt(&cmd_args);
-
-	/* parse given command line arguments */
-	argp_parse(&ruiji_args, argc, argv, 0, 0, &cmd_args);
-
-	/* If one wants to see, version number, just print and exit */
-	if (cmd_args.showversion) {
-		fprintf(stderr, "%s-%s\n", argv[0], VERSION);
-		return 0;
-	}
-	if (cmd_args.showhelp) {
-		print_help();
-		return 0;
-	}
-
-	/* return value */
-	exit_status = ruiji_validate_file(cmd_args.file);
-	if (exit_status)
-		return exit_status;
-
 	/* notify user we are uploading argument file */
-	if (cmd_args.verbose)
-		image_upload_toast(cmd_args.file, IQDB_URL);
+	if (args->verbose)
+		image_upload_toast(file_name, IQDB_URL);
 
-	char *iqdb_html = upload_image(IQDB_URL, cmd_args.file, IQDB_UPLOAD_FIELD);
+	char *iqdb_html = upload_image(IQDB_URL, file_name, IQDB_UPLOAD_FIELD);
 
 	if (iqdb_html == NULL) {
 		fprintf(stderr, "Error: Failed to upload file\n");
-		ruiji_exit(1);
+		return;
 	}
 
 	/* Initialize a struct to hold all the images similar
 	 * to the uploaded image */
 	struct similar_image_llnode *image_list =
-		create_image_list(iqdb_html, cmd_args.threshold);
+		create_image_list(iqdb_html, args->threshold);
 	/* free up allocated memory */
 	free(iqdb_html);
 
 	if (image_list == NULL) {
 		fprintf(stderr, "No results found! :(\n");
-		ruiji_exit(1);
+		return;
 	}
 
 	/* initialize image selection to 0 */
 	int index = 0;
 	int image_list_size = 1;
-	if (cmd_args.prompt) {
+	if (args->prompt) {
 		/* print out all results and its properties */
 		image_list_size = print_sim_results(image_list);
 		do {
@@ -277,12 +144,92 @@ int main(int argc, char **argv)
 
 		/* free up allocated memory */
 		free_similar_image_list(image_list);
-		ruiji_exit(1);
+		return;
 	}
-	exit_status = ruiji_get_image(image_list, index);
+	ruiji_get_image(args, image_list, index);
 
 	/* free up allocated memory */
 	free_similar_image_list(image_list);
+}
 
-	ruiji_exit(exit_status);
+int ruiji_validate_file(char *file_name)
+{
+	/* check if selected image file exists */
+	FILE *img_fd;
+	/* rb for reading binary file */
+	img_fd = fopen(file_name, "rb");
+	if (img_fd == NULL) {
+		perror(file_name);
+		return 1;
+	}
+
+	int valid = 0;
+	/* get the size of the image file */
+	fseek(img_fd, 0L, SEEK_END);
+	long image_size = ftell(img_fd);
+	/* Check if it exceeds the max file size limit */
+	if (image_size > MAX_FILE_SIZE) {
+		fprintf(stderr, "Error: Maximum file size exceeded (%dKB)\n",
+			MAX_FILE_SIZE / 1000);
+		valid = 1;
+	}
+	fclose(img_fd);
+	return valid;
+}
+
+void ruiji_exit(int exit_status)
+{
+	ruiji_curl_cleanup();
+	exit(exit_status);
+}
+
+int main(int argc, char **argv)
+{
+	extern int optind;
+	extern char *optarg;
+	if (argc == 1) {
+		print_help();
+		return 1;
+	}
+
+	struct ruiji_args args;
+	set_default_opt(&args);
+
+	int c, exit_status = 0;
+	while ((c = getopt(argc, argv, "qt:yTV")) != EOF) {
+		switch(c) {
+		case 'q':
+			args.verbose = false;
+			break;
+		case 't':
+			args.threshold = atoi(optarg);
+			break;
+		case 'y':
+			args.prompt = false;
+			break;
+		case 'T':
+			args.tags = true;
+			break;
+		case 'V':
+			fprintf(stderr, "%s-%s\n", argv[0], VERSION);
+			return 0;
+		default:
+			exit_status = 1;
+			break;
+		}
+	}
+
+	if (exit_status || optind == argc) {
+		print_help();
+		return 1;
+	}
+
+	for (int i = optind; i < argc; i++) {
+		if (ruiji_validate_file(argv[i])) {
+			continue;
+		}
+		ruiji(&args, argv[i]);
+	}
+
+	ruiji_exit(0);
 }

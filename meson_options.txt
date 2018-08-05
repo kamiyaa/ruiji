@@ -1,1 +1,9 @@
-option('color', type: 'boolean', value: true, description: 'Enable support for colored console output')
+option('version',
+	type: 'string',
+	value: '0.7.0',
+	description: 'version of ruiji')
+
+option('color',
+	type: 'boolean',
+	value: true,
+	description: 'Enable support for colored console output')

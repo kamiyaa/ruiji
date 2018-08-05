@@ -129,7 +129,7 @@ void print_image_tags(struct image_tag_db *tag_db)
 void print_help()
 {
 	fputs("Reverse image searching program using iqdb.org\n", stderr);
-	fputs("Usage: ruiji [options] file\n", stderr);
+	fputs("Usage: ruiji [options] file1 ...\n", stderr);
 	fputs("  -h --help \t\t Show this help message and quit\n", stderr);
 	fputs("  -q --quiet \t\t Suppress verbose output\n", stderr);
 	fputs("  -t --threshold <0-100> Only process and show images above given\n", stderr);

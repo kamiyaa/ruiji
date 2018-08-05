@@ -13,6 +13,7 @@ domains = ['animegallery.c', 'animepictures.c', 'danbooru.c' , 'eshuushuu.c',
 
 helpers = ['helpers.c', 'interface.c', 'parser.c', 'structs.c', 'udload.c']
 
+#add_project_arguments(
 # ruiji executable
 executable('ruiji',
 	'ruiji.c', domains, helpers,
