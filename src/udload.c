@@ -127,12 +127,13 @@ size_t StoreData(char *contents, size_t size, size_t nmemb, void *user_struct)
 	 */
 	if (htmlst->realsize - htmlst->size <= realsize) {
 		htmlst->realsize = (htmlst->realsize + realsize) * 2;
-		htmlst->data = realloc(htmlst->data, htmlst->realsize);
-		if (htmlst->data == NULL) {
+		void *new_mem_ptr = realloc(htmlst->data, htmlst->realsize);
+		if (new_mem_ptr == NULL) {
 			/* out of memory! */
 			fprintf(stderr, "not enough memory (realloc returned NULL)\n");
 			return 0;
 		}
+		htmlst->data = new_mem_ptr;
 	}
 
 	memcpy(&(htmlst->data[htmlst->size]), contents, realsize);
