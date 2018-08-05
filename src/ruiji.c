@@ -213,6 +213,11 @@ void ruiji_exit(int exit_status)
 int main(int argc, char **argv)
 {
 	int exit_status;
+	if (argc == 1) {
+		print_help();
+		return 0;
+	}
+
 	set_default_opt(&cmd_args);
 
 	/* parse given command line arguments */
