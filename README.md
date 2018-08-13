@@ -35,18 +35,7 @@ $ ninja -C build/
 
 ## Usage
 ```
-$ ruiji --help
-
-Usage: ruiji [options] [file]
-
-  -h --help		 Show this help message and quit
-  -q --quiet		 Suppress verbose output
-  -t --threshold <0-100> Only process and show images above given
-			 similarity percentage
-  -T --tags		 Shows the tags associated with the image downloaded
-  -v --version		 Show version number and quit
-  -y --noprompt		 Skips user interactions and downloads
-			 the most similar image
+$ ruiji -h
 ```
 
 ## Features
