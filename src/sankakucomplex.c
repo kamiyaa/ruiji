@@ -12,7 +12,7 @@ char *sankakucomplex_get_image_url(char *web_content)
 {
 	/* constants for finding values */
 	const char *https = "https:";
-	const char *source_uuid = "<li>Original: <a href=\"";
+	const char *source_uuid = "id=image-link class=sample href=\"";
 	const char source_end = '?';
 
 	const unsigned int len_https = strlen(https);

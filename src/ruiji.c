@@ -103,7 +103,7 @@ int ruiji_get_image(struct ruiji_args *args, struct similar_image_llnode *image_
 	return 0;
 }
 
-void ruiji(struct ruiji_args *args, char *file_name)
+int ruiji(struct ruiji_args *args, char *file_name)
 {
 	/* notify user we are uploading argument file */
 	if (args->verbose)
@@ -113,7 +113,7 @@ void ruiji(struct ruiji_args *args, char *file_name)
 
 	if (iqdb_html == NULL) {
 		fprintf(stderr, "Error: Failed to upload file\n");
-		return;
+		return 1;
 	}
 
 	/* Initialize a struct to hold all the images similar
@@ -125,7 +125,7 @@ void ruiji(struct ruiji_args *args, char *file_name)
 
 	if (image_list == NULL) {
 		fprintf(stderr, "No results found! :(\n");
-		return;
+		return 1;
 	}
 
 	/* initialize image selection to 0 */
@@ -144,12 +144,14 @@ void ruiji(struct ruiji_args *args, char *file_name)
 
 		/* free up allocated memory */
 		free_similar_image_list(image_list);
-		return;
+		return 1;
 	}
-	ruiji_get_image(args, image_list, index);
+	int exit_code = ruiji_get_image(args, image_list, index);
 
 	/* free up allocated memory */
 	free_similar_image_list(image_list);
+
+	return exit_code;
 }
 
 int ruiji_validate_file(char *file_name)
@@ -223,13 +225,9 @@ int main(int argc, char **argv)
 		print_help();
 		return 1;
 	}
-
-	for (int i = optind; i < argc; i++) {
-		if (ruiji_validate_file(argv[i])) {
-			continue;
-		}
-		ruiji(&args, argv[i]);
+	if (ruiji_validate_file(argv[optind]) == 0) {
+		exit_status = ruiji(&args, argv[optind]);
 	}
 
-	ruiji_exit(0);
+	ruiji_exit(exit_status);
 }

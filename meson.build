@@ -4,7 +4,7 @@ project(
 	license: 'LGPL3',
 	meson_version: '>=0.41.2',
 	version: '0.7.0',
-	default_options: ['c_std=gnu99', 'warning_level=2'],
+	default_options: ['warning_level=2'],
 )
 
 version = get_option('version')
