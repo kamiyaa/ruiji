@@ -13,7 +13,8 @@ char *sankakucomplex_get_image_url(char *web_content)
 	/* constants for finding values */
 	const char *https = "https:";
 	const char *source_uuid = "id=image-link class=sample href=\"";
-	const char source_end = '?';
+	// TODO: downloading results in a file not ending in a valid file name
+	const char source_end = '"';
 
 	const unsigned int len_https = strlen(https);
 	const unsigned int len_source = strlen(source_uuid);
