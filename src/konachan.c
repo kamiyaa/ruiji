@@ -14,11 +14,9 @@ char *konachan_get_image_url(char *web_content)
 	const char *png_source_uuid = "<li><a class=\"original-file-unchanged\" href=\"";
 	const char *jpg_source_uuid = "<li><a class=\"original-file-changed\" href=\"";
 	const char source_end = '"';
-	const char *http = "http:";
 
 	const unsigned int len_png = strlen(png_source_uuid);
 	const unsigned int len_jpg = strlen(jpg_source_uuid);
-	const unsigned int len_http = strlen(http);
 
 	/* initialize the image source url to be returned later */
 	char *img_src_url = NULL;
@@ -44,8 +42,7 @@ char *konachan_get_image_url(char *web_content)
 
 	/* allocate enough memory to hold the image source url,
 	 * then copy the url over to img_src_url and return it */
-	img_src_url = malloc(sizeof(char) *
-				(len_http + url_len + 1));
+	img_src_url = malloc(sizeof(char) * (url_len + 1));
 
 	if (img_src_url == NULL) {
 		fprintf(stderr,
@@ -53,9 +50,8 @@ char *konachan_get_image_url(char *web_content)
 		return NULL;
 	}
 
-	strncpy(img_src_url, http, len_http);
-	strncpy(&(img_src_url[len_http]), source_index, url_len);
-	img_src_url[len_http + url_len] = '\0';
+	strncpy(img_src_url, source_index, url_len);
+	img_src_url[url_len] = '\0';
 
 	/* return the image source url */
 	return img_src_url;
