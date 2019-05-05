@@ -3,7 +3,7 @@ project(
 	'c',
 	license: 'LGPL3',
 	meson_version: '>=0.41.2',
-	version: '0.7.0',
+	version: '0.8.0',
 	default_options: ['warning_level=2'],
 )
 
