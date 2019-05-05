@@ -4,7 +4,7 @@
  * 0 = successful
  * !0 = something went wrong
  */
-int download_image(char *dl_url, char *file_name);
+int download_image(char *web_url, FILE *img_fp);
 
 /* Given the full link of a website,
  * fetch and return the html source of the website

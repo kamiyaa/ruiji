@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "animegallery.h"
-#include "helpers.h"
+#include "util.h"
 
 /* Given a https://yande.re/ url,
  * parse the html to get the source image url

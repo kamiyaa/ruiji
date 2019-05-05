@@ -9,6 +9,7 @@ project(
 
 version = get_option('version')
 
+add_global_arguments('-Wvla', language : 'c')
 add_project_arguments('-DVERSION="@0@"'.format(version), language: 'c')
 if get_option('color')
         add_project_arguments('-DCOLOR', language: 'c')

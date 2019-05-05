@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "util.h"
 #include "yandere.h"
-#include "parser.h"
 
 /* Given a https://yande.re/ url,
  * parse the html to get the source image url

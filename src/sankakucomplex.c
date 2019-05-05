@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "sankakucomplex.h"
-#include "helpers.h"
+#include "util.h"
 
 /* Given a https://chan.sankakucomplex.com url,
  * parse the html to get the source image url

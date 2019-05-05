@@ -2,46 +2,47 @@
 
 include config.mk
 
-all: echos ruiji
+WEBSRC = animegallery.c animepictures.c danbooru.c eshuushuu.c \
+	gelbooru.c konachan.c mangadrawing.c sankakucomplex.c \
+	yandere.c zerochan.c
 
-echos:
-	@echo "CC      =" ${CC}
-	@echo "CFLAGS  =" ${CFLAGS}
-	@echo "LIBS    =" ${LIBS}
-	@echo "USE     =" ${USE_FLAGS}
-	@echo "VERSION =" ${VERSION}
+HELPERS = ${WEBSRC} util.c interface.c parser.c structs.c udload.c
 
-structs.o: structs.c
-	${CC} ${CFLAGS} -c structs.c
-helpers.o: helpers.c
-	${CC} ${CFLAGS} -c helpers.c
-animegallery.o: animegallery.c
-	${CC} ${CFLAGS} -c animegallery.c
-animepictures.o: animepictures.c
-	${CC} ${CFLAGS} -c animepictures.c
-danbooru.o: danbooru.c
-	${CC} ${CFLAGS} -c danbooru.c
-eshuushuu.o: eshuushuu.c
-	${CC} ${CFLAGS} -c eshuushuu.c
-gelbooru.o: gelbooru.c
-	${CC} ${CFLAGS} -c gelbooru.c
-konachan.o: konachan.c
-	${CC} ${CFLAGS} -c konachan.c
-mangadrawing.o: mangadrawing.c
-	${CC} ${CFLAGS} -c mangadrawing.c
-sankakucomplex.o: sankakucomplex.c
-	${CC} ${CFLAGS} -c sankakucomplex.c
-yandere.o: yandere.c
-	${CC} ${CFLAGS} -c yandere.c
-zerochan.o: zerochan.c
-	${CC} ${CFLAGS} -c zerochan.c
+HELPERS_OBJ = ${HELPERS:.c=.o}
 
-interface.o: interface.c
-	${CC} ${CFLAGS} ${USE_FLAGS} -c interface.c
-parser.o: parser.c
-	${CC} ${CFLAGS} -c parser.c
-udload.o: udload.c
-	${CC} ${CFLAGS} -c udload.c
+all: ruiji
+
+structs.o: structs.c structs.h
+	${CC} ${CFLAGS} -c $<
+util.o: util.c util.h
+	${CC} ${CFLAGS} -c $<
+animegallery.o: animegallery.c animegallery.h
+	${CC} ${CFLAGS} -c $<
+animepictures.o: animepictures.c animepictures.h
+	${CC} ${CFLAGS} -c $<
+danbooru.o: danbooru.c danbooru.h
+	${CC} ${CFLAGS} -c $<
+eshuushuu.o: eshuushuu.c eshuushuu.h
+	${CC} ${CFLAGS} -c $<
+gelbooru.o: gelbooru.c gelbooru.h
+	${CC} ${CFLAGS} -c $<
+konachan.o: konachan.c konachan.h
+	${CC} ${CFLAGS} -c $<
+mangadrawing.o: mangadrawing.c mangadrawing.h
+	${CC} ${CFLAGS} -c $<
+sankakucomplex.o: sankakucomplex.c sankakucomplex.h
+	${CC} ${CFLAGS} -c $<
+yandere.o: yandere.c yandere.h
+	${CC} ${CFLAGS} -c $<
+zerochan.o: zerochan.c zerochan.h
+	${CC} ${CFLAGS} -c $<
+
+interface.o: interface.c interface.h
+	${CC} ${CFLAGS} ${USE_FLAGS} -c $<
+parser.o: parser.c parser.h
+	${CC} ${CFLAGS} -c $<
+udload.o: udload.c udload.h
+	${CC} ${CFLAGS} -c $<
 
 
 config.h: config.def.h
@@ -49,8 +50,14 @@ config.h: config.def.h
 	cp -u config.def.h config.h
 
 ruiji: config.h ${HELPERS_OBJ} ruiji.c config.mk
+	@echo "CC      =" ${CC}
+	@echo "CFLAGS  =" ${CFLAGS}
+	@echo "LIBS    =" ${LIBS}
+	@echo "USE     =" ${USE_FLAGS}
+	@echo "VERSION =" ${VERSION}
+
 	${CC} -DVERSION=\"${VERSION}\" ${CFLAGS} ${USE_FLAGS} -c ruiji.c
-	${CC} ${CFLAGS} ${USE_FLAGS} ${HELPERS_OBJ} ruiji.o -o ruiji ${LIBS}
+	${CC} ${CFLAGS} ${USE_FLAGS} ${HELPERS_OBJ} ruiji.o -o $@ ${LIBS}
 
 test: $(HELPERS) tester.c config.mk
 	@echo "CC      =" ${CC}

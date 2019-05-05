@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "danbooru.h"
-#include "helpers.h"
+#include "util.h"
 
 char *danbooru_generate_api_url(char *url)
 {
@@ -86,6 +86,10 @@ struct image_tag_db *danbooru_get_image_tags_json(char *web_content)
 
 	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
+	if (tag_db == NULL) {
+		perror("malloc");
+		exit(1);
+	}
 
 	/* populate artist tags */
 	tag_db->tags[0] = danbooru_parse_tags_json(

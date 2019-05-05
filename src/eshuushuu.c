@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "eshuushuu.h"
-#include "helpers.h"
+#include "util.h"
 
 /* Given a http://e-shuushuu.net url,
  * parse the html to get the source image url

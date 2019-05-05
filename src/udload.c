@@ -7,23 +7,15 @@
 #include "structs.h"
 #include "udload.h"
 
-#define USER_AGENT "chrome/65"
+#define USER_AGENT "chrome/74"
 
 /* Given a url and the name to save as, download the file from the website
  * and return a integer indicating if successful or not.
  * 0 = successful
  * !0 = something went wrong
  */
-int download_image(char *web_url, char *file_name)
+int download_image(char *web_url, FILE *img_fp)
 {
-	int result = 0;
-	FILE *img_fp;
-	/* Check if we have write permissions */
-	if ((img_fp = fopen(file_name, "wb")) == NULL) {
-		perror(file_name);
-		return 1;
-	}
-
 	/* Initialize curl */
 	CURL *curl_handle = curl_easy_init();
 	CURLcode res;
@@ -47,23 +39,12 @@ int download_image(char *web_url, char *file_name)
 		curl_easy_cleanup(curl_handle);
 		/* Check for errors */
 		if (res != CURLE_OK) {
-			fprintf(stderr,
-				"curl_easy_perform() failed: %s\n",
-				curl_easy_strerror(res));
-			fprintf(stderr,	"url: %s\n", web_url);
-			result = 1;
+			fprintf(stderr, "Download failed: %s\n", curl_easy_strerror(res));
+			fprintf(stderr, "\turl: %s\n", web_url);
+			return 1;
 		}
 	}
-	fclose(img_fp);
-
-	return result;
-}
-
-/* clean up curl */
-void ruiji_curl_cleanup()
-{
-	/* clean up curl */
-	curl_global_cleanup();
+	return 0;
 }
 
 /* Given the full link of a website, fetch and return the
@@ -149,9 +130,7 @@ size_t StoreData(char *contents, size_t size, size_t nmemb, void *user_struct)
 char *upload_image(char *web_url, char *file_name, char *field_name)
 {
 	struct html_data web_data;
-	/* will be grown as needed by the realloc above */
 	web_data.data = malloc(sizeof(char) * 16);
-	/* no data at this point */
 	web_data.size = 0;
 	web_data.realsize = 16;
 
@@ -196,11 +175,10 @@ char *upload_image(char *web_url, char *file_name, char *field_name)
 		/* cleanup */
 		curl_easy_cleanup(curl_handle);
 	}
-
 	return web_data.data;
 }
 
-void free_html_data(struct html_data *web_data)
+void html_data_free(struct html_data *web_data)
 {
 	if (web_data->data)
 		free(web_data->data);

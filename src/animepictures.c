@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "animepictures.h"
-#include "helpers.h"
+#include "util.h"
 
 char *animepictures_get_image_url(char *web_content)
 {
@@ -57,7 +57,7 @@ char *animepictures_get_image_url(char *web_content)
 
 struct image_tag_db *animepictures_get_image_tags(char *web_content)
 {
-    /* constants for finding values */
+/*
 	const char *tags_uuid = "<ul class=\"tags\">";
 	const char *tags_end = "</ul>";
 
@@ -67,8 +67,8 @@ struct image_tag_db *animepictures_get_image_tags(char *web_content)
 	char *game_copyright_tag_uuid = "<span>game copyright</span>";
 	char *general_tag_uuid = "reference</span>";
 	char *meta_tag_uuid = "object</span>";
+*/
 
-	/* initialize a tags database to store tags */
 	struct image_tag_db *tag_db = init_image_tag_db();
 
 	// TODO

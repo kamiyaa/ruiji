@@ -1,3 +1,5 @@
+#include "structs.h"
+
 /* Given a https://mangadrawing.net/ url,
  * parse the html to get the source image url.
  */

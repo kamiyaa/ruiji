@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "util.h"
 #include "zerochan.h"
-#include "parser.h"
 
 /* Given a http://www.zerochan.net/ url,
  * parse the html to get the source image url

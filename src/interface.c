@@ -1,23 +1,37 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "interface.h"
 #include "config.h"
+#include "interface.h"
 
 #define COLOR_DEFAULT	"\x1B[0m"
 
+void print_help()
+{
+	fprintf(stderr,
+		"Reverse image searching program using iqdb.org\n"
+		"Usage: ruiji [options] file1 ...\n"
+		"  -h --help \t\t Show this help message and quit\n"
+		"  -q --quiet \t\t Suppress verbose output\n"
+		"  -t --threshold <0-100> Only process and show images above given\n"
+		"             \t\t similarity percentage\n"
+		"  -T --tags \t\t Shows the tags associated with the image downloaded\n"
+		"  -v --version \t\t Show version number and quit\n"
+		"  -y --noprompt \t Skips user interactions and downloads\n"
+		"                \t the most similar image\n"
+		"\nreport bugs to https://github.com/kamiyaa/ruiji\n");
+}
+
 void image_download_toast(char *website_url)
 {
-
-#ifdef COLOR
+	#ifdef COLOR
 	printf("Downloading from %s%s%s...\n",
 		url_color, website_url, COLOR_DEFAULT);
-#endif
+	#endif
 
-#ifndef COLOR
+	#ifndef COLOR
 	printf("Downloading from %s...\n", website_url);
-#endif
-
+	#endif
 }
 
 /* A verbose message to the user when saving an image */
@@ -51,7 +65,7 @@ void image_upload_toast(char *file_name, char *website_url)
 }
 
 /* Given a similar_image, print out all its information */
-void print_image_info(struct similar_image *img)
+void print_similar_image_result(struct similar_image_result *img)
 {
 
 #ifdef COLOR
@@ -126,31 +140,14 @@ void print_image_tags(struct image_tag_db *tag_db)
 
 }
 
-void print_help()
-{
-	fputs("Reverse image searching program using iqdb.org\n", stderr);
-	fputs("Usage: ruiji [options] file1 ...\n", stderr);
-	fputs("  -h --help \t\t Show this help message and quit\n", stderr);
-	fputs("  -q --quiet \t\t Suppress verbose output\n", stderr);
-	fputs("  -t --threshold <0-100> Only process and show images above given\n", stderr);
-	fputs("             \t\t similarity percentage\n", stderr);
-	fputs("  -T --tags \t\t Shows the tags associated with the image downloaded\n", stderr);
-	fputs("  -v --version \t\t Show version number and quit\n", stderr);
-	fputs("  -y --noprompt \t Skips user interactions and downloads\n", stderr);
-	fputs("                \t the most similar image\n", stderr);
-	fputs("\nreport bugs to https://github.com/Kamiyaa/ruiji\n", stderr);
-}
-
-
 /* Given a similar_image_db, print out all its contents */
-unsigned int print_sim_results(struct similar_image_llnode *image_list)
+void print_sim_results(struct similar_image_llnode *image_list)
 {
-	unsigned int size = 0;
+	unsigned int i = 0;
 	while (image_list) {
-		printf("[%d]\n", size);
-		print_image_info(image_list->image);
+		printf("[%d]\n", i);
+		print_similar_image_result(image_list->image);
 		image_list = image_list->next;
-		size++;
+		i++;
 	}
-	return size;
 }

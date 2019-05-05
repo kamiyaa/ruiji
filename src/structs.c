@@ -4,17 +4,17 @@
 
 struct image_tag_db *init_image_tag_db()
 {
-	/* initialize a image tag database to store all the tags */
 	struct image_tag_db *tag_db = malloc(sizeof(struct image_tag_db));
-	/* set all values to 0 and NULL */
+	if (tag_db == NULL) {
+		return NULL;
+	}
+
 	for (int i = 0; i < 6; i++) {
 		tag_db->tags[i] = NULL;
 		tag_db->tag_size[i] = 0;
 	}
 	return tag_db;
 }
-
-
 
 void free_image_tags(struct image_tag_db *tags_db)
 {
@@ -35,7 +35,7 @@ void free_linked_list(struct llnode *head)
 	}
 }
 
-void free_similar_image(struct similar_image *image)
+void similar_image_result_free(struct similar_image_result *image)
 {
 	if (image) {
 		if (image->post_link)
@@ -44,12 +44,20 @@ void free_similar_image(struct similar_image *image)
 	}
 }
 
-void free_similar_image_list(struct similar_image_llnode *image_list)
+void similar_image_llnode_free(struct similar_image_llnode *head)
 {
-	while (image_list) {
-		struct similar_image_llnode *tmp = image_list;
-		image_list = image_list->next;
-		free_similar_image(tmp->image);
+	while (head) {
+		struct similar_image_llnode *tmp = head;
+		head = head->next;
+		similar_image_result_free(tmp->image);
 		free(tmp);
+	}
+}
+
+void similar_image_list_free(struct similar_image_list *image_list)
+{
+	if (image_list) {
+		similar_image_llnode_free(image_list->head);
+		free(image_list);
 	}
 }
