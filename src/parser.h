@@ -3,9 +3,8 @@
 /* Given the html contents of http://iqdb.org after an image has been uploaded,
  * parse all the results and store them in a linked list.
  */
-struct similar_image_list *create_image_list(char *web_content,
+void populate_image_list(struct similar_image_list *image_list, char *web_content,
 	unsigned short similar_threshold);
-
 
 /* Given the necessary information of a similar image, create a similar image
  * struct with the given values and return it.

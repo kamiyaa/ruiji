@@ -6,7 +6,7 @@
 #include "udload.h"
 #include "util.h"
 
-struct similar_image_list *create_image_list(char *web_content,
+void populate_image_list(struct similar_image_list *image_list, char *web_content,
 	unsigned short similar_threshold)
 {
 	const char iqdb_result_uid[] =
@@ -57,10 +57,8 @@ struct similar_image_list *create_image_list(char *web_content,
 			url_begin[url_len] = '"';
 		}
 	}
-	struct similar_image_list *image_list = malloc(sizeof(struct similar_image_list));
 	image_list->head = list_head;
 	image_list->size = size;
-	return image_list;
 }
 
 struct similar_image_result *new_similar_image_result(char *web_url,

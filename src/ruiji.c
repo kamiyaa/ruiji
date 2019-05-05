@@ -66,30 +66,32 @@ void ruiji(struct ruiji_args *args, char *path)
 		ruiji_exit(2);
 	}
 
-	struct similar_image_list *image_list =
-		create_image_list(iqdb_html, args->threshold);
+	struct similar_image_list image_list = {
+		.head = NULL,
+		.size = 0
+		};
+	populate_image_list(&image_list, iqdb_html, args->threshold);
 	free(iqdb_html);
 
-	if (image_list == NULL) {
+	if (image_list.size == 0) {
 		fprintf(stderr, "No results found! :(\n");
 		ruiji_exit(1);
 	}
 
 	int index;
 	if (args->prompt) {
-		print_sim_results(image_list->head);
+		print_sim_results(image_list.head);
 		index = ruiji_index_prompt();
 	} else {
 		index = 0;
 	}
 
-	if (index < 0 || index >= image_list->size) {
+	if (index < 0 || index >= image_list.size) {
 		fprintf(stderr, "Error: Invalid option selected\n");
-		similar_image_list_free(image_list);
 		ruiji_exit(1);
 	}
 
-	struct similar_image_llnode *list_ptr = image_list->head;
+	struct similar_image_llnode *list_ptr = image_list.head;
 	for (int i = 0; i < index; i++)
 		list_ptr = list_ptr->next;
 
@@ -99,7 +101,6 @@ void ruiji(struct ruiji_args *args, char *path)
 	char *api_link = generate_api_link(domain_uid, dl_image->post_link);
 	if (api_link == NULL) {
 		fprintf(stderr, "Error: Failed to generate api\n");
-		similar_image_list_free(image_list);
 		ruiji_exit(1);
 	}
 
@@ -107,14 +108,12 @@ void ruiji(struct ruiji_args *args, char *path)
 	free(api_link);
 	if (api_content == NULL) {
 		fprintf(stderr, "Error: Failed to get api data\n");
-		similar_image_list_free(image_list);
 		ruiji_exit(1);
 	}
 
 	char *dl_url = parse_download_url(domain_uid, api_content);
 	if (dl_url == NULL) {
 		fprintf(stderr, "Error: Failed to find image link\n");
-		similar_image_list_free(image_list);
 		free(api_content);
 		ruiji_exit(1);
 	}
@@ -131,7 +130,6 @@ void ruiji(struct ruiji_args *args, char *path)
 	if (access(file_save_name, F_OK) != -1) {
 		fprintf(stderr, "Error: File already exists: %s\n", file_save_name);
 
-		similar_image_list_free(image_list);
 		free(dl_url);
 		free(api_content);
 		free(file_save_name);
@@ -143,7 +141,6 @@ void ruiji(struct ruiji_args *args, char *path)
 	if ((img_fp = fopen(file_save_name, "wb")) == NULL) {
 		perror(file_save_name);
 
-		similar_image_list_free(image_list);
 		free(api_content);
 		free(file_save_name);
 
@@ -153,7 +150,6 @@ void ruiji(struct ruiji_args *args, char *path)
 
 	if (download_image(dl_url, img_fp) != 0) {
 		fclose(img_fp);
-		similar_image_list_free(image_list);
 		free(dl_url);
 		free(api_content);
 
@@ -167,7 +163,6 @@ void ruiji(struct ruiji_args *args, char *path)
 		ruiji_get_tags(domain_uid, api_content);
 
 	free(api_content);
-	similar_image_list_free(image_list);
 	ruiji_exit(0);
 }
 
