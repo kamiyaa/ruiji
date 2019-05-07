@@ -10,8 +10,8 @@
  */
 char *gelbooru_get_image_url(char *web_content)
 {
-	const char *source_uuid = ">Resize image</a></li><li><a href=\"";
-	const unsigned int source_uuid_len = strlen(source_uuid);
+	const char source_uuid[] = "<meta property=\"og:image\" content=\"";
+	const unsigned int source_uuid_len = sizeof(source_uuid) / sizeof(char) - 1;
 
 	/* initialize the image source url to be returned later */
 	char *img_src_url = NULL;

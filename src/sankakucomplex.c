@@ -16,7 +16,7 @@ char *sankakucomplex_get_image_url(char *web_content)
 	// TODO: downloading results in a file not ending in a valid file name
 	const char source_end = '"';
 
-	const unsigned int len_https = sizeof(https) - 1;
+	const unsigned int len_https = sizeof(https) / sizeof(char) - 1;
 
 	/* initialize the image source url to be returned later */
 	char *img_src_url = NULL;
@@ -34,7 +34,7 @@ char *sankakucomplex_get_image_url(char *web_content)
 
 	/* move source_index pointer to the beginning of
 	 * the source image url */
-	source_index = &source_index[sizeof(source_uuid) - 1];
+	source_index = &source_index[sizeof(source_uuid) / sizeof(char) - 1];
 	int len_url = get_distance(source_index, source_end);
 
 	/* allocate enough memory to hold the image source url,
