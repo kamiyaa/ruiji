@@ -11,14 +11,14 @@ void print_help()
 	fprintf(stderr,
 		"Reverse image searching program using iqdb.org\n"
 		"Usage: ruiji [options] file1 ...\n"
-		"  -h --help \t\t Show this help message and quit\n"
-		"  -q --quiet \t\t Suppress verbose output\n"
-		"  -t --threshold <0-100> Only process and show images above given\n"
-		"             \t\t similarity percentage\n"
-		"  -T --tags \t\t Shows the tags associated with the image downloaded\n"
-		"  -v --version \t\t Show version number and quit\n"
-		"  -y --noprompt \t Skips user interactions and downloads\n"
-		"                \t the most similar image\n"
+		"  -h \t\t Show this help message and quit\n"
+		"  -q \t\t Suppress verbose output\n"
+		"  -t <0-100> \t Only process and show images above given\n"
+		"             \t similarity percentage\n"
+		"  -T \t\t Shows the tags associated with the image downloaded\n"
+		"  -v \t\t Show version number and quit\n"
+		"  -y \t\t Skips user interactions and downloads\n"
+		"             \t the most similar image\n"
 		"\nreport bugs to https://github.com/kamiyaa/ruiji\n");
 }
 

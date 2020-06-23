@@ -184,7 +184,7 @@ int process_args(int argc, char **argv, struct ruiji_args *args)
 {
 	set_default_opt(args);
 	int c;
-	while ((c = getopt(argc, argv, "f:qt:yTV")) != EOF) {
+	while ((c = getopt(argc, argv, "f:qt:yTv")) != EOF) {
 		switch(c) {
 		case 'f':
 			args->format = optarg;
@@ -201,7 +201,7 @@ int process_args(int argc, char **argv, struct ruiji_args *args)
 		case 'T':
 			args->tags = true;
 			break;
-		case 'V':
+		case 'v':
 			fprintf(stderr, "%s-%s\n", argv[0], VERSION);
 			exit(0);
 		default:
