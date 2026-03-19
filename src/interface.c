@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "config.h"
+#include "config.def.h"
 #include "interface.h"
 
 #define COLOR_DEFAULT	"\x1B[0m"
